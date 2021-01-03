@@ -9,6 +9,9 @@
 #include "AHRS.h"
 #include "ctre/Phoenix.h"
 #include <frc/controller/PIDController.h>
+#include <unistd.h>
+#include <thread>
+#include<signal.h>
 using namespace frc;
 class Chassis 
 {
@@ -32,7 +35,6 @@ class Chassis
     void get_run_target(float* target);
     void update_rc_data();
     void rc_run(float vx,float vy,float vz);
-    bool auto_run(void);
     bool milemter();
     float series_to_mm (int16_t  wheel);
     bool to_position(float x,float y,float w);
@@ -49,6 +51,9 @@ class Chassis
     void updata_series(void);//更新和累计编码器值
     void set_series(int);//重设编码器值
     long int series_position[M_ALL];
+    bool start_auto_run(void);
+    bool get_auto_run_status();
+    bool exit_auto_run();
  private:
     float angle_to_radian = 0.01745f;//锟角讹拷转锟斤拷锟斤拷
     float auto_angle = 45;
@@ -56,9 +61,9 @@ class Chassis
     RampFunction* ramp_func;
     Reference reference = CAR;//默认机体坐标系
     frc2::PIDController *auto_run_map_pid[3];
-
-
-
+    void auto_run();
+    bool auto_run_status = false;
+    bool auto_run_is_finished =false;
 public:
     const int map_len = 2;
     const double map[2][3] = 
@@ -67,10 +72,7 @@ public:
         {1,1,10}
     };
 
-
 };
-
-
 
 
 

@@ -23,8 +23,8 @@ XboxController * xbox;
 int kTimeoutMs = 10;
 void Robot::RobotInit() 
 {
-  chassis = new Chassis();
-  chassis->set_series(0);
+   chassis = new Chassis();
+  //  chassis->set_series(0);
 #if 1
    xbox = new XboxController(0);
             // fx = new TalonFX(3);  
@@ -109,7 +109,9 @@ void Robot::AutonomousInit() {
   }
 }
 
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {   
+  std::cout <<( m_autonomousCommand ==nullptr) << std::endl;
+}
 
 void Robot::TeleopInit() {
   // This makes sure that the autonomous stops running when
@@ -156,16 +158,25 @@ void Robot::TestPeriodic()
 // {
 //   leftYstick = last_lefts - 30;
 // }
- int  tmp_v = chassis->motor[Chassis::M3]->GetSelectedSensorPosition();
- chassis->updata_series();
+//  int  tmp_v = chassis->motor[Chassis::M3]->GetSelectedSensorPosition();
+//  chassis->updata_series();
 // int tmp_s = fx->GetSelectedSensorPosition();
-  std::cout<<"s"<<chassis->wheel_s[Chassis::M3]<<"v"<<tmp_v<<std::endl;
-// if(xbox->GetAButton())
-// {
+  // std::cout<<"s"<<chassis->wheel_s[Chassis::M3]<<"v"<<tmp_v<<std::endl;
+if(xbox->GetAButton())
+{
 
-//   fx->Set(ControlMode::Velocity,leftYstick);
-// }
+  // fx->Set(ControlMode::Velocity,leftYstick);
+   int temp = chassis->start_auto_run();
+   
+   std::cout<<"temp"<<std::endl;
+}
+if(xbox->GetBButton())
+{
+  chassis->exit_auto_run();
+   std::cout<<"exit"<<std::endl;
+}
 //   last_lefts = leftYstick;
+std::cout<<"text"<<"status<<"<<chassis->get_auto_run_status()<<std::endl;
 
 
 }

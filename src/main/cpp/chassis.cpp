@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 #include "chassis.h"
 #include "Math.h"
+
 Chassis::Chassis()
 {
     try
@@ -35,9 +36,9 @@ Chassis::Chassis()
             // fx->ConfigClosedloopRamp(0.5,0);
         }
         
-        auto_run_map_pid[x] = new frc2::PIDController(5.0,0.02,2.0);
-        auto_run_map_pid[y] = new frc2::PIDController(5.0,0.02,2.0);
-        auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,2.0);
+        auto_run_map_pid[x] = new frc2::PIDController(5.0,0.02,5.0);
+        auto_run_map_pid[y] = new frc2::PIDController(5.0,0.02,5.0);
+        auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,5.0);
 
 
     }
@@ -213,21 +214,63 @@ void Chassis::set_series(int value)
     for(int i = 0;i<M_ALL;i++)
         series_position[i] = motor[i]->GetSelectedSensorPosition() + value;
 }
-///< 待测试
+//TODO: 待测试pid
+//DONE: 完成线程测试
 ///<自动阶段
-bool Chassis::auto_run(void)
+void Chassis:: auto_run()
 {
     float output[3];
-    for(int i =1;i<map_len;i++)
-    {
-        if(abs(auto_run_map_pid[y]->GetPositionError()) < abs(map[i][y] - map[i][y-1])/2)
+        for(int i =1;(i<map_len)||!auto_run_is_finished;i++)
         {
-            output[x] = auto_run_map_pid[x]->Calculate(milemeter[x],map[i][x]);
-            output[y] = auto_run_map_pid[y]->Calculate(milemeter[y],map[i][y]);
-            output[z] = auto_run_map_pid[z]->Calculate(milemeter[z],map[i][z]);
+            try
+            {
+                if(abs(auto_run_map_pid[y]->GetPositionError()) > abs(map[i][y-1] - map[i][y])/2)
+                {
+                    i--;
+                }
+                output[x] = auto_run_map_pid[x]->Calculate(milemeter[x],map[i][x]);
+                output[y] = auto_run_map_pid[y]->Calculate(milemeter[y],map[i][y]);
+                output[z] = auto_run_map_pid[z]->Calculate(milemeter[z],map[i][z]);
+                // rc_run(output[x],output[y],output[z]);
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        // for(int i = 0;i<10;i++)
+        // {
+            usleep(30000);
+            std::cout<< "this auto run"<<"i="<<i<<std::endl;
+        // }
         }
-        else i--;
+            auto_run_status = false;
+           std::cout<< "exit"<<std::endl;
+
+}
+
+//DONE: 完成测试
+///< 开启自动模式
+bool Chassis::start_auto_run(void)
+{
+    if(!auto_run_status)
+    {
+        std::thread auto_run_pid(&Chassis::auto_run,this);
+        auto_run_pid.detach();
+        auto_run_status = true;
+        auto_run_is_finished = false;
+        
+        return true;
     }
-    rc_run(output[x],output[y],output[z]);
-    
+
+}
+
+///< 获取自动阶段状态
+bool Chassis::get_auto_run_status()
+{
+    return auto_run_status;
+}
+///< 退出自动模式
+bool Chassis::exit_auto_run()
+{
+    auto_run_is_finished = true;
 }

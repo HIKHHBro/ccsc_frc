@@ -6,11 +6,15 @@
 /*----------------------------------------------------------------------------*/
 
 #include "subsystems/ExampleSubsystem.h"
-
+#include <iostream>
 ExampleSubsystem::ExampleSubsystem() {
+
+  
   // Implementation of subsystem constructor goes here.
 }
 
 void ExampleSubsystem::Periodic() {
+  
+std::cout <<"auto chassis"<<std::endl;
   // Implementation of subsystem periodic method goes here.
 }
