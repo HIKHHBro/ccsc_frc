@@ -60,6 +60,7 @@ class Chassis
  private:
     float angle_to_radian = 0.01745f;//锟角讹拷转锟斤拷锟斤拷
     float auto_angle = 45;
+    float world_angle;
     AHRS *ahrs;
     RampFunction* ramp_func[M_ALL];
     Reference reference = CAR;//默认机体坐标系

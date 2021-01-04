@@ -20,6 +20,10 @@ Chassis::Chassis()
         motor_init();//电机初始化
         set_reference(CAR);//坐标系设置
         set_series(0);
+        if(check_gyro())
+        {
+            world_angle = ahrs->GetYaw();
+        }
     }
     catch(const std::exception& e)
     {
@@ -126,13 +130,18 @@ void Chassis::rc_run(float vx,float vy,float vz)
 
 //TODO:待测试
 ///<< 里程计计算
+//TODO: 世界坐标系没有成功
+float tmp_angle = 0;
 bool Chassis::milemter()
 {
     if(check_gyro())
     {
-        // float w = ahrs->GetYaw();
+        float temp_w = ahrs->GetYaw();
              float w = 0;
         updata_series();
+        milemeter[z] =  (series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
+                        series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]))/3.355556/4.0;
+        w = milemeter[z] + world_angle;                
         milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
                         + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
                         - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
@@ -141,12 +150,9 @@ bool Chassis::milemter()
                         + cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
                         + cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
                         - cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M4]);
-        milemeter[z] =  series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
-                        series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]);
         std::cout<<" milemeter[x]= "<< milemeter[x]\
                  <<" milemeter[y]= "<< milemeter[y]\
-                 <<" milemeter[z]= "<< milemeter[z]\
-                 <<" series_to_mm(wheel_s[M1])= "<< series_to_mm(wheel_s[M1])<<std::endl;
+                 <<" w= "<< w<<std::endl;
         return true;
     }
     else 
