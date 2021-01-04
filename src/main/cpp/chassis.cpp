@@ -11,36 +11,10 @@ Chassis::Chassis()
 {
     try
     {
-        ahrs = new AHRS(SPI::Port::kMXP);
-        ramp_func = new RampFunction(5);
-        for(int i=0;i<M_ALL;i++)
-        {
-            motor[i] = new TalonFX(i+1);  
-            motor[i]->ConfigFactoryDefault();
-            /* first choose the sensor */
-            motor[i]->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 0);
-            // motor[i]->SetSensorPhase(true);
-            motor[i]->ConfigNeutralDeadband(0);
-            /* set the peak and nominal outputs */
-            motor[i]->ConfigNominalOutputForward(0, 0);
-            motor[i]->ConfigNominalOutputReverse(0, 0);
-            motor[i]->ConfigPeakOutputForward(1, 0);
-            motor[i]->ConfigPeakOutputReverse(-1, 0);
-            /* set closed loop gains in slot0 */
-            motor[i]->Config_kF(0, 0.6, 0);
-            motor[i]->Config_kP(0, 0.25, 0);
-            motor[i]->Config_kI(0, 0.0, 0);
-            motor[i]->Config_kD(0, 0.7, 0);
-            motor[i]->ConfigClosedLoopPeriod(0,1,0);
-            motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);
-            // fx->ConfigClosedloopRamp(0.5,0);
-        }
-        
-        auto_run_map_pid[x] = new frc2::PIDController(5.0,0.02,5.0);
-        auto_run_map_pid[y] = new frc2::PIDController(5.0,0.02,5.0);
-        auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,5.0);
-
-
+        ahrs = new AHRS(SPI::Port::kMXP);//陀螺仪
+        ramp_func = new RampFunction(5);//斜坡函数
+        motor_init();//电机初始化
+        set_reference(CAR);//坐标系设置
     }
     catch(const std::exception& e)
     {
@@ -83,10 +57,10 @@ void Chassis::motion_model(int csys,float vx,float vy,float vz)
 void Chassis::motion_model(float vx,float vy,float vz)
 {
     float w = 0;
-    float x = wheel_rc_to_sensor(vx);
-    float y = wheel_rc_to_sensor(vy);
-    float z = w_rc_to_sensor(vz);
- 
+    float x = wheel_rc_to_sensor(vx); //-819~819 线数
+    float y = wheel_rc_to_sensor(vy);//-819~819 线数
+    float z = w_rc_to_sensor(vz); //-204~204 线数
+    /*  */ 
 	// speed[M1] = -sin(DEG_TO_RAD(wheel_theta - w)) * vx  - cos(DEG_TO_RAD(wheel_theta - w)) * vy + chassis_r  * vz;//  ********
     // speed[M4] = -sin(DEG_TO_RAD(wheel_theta + w)) * vx  + cos(DEG_TO_RAD(wheel_theta + w)) * vy + chassis_r  * vz;//2******1
 	// speed[M2] =  sin(DEG_TO_RAD(wheel_theta + w)) * vx  - cos(DEG_TO_RAD(wheel_theta + w)) * vy + chassis_r  * vz;//********
@@ -104,13 +78,14 @@ void Chassis::motion_model(float vx,float vy,float vz)
         }
     }
     else w = 0;
-
-    speed[M1] = -sin(DEG_TO_RAD(wheel_theta - w))* x + cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//4******1
-    speed[M2] = -sin(DEG_TO_RAD(wheel_theta + w))* x - cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//********
-    speed[M3] =  sin(DEG_TO_RAD(wheel_theta - w))* x - cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//********
-    speed[M4] =  sin(DEG_TO_RAD(wheel_theta + w))* x + cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//3******2
-
-
+    speed[M1] =  sin(DEG_TO_RAD(wheel_theta + w))* x \
+                -cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//2******1
+    speed[M2] =  sin(DEG_TO_RAD(wheel_theta - w))* x \
+                +cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//********
+    speed[M3] = -sin(DEG_TO_RAD(wheel_theta + w))* x \
+                +cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//********
+    speed[M4] = -sin(DEG_TO_RAD(wheel_theta + w))* x \
+                -cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//3******4
     std::cout<< "MOTOR1:"<<speed[M1]<<"\t"<<"M2:"<<speed[M2]<<"\t"<<"M3:"<<speed[M3]<<"\t"<<"M4:"<<speed[M4]<<cos(0.25*3.1415)<<"\n";
 }
 #endif
@@ -132,29 +107,43 @@ void Chassis::update_rc_data()
 void Chassis::rc_run(float vx,float vy,float vz)
 {
 
-    motion_model(vx,vy,vz);
-    // std::cout<< "s1"<<speed[0] <<"s2"<<speed[1] <<"s3"<< speed[2] << "s4"<<speed[3]<<std::endl;
+    motion_model(vx,vy,vz);//-1~1
     for(int i=0;i<M_ALL;i++)
         motor[i]->Set(ControlMode::Velocity,ramp_func->set(speed[i]));
 }
 
-///< 位置伺服
 
-
+//TODO:待测试
 ///<< 里程计计算
 bool Chassis::milemter()
 {
     if(check_gyro())
     {
         float w = ahrs->GetYaw();
-        milemeter[x]  = -sin(DEG_TO_RAD(wheel_theta - w)) *  wheel_s[M1] - sin(DEG_TO_RAD(wheel_theta + w)) * wheel_s[M2] + sin(DEG_TO_RAD(wheel_theta - w)) * wheel_s[M3] + sin(DEG_TO_RAD(wheel_theta + w)) * wheel_s[M4];
-        milemeter[y]  =  cos(DEG_TO_RAD(wheel_theta - w)) * wheel_s[M1] - cos(DEG_TO_RAD(wheel_theta + w)) * wheel_s[M2] - cos(DEG_TO_RAD(wheel_theta - w)) * wheel_s[M3] + cos(DEG_TO_RAD(wheel_theta = w))* wheel_s[M4];
-        milemeter[z] =  wheel_s[M1] +   wheel_s[M2] +   wheel_s[M3] +   wheel_s[M4];
+        milemeter[x]  = - sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M1]) \
+                        - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M2]) \
+                        + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M3]) \
+                        + sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M4]);
+        milemeter[y]  =   cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M1]) \
+                        - cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M2]) \
+                        - cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M3]) \
+                        + cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M4]);
+        milemeter[z] =  series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
+                        series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]);
+        std::cout<<" milemeter[x]= "<< milemeter[x]\
+                 <<" milemeter[y]= "<< milemeter[y]\
+                 <<" milemeter[z]= "<< milemeter[z]<<std::endl;
         return true;
     }
-    else return false;
+    else 
+    {
+        std::cout<<"无陀螺仪"<<std::endl;
+        return false;
+    }
+   
 
 }
+//TODO:待测试
 ///<< 线数转换成mm
 float  Chassis::series_to_mm(int16_t wheel)
 {
@@ -214,37 +203,41 @@ void Chassis::set_series(int value)
     for(int i = 0;i<M_ALL;i++)
         series_position[i] = motor[i]->GetSelectedSensorPosition() + value;
 }
-//TODO: 待测试pid
+//TODO: 待测试pid  新加了pid初始化
 //DONE: 完成线程测试
 ///<自动阶段
 void Chassis:: auto_run()
 {
     float output[3];
-        for(int i =1;(i<map_len)||!auto_run_is_finished;i++)
+    auto_run_map_pid[x] = new frc2::PIDController(5.0,0.02,5.0);
+    auto_run_map_pid[y] = new frc2::PIDController(5.0,0.02,5.0);
+    auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,5.0);
+    for(int i =1;(i<map_len)||!auto_run_is_finished;i++)
+    {
+        try
         {
-            try
+            if(abs(auto_run_map_pid[y]->GetPositionError()) > abs(map[i][y-1] - map[i][y])/2)
             {
-                if(abs(auto_run_map_pid[y]->GetPositionError()) > abs(map[i][y-1] - map[i][y])/2)
-                {
-                    i--;
-                }
-                output[x] = auto_run_map_pid[x]->Calculate(milemeter[x],map[i][x]);
-                output[y] = auto_run_map_pid[y]->Calculate(milemeter[y],map[i][y]);
-                output[z] = auto_run_map_pid[z]->Calculate(milemeter[z],map[i][z]);
-                // rc_run(output[x],output[y],output[z]);
+                i--;
             }
-            catch(const std::exception& e)
-            {
-                std::cerr << e.what() << '\n';
-            }
-        // for(int i = 0;i<10;i++)
-        // {
-            usleep(30000);
-            std::cout<< "this auto run"<<"i="<<i<<std::endl;
-        // }
+            output[x] = auto_run_map_pid[x]->Calculate(milemeter[x],map[i][x]);
+            output[y] = auto_run_map_pid[y]->Calculate(milemeter[y],map[i][y]);
+            output[z] = auto_run_map_pid[z]->Calculate(milemeter[z],map[i][z]);
+            std::cout<<"output[x]="<<output[x]\
+                     <<"output[y]="<<output[y]\
+                     <<"output[z]="<<output[z]<<std::endl;
+            // rc_run(output[x],output[y],output[z]);
         }
-            auto_run_status = false;
-           std::cout<< "exit"<<std::endl;
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        usleep(30000);
+        std::cout<< "this auto run"<<"i="<<i<<std::endl;
+    }
+        auto_run_status = false;
+        auto_run_is_finished = true;
+        std::cout<< "exit"<<std::endl;
 
 }
 
@@ -258,7 +251,6 @@ bool Chassis::start_auto_run(void)
         auto_run_pid.detach();
         auto_run_status = true;
         auto_run_is_finished = false;
-        
         return true;
     }
 
@@ -273,4 +265,38 @@ bool Chassis::get_auto_run_status()
 bool Chassis::exit_auto_run()
 {
     auto_run_is_finished = true;
+}
+
+///< 电机初始化
+void Chassis::motor_init()
+{
+    
+    for(int i=0;i<M_ALL;i++)
+    {
+        motor[i] = new TalonFX(i+1);  
+        motor[i]->ConfigFactoryDefault();
+        /* first choose the sensor */
+        motor[i]->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 0);
+        // motor[i]->SetSensorPhase(true);
+        motor[i]->ConfigNeutralDeadband(0);
+        /* set the peak and nominal outputs */
+        motor[i]->ConfigNominalOutputForward(0, 0);
+        motor[i]->ConfigNominalOutputReverse(0, 0);
+        motor[i]->ConfigPeakOutputForward(1, 0);
+        motor[i]->ConfigPeakOutputReverse(-1, 0);
+        /* set closed loop gains in slot0 */
+        motor[i]->Config_kF(0, 0.6, 0);
+        motor[i]->Config_kP(0, 0.25, 0);
+        motor[i]->Config_kI(0, 0.0, 0);
+        motor[i]->Config_kD(0, 0.7, 0);
+        motor[i]->ConfigClosedLoopPeriod(0,1,0);
+        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);
+        // fx->ConfigClosedloopRamp(0.5,0);
+    }
+}
+//TODO: 待测试
+///< 获取自动模式是否完成
+bool Chassis::get_auto_run_is_finished()
+{
+    return auto_run_is_finished;
 }

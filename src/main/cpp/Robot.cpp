@@ -111,6 +111,7 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {   
   std::cout <<( m_autonomousCommand ==nullptr) << std::endl;
+  chassis->start_auto_run();//
 }
 
 void Robot::TeleopInit() {
@@ -122,12 +123,17 @@ void Robot::TeleopInit() {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
+
 }
 
 /**
  * This function is called periodically during operator control.
  */
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() 
+{
+    //TODO: 传入指令  -1~1
+  chassis->rc_run(0,0,0);
+}
 
 /**
  * This function is called periodically during test mode.
@@ -166,9 +172,9 @@ if(xbox->GetAButton())
 {
 
   // fx->Set(ControlMode::Velocity,leftYstick);
-   int temp = chassis->start_auto_run();
+  //  int temp = chassis->start_auto_run();
    
-   std::cout<<"temp"<<std::endl;
+  //  std::cout<<"temp"<<std::endl;
 }
 if(xbox->GetBButton())
 {

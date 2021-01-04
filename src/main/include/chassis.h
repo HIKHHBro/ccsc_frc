@@ -4,7 +4,8 @@
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
-#pragma once
+#ifndef __CHASSIS_H
+#define __CHASSIS_H
 #include "BaseModule.h"
 #include "AHRS.h"
 #include "ctre/Phoenix.h"
@@ -54,6 +55,8 @@ class Chassis
     bool start_auto_run(void);
     bool get_auto_run_status();
     bool exit_auto_run();
+    void motor_init();
+    bool get_auto_run_is_finished();
  private:
     float angle_to_radian = 0.01745f;//锟角讹拷转锟斤拷锟斤拷
     float auto_angle = 45;
@@ -72,8 +75,9 @@ public:
         {1,1,10}
     };
 
+
 };
 
 
-
+#endif
 
