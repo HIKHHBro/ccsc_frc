@@ -26,7 +26,8 @@ void Robot::RobotInit()
    chassis = new Chassis();
   //  chassis->set_series(0);
 #if 1
-   xbox = new XboxController(0);
+  //  xbox = new XboxController(0);
+  _joystick = new Joystick(0);
             // fx = new TalonFX(3);  
             // fx->ConfigFactoryDefault();
             // /* first choose the sensor */
@@ -111,7 +112,7 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {   
   std::cout <<( m_autonomousCommand ==nullptr) << std::endl;
-  chassis->start_auto_run();//
+  // chassis->start_auto_run();
 }
 
 void Robot::TeleopInit() {
@@ -129,10 +130,20 @@ void Robot::TeleopInit() {
 /**
  * This function is called periodically during operator control.
  */
+float target[3];
 void Robot::TeleopPeriodic() 
 {
     //TODO: 传入指令  -1~1
-  chassis->rc_run(0,0,0);
+    target[0] = _joystick->GetRawAxis(0);
+    target[1] =_joystick->GetRawAxis(1);
+    target[2] =_joystick->GetRawAxis(2);
+    if(abs(target[0])<0.1) target[0] = 0;
+    if(abs(target[1])<0.1) target[1] = 0;
+    if(abs(target[2])<0.1) target[2] = 0;
+    std::cout<<"1 = "<<_joystick->GetRawAxis(0);
+    std::cout<<"2 = "<<_joystick->GetRawAxis(1);
+    std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
+  chassis->rc_run(target[0],target[1],target[2]);
 }
 
 /**
@@ -168,21 +179,21 @@ void Robot::TestPeriodic()
 //  chassis->updata_series();
 // int tmp_s = fx->GetSelectedSensorPosition();
   // std::cout<<"s"<<chassis->wheel_s[Chassis::M3]<<"v"<<tmp_v<<std::endl;
-if(xbox->GetAButton())
-{
+// if(xbox->GetAButton())
+// {
 
-  // fx->Set(ControlMode::Velocity,leftYstick);
-  //  int temp = chassis->start_auto_run();
+//   // fx->Set(ControlMode::Velocity,leftYstick);
+//   //  int temp = chassis->start_auto_run();
    
-  //  std::cout<<"temp"<<std::endl;
-}
-if(xbox->GetBButton())
-{
-  chassis->exit_auto_run();
-   std::cout<<"exit"<<std::endl;
-}
+//   //  std::cout<<"temp"<<std::endl;
+// }
+// if(xbox->GetBButton())
+// {
+//   chassis->exit_auto_run();
+//    std::cout<<"exit"<<std::endl;
+// }
 //   last_lefts = leftYstick;
-std::cout<<"text"<<"status<<"<<chassis->get_auto_run_status()<<std::endl;
+// std::cout<<"text"<<"status<<"<<chassis->get_auto_run_status()<<std::endl;
 
 
 }

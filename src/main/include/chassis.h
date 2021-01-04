@@ -40,12 +40,12 @@ class Chassis
     float series_to_mm (int16_t  wheel);
     bool to_position(float x,float y,float w);
     float wheel_theta = 45;
-    float chassis_r = 382.835;//mm
+    float chassis_r = 1;//mm//382.835
     float wheel_r =  76.2;//mm
     float  motor_series = 2048;
     TalonFX* motor[4];
-    float rc_control_x_y = 0.4;//控制x和y最大速度系数
-    float rc_control_w = 0.1;//控制旋转最大速度系数
+    float rc_control_x_y = 0.3;//控制x和y最大速度系数
+    float rc_control_w = 0.1;//控制旋转最大速度系数 //TODO: 精度不够
     int wheel_rc_to_sensor(float);
     void set_reference(Reference ref);
     float w_rc_to_sensor(float value);
@@ -61,7 +61,7 @@ class Chassis
     float angle_to_radian = 0.01745f;//锟角讹拷转锟斤拷锟斤拷
     float auto_angle = 45;
     AHRS *ahrs;
-    RampFunction* ramp_func;
+    RampFunction* ramp_func[M_ALL];
     Reference reference = CAR;//默认机体坐标系
     frc2::PIDController *auto_run_map_pid[3];
     void auto_run();

@@ -12,7 +12,11 @@ Chassis::Chassis()
     try
     {
         ahrs = new AHRS(SPI::Port::kMXP);//陀螺仪
-        ramp_func = new RampFunction(5);//斜坡函数
+        for(int i = 0;i<M_ALL;i++)
+        {
+            ramp_func[i] = new RampFunction(15);//斜坡函数
+        }
+        
         motor_init();//电机初始化
         set_reference(CAR);//坐标系设置
     }
@@ -86,7 +90,7 @@ void Chassis::motion_model(float vx,float vy,float vz)
                 +cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//********
     speed[M4] = -sin(DEG_TO_RAD(wheel_theta - w))* x \
                 -cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//3******4
-    std::cout<< "MOTOR1:"<<speed[M1]<<"\t"<<"M2:"<<speed[M2]<<"\t"<<"M3:"<<speed[M3]<<"\t"<<"M4:"<<speed[M4]<<cos(0.25*3.1415)<<"\n";
+    std::cout<< "MOTOR1:"<<speed[M1]<<"\t"<<"M2:"<<speed[M2]<<"\t"<<"M3:"<<speed[M3]<<"\t"<<"M4:"<<speed[M4]<<"\n";
 }
 #endif
 bool Chassis::check_gyro()
@@ -109,7 +113,13 @@ void Chassis::rc_run(float vx,float vy,float vz)
 
     motion_model(vx,vy,vz);//-1~1
     for(int i=0;i<M_ALL;i++)
-        motor[i]->Set(ControlMode::Velocity,ramp_func->set(speed[i]));
+    {
+        // std::cout<<"s1 = "<<ramp_func[i]->set(speed[i]);
+
+        motor[i]->Set(ControlMode::Velocity,ramp_func[i]->set(speed[i]));
+    }
+    // std::cout<<std::endl;
+        
 }
 
 
@@ -287,7 +297,7 @@ void Chassis::motor_init()
         motor[i]->ConfigPeakOutputReverse(-1, 0);
         /* set closed loop gains in slot0 */
         motor[i]->Config_kF(0, 0.6, 0);
-        motor[i]->Config_kP(0, 0.25, 0);
+        motor[i]->Config_kP(0, 0.3, 0);
         motor[i]->Config_kI(0, 0.0, 0);
         motor[i]->Config_kD(0, 0.7, 0);
         motor[i]->ConfigClosedLoopPeriod(0,1,0);

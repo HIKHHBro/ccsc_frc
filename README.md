@@ -37,3 +37,10 @@ https://limelightvision.io/pages/downloads
 
 FRC Radio Configuration
 https://docs.wpilib.org/en/latest/docs/getting-started/getting-started-frc-control-system/radio-programming.html (2020 uses same firmware as 2019, but good to have link in case we need to reflash)
+
+
+## 电机上位机
+https://github.com/CrossTheRoadElec/Phoenix-Releases/releases
+CTRE.Phoenix.Framework.Windows.v5.19.1.0.zip
+
+## 注意精度问题

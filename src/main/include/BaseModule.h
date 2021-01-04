@@ -34,7 +34,7 @@ public:
         {
             value = k + last_value;
         }
-        if(value - last_value >-k)
+        if(value - last_value <-k)
         {
             value = last_value - k;
         }
