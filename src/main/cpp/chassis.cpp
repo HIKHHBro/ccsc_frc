@@ -84,8 +84,8 @@ void Chassis::motion_model(float vx,float vy,float vz)
                 +cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//********
     speed[M3] = -sin(DEG_TO_RAD(wheel_theta + w))* x \
                 +cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//********
-    speed[M4] = -sin(DEG_TO_RAD(wheel_theta + w))* x \
-                -cos(DEG_TO_RAD(wheel_theta + w))* y + chassis_r * z;//3******4
+    speed[M4] = -sin(DEG_TO_RAD(wheel_theta - w))* x \
+                -cos(DEG_TO_RAD(wheel_theta - w))* y + chassis_r * z;//3******4
     std::cout<< "MOTOR1:"<<speed[M1]<<"\t"<<"M2:"<<speed[M2]<<"\t"<<"M3:"<<speed[M3]<<"\t"<<"M4:"<<speed[M4]<<cos(0.25*3.1415)<<"\n";
 }
 #endif
@@ -120,14 +120,14 @@ bool Chassis::milemter()
     if(check_gyro())
     {
         float w = ahrs->GetYaw();
-        milemeter[x]  = - sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M1]) \
-                        - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M2]) \
-                        + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M3]) \
-                        + sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M4]);
-        milemeter[y]  =   cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M1]) \
-                        - cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M2]) \
-                        - cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M3]) \
-                        + cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M4]);
+        milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
+                        + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
+                        - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
+                        - sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M4]);
+        milemeter[y]  = - cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
+                        + cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
+                        + cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
+                        - cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M4]);
         milemeter[z] =  series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
                         series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]);
         std::cout<<" milemeter[x]= "<< milemeter[x]\
@@ -214,6 +214,7 @@ void Chassis:: auto_run()
     auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,5.0);
     for(int i =1;(i<map_len)||!auto_run_is_finished;i++)
     {
+        milemter();
         try
         {
             if(abs(auto_run_map_pid[y]->GetPositionError()) > abs(map[i][y-1] - map[i][y])/2)
