@@ -41,7 +41,7 @@ class Chassis
     bool to_position(float x,float y,float w);
     float wheel_theta = 45;
     float chassis_r = 1;//mm//382.835
-    float wheel_r =  76.2;//mm
+    float wheel_r = 38.1;//mm
     float  motor_series = 2048;
     TalonFX* motor[4];
     float rc_control_x_y = 0.3;//控制x和y最大速度系数

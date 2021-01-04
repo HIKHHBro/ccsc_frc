@@ -19,6 +19,7 @@ Chassis::Chassis()
         
         motor_init();//电机初始化
         set_reference(CAR);//坐标系设置
+        set_series(0);
     }
     catch(const std::exception& e)
     {
@@ -129,7 +130,9 @@ bool Chassis::milemter()
 {
     if(check_gyro())
     {
-        float w = ahrs->GetYaw();
+        // float w = ahrs->GetYaw();
+             float w = 0;
+        updata_series();
         milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
                         + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
                         - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
@@ -142,7 +145,8 @@ bool Chassis::milemter()
                         series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]);
         std::cout<<" milemeter[x]= "<< milemeter[x]\
                  <<" milemeter[y]= "<< milemeter[y]\
-                 <<" milemeter[z]= "<< milemeter[z]<<std::endl;
+                 <<" milemeter[z]= "<< milemeter[z]\
+                 <<" series_to_mm(wheel_s[M1])= "<< series_to_mm(wheel_s[M1])<<std::endl;
         return true;
     }
     else 
