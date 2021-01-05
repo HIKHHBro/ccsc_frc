@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <thread>
 #include<signal.h>
+#include "pid_control.h"
 using namespace frc;
 class Chassis 
 {
@@ -57,6 +58,8 @@ class Chassis
     bool exit_auto_run();
     void motor_init();
     bool get_auto_run_is_finished();
+    void chassis_pid_loop();
+
  private:
     float angle_to_radian = 0.01745f;//锟角讹拷转锟斤拷锟斤拷
     float auto_angle = 45;
@@ -68,6 +71,7 @@ class Chassis
     void auto_run();
     bool auto_run_status = false;
     bool auto_run_is_finished =false;
+    PIDControl *motor_pid[M_ALL];
 public:
     const int map_len = 2;
     const double map[2][3] = 

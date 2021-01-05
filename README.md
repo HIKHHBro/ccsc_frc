@@ -44,3 +44,21 @@ https://github.com/CrossTheRoadElec/Phoenix-Releases/releases
 CTRE.Phoenix.Framework.Windows.v5.19.1.0.zip
 
 ## 注意精度问题
+
+## 传感器采样
+Velocity Measurement Filter
+The Talon SRX measures the velocity of all supported sensor types as well as the current position. Every 1ms a velocity sample is measured and inserted into a rolling average.
+
+The velocity sample is measured as the change in position at the time-of-sample versus the position sampled 100ms-prior-to-time-of-sample. The rolling average is sized for 64 samples. Though these settings can be modified, the (100ms, 64 samples) parameters are default.
+默认100ms 滑动平均64  默认传感器速率为1ms
+
+
+
+## 抬升机构
+
+If we measure a motor output of 7% to keep position, then our java code for Arbitrary Feed Forward with Motion Magic would look like this:
+
+double feedforward = 0.07;
+_motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
+
+使用操持输出模式

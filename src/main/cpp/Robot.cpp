@@ -24,6 +24,7 @@ int kTimeoutMs = 10;
 void Robot::RobotInit() 
 {
    chassis = new Chassis();
+   std::cout<<"Period"<<GetPeriod()<<std::endl;
   //  chassis->set_series(0);
 #if 1
   //  xbox = new XboxController(0);
@@ -86,7 +87,7 @@ void Robot::RobotPeriodic()
   // double filteredXAccel = xAccelFilter.Calculate(accelerometer.GetX());
   //  frc2::CommandScheduler::GetInstance().Run();
     // std::cout<<"陀螺仪是否在线:"<<chassis->check_gyro()<<std::endl;
-   
+   chassis->chassis_pid_loop();
 }
 
 /**

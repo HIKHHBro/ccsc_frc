@@ -63,6 +63,7 @@
     "vector": "cpp",
     "xhash": "cpp",
     "thread": "cpp",
-    "chrono": "cpp"
+    "chrono": "cpp",
+    "*.inc": "cpp"
   }
 }

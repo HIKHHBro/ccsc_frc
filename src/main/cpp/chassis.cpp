@@ -120,8 +120,9 @@ void Chassis::rc_run(float vx,float vy,float vz)
     for(int i=0;i<M_ALL;i++)
     {
         // std::cout<<"s1 = "<<ramp_func[i]->set(speed[i]);
+        motor_pid[i]->pid_set(speed[i]);
 
-        motor[i]->Set(ControlMode::Velocity,ramp_func[i]->set(speed[i]));
+        // motor[i]->Set(ControlMode::Velocity,ramp_func[i]->set(speed[i]));
     }
     // std::cout<<std::endl;
         
@@ -299,6 +300,7 @@ void Chassis::motor_init()
         /* first choose the sensor */
         motor[i]->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 0);
         // motor[i]->SetSensorPhase(true);
+        motor[i]->SetNeutralMode(NeutralMode::Brake);
         motor[i]->ConfigNeutralDeadband(0);
         /* set the peak and nominal outputs */
         motor[i]->ConfigNominalOutputForward(0, 0);
@@ -306,13 +308,15 @@ void Chassis::motor_init()
         motor[i]->ConfigPeakOutputForward(1, 0);
         motor[i]->ConfigPeakOutputReverse(-1, 0);
         /* set closed loop gains in slot0 */
-        motor[i]->Config_kF(0, 0.6, 0);
-        motor[i]->Config_kP(0, 0.3, 0);
-        motor[i]->Config_kI(0, 0.0, 0);
-        motor[i]->Config_kD(0, 0.7, 0);
-        motor[i]->ConfigClosedLoopPeriod(0,1,0);
-        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);
+        // motor[i]->Config_kF(0, 0.6, 0);
+        // motor[i]->Config_kP(0, 0.3, 0);
+        // motor[i]->Config_kI(0, 0.0, 0);
+        // motor[i]->Config_kD(0, 0.7, 0);
+        // motor[i]->ConfigClosedLoopPeriod(0,1,0);
+        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);//TODO:改成1ms
+        //TODO: 修改和测试滑动平均
         // fx->ConfigClosedloopRamp(0.5,0);
+        motor_pid[i] = new PIDControl(0,0,0,0.05,-1,1,MANUAL,DIRECT,1000);
     }
 }
 //TODO: 待测试
@@ -320,4 +324,19 @@ void Chassis::motor_init()
 bool Chassis::get_auto_run_is_finished()
 {
     return auto_run_is_finished;
+}
+//TODO: 待测试
+///< 地盘pid
+void Chassis::chassis_pid_loop()
+{
+    float output[M_ALL];
+    for(int i=0;i < M_ALL;i++)
+    {
+         output[i] = motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
+         std::cout<<"output[i]"<<output[i]<<'\t';
+        //  motor[i]->Set(ControlMode::PercentOutput,output[i]);
+         
+    }
+    std::cout<<std::endl;
+       
 }
