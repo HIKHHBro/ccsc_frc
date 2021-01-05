@@ -313,10 +313,11 @@ void Chassis::motor_init()
         // motor[i]->Config_kI(0, 0.0, 0);
         // motor[i]->Config_kD(0, 0.7, 0);
         // motor[i]->ConfigClosedLoopPeriod(0,1,0);
-        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);//TODO:改成1ms
+        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_1Ms,0);//TODO:改成1ms
+        motor[i]->ConfigVelocityMeasurementWindow(1,0);
         //TODO: 修改和测试滑动平均
         // fx->ConfigClosedloopRamp(0.5,0);
-        motor_pid[i] = new PIDControl(0,0,0,0.05,-1,1,MANUAL,DIRECT,1000);
+        motor_pid[i] = new PIDControl(0.2,0.02,0.01,0,-1,1,MANUAL,DIRECT,20000.0000);
     }
 }
 //TODO: 待测试
@@ -334,9 +335,8 @@ void Chassis::chassis_pid_loop()
     {
          output[i] = motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
          std::cout<<"output[i]"<<output[i]<<'\t';
-        //  motor[i]->Set(ControlMode::PercentOutput,output[i]);
+         motor[i]->Set(ControlMode::PercentOutput,output[i]);
          
     }
     std::cout<<std::endl;
-       
 }

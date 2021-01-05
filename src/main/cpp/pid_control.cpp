@@ -2,7 +2,7 @@
 // Headers
 //*********************************************************************************
 #include "pid_control.h"
-
+#include <iostream>
 //*********************************************************************************
 // Macros and Globals
 //*********************************************************************************
@@ -71,7 +71,7 @@ bool PIDControl::PIDCompute()
 }
 float PIDControl::PIDCompute(float in)
 {
-    input = in * (1.0/max_speed);
+    input = in;
     //更新误差
     float e_pre_2 = last_error;
     float e_pre_1 = error;
@@ -80,10 +80,10 @@ float PIDControl::PIDCompute(float in)
     last_error = e_pre_1;
     error = e;
     //计算系数
-    float A = alteredKp + alteredKi + alteredKd;
-    float B = -alteredKp - 2 * alteredKd;
-    float C = alteredKd;
-    output += A*e + B*e_pre_1 + C*e_pre_2;
+    double A = alteredKp + alteredKi + alteredKd;
+    double B = -alteredKp - 2 * alteredKd;
+    double C = alteredKd;
+    output += (A*e + B*e_pre_1 + C*e_pre_2)/2048.00;
     output = CONSTRAIN(output, outMin, outMax);
     return output;
 }

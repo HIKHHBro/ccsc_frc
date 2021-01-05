@@ -141,10 +141,10 @@ void Robot::TeleopPeriodic()
     if(abs(target[0])<0.1) target[0] = 0;
     if(abs(target[1])<0.1) target[1] = 0;
     if(abs(target[2])<0.1) target[2] = 0;
-    // std::cout<<"1 = "<<_joystick->GetRawAxis(0);
-    // std::cout<<"2 = "<<_joystick->GetRawAxis(1);
-    // std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
-  chassis->rc_run(0,target[1],0);
+    std::cout<<"1 = "<<_joystick->GetRawAxis(0);
+    std::cout<<"2 = "<<_joystick->GetRawAxis(1);
+    std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
+  chassis->rc_run(target[0],target[1],target[2]);
   chassis->milemter();
 }
 
@@ -196,7 +196,10 @@ void Robot::TestPeriodic()
 // }
 //   last_lefts = leftYstick;
 // std::cout<<"text"<<"status<<"<<chassis->get_auto_run_status()<<std::endl;
-
+// chassis->motor[0]->Set(ControlMode::PercentOutput, _joystick->GetRawAxis(0));
+// for(int i = 0;i<Chassis::M_ALL;i++)
+//   std::cout<<"w1 v = "<<chassis->motor[i]->GetSelectedSensorVelocity()<<'\t';
+//   std::cout<<std::endl;
 }
 
 #ifndef RUNNING_FRC_TESTS

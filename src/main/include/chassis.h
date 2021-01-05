@@ -45,8 +45,8 @@ class Chassis
     float wheel_r = 38.1;//mm
     float  motor_series = 2048;
     TalonFX* motor[4];
-    float rc_control_x_y = 0.3;//控制x和y最大速度系数
-    float rc_control_w = 0.1;//控制旋转最大速度系数 //TODO: 精度不够
+    float rc_control_x_y = 1;//控制x和y最大速度系数
+    float rc_control_w = 0.2;//控制旋转最大速度系数 //TODO: 精度不够
     int wheel_rc_to_sensor(float);
     void set_reference(Reference ref);
     float w_rc_to_sensor(float value);

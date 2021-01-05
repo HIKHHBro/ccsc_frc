@@ -274,7 +274,7 @@ private:
     // 
     // Output of the PID Controller
     // 
-    float output;
+    double output;
     
     // 
     // Gain constant values that were passed by the user
