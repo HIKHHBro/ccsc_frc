@@ -5,6 +5,10 @@
 * [ ] 自动pid  不带电机，查看值正不正确
 * [ ]
 
+### 21年1月6日
+* [ ] 带无线网卡
+* [ ] 摄像头使用
+* [ ] 颜色传感器使用
 
 ## 运动模型
 https://www.sohu.com/a/193593445_715708
@@ -20,22 +24,22 @@ https://github.com/wpilibsuite/allwpilib/releases
 
 You may want git Bash too: https://gitforwindows.org/
 
-Navx
+### Navx
 https://www.kauailabs.com/navx-mxp/
 
-Rev Robotics Spark Max
+### Rev Robotics Spark Max
 https://www.revrobotics.com/sparkmax-software/
 
-CTRE Talon SRX / Phoenix Tuner for Pneumatics and PDP
+### CTRE Talon SRX / Phoenix Tuner for Pneumatics and PDP
 http://www.ctr-electronics.com/talon-srx.html#product_tabs_technical_resources
 
-CTRE Falcon FX
+### CTRE Falcon FX
 Same installer as above, firmware updates here: http://www.ctr-electronics.com/control-system/motor-control/talon-fx.html#product_tabs_technical_resources
 
-Limelight
+### Limelight
 https://limelightvision.io/pages/downloads
 
-FRC Radio Configuration
+### FRC Radio Configuration
 https://docs.wpilib.org/en/latest/docs/getting-started/getting-started-frc-control-system/radio-programming.html (2020 uses same firmware as 2019, but good to have link in case we need to reflash)
 
 
