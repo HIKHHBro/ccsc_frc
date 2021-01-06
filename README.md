@@ -5,11 +5,12 @@
 * [ ] 自动pid  不带电机，查看值正不正确
 * [ ]
 
-### 21年1月6日
+#### 21年1月6日
 * [ ] 带无线网卡
 * [ ] 摄像头使用
 * [ ] 颜色传感器使用
-
+#### 21年1月7日 
+下载摄像头所有软件
 ## 运动模型
 https://www.sohu.com/a/193593445_715708
 
@@ -67,8 +68,22 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 
 使用操持输出模式
 
-
+# 物资和文档    
 ## 物资网站
 1. 猎鹰电机:https://www.vexrobotics.com/ 
 2. neo电机:https://www.revrobotics.com/
-3. 摄像头:https://limelightvision.io/pages/downloads
+3. 摄像头:https://limelightvision.io/pages/downloads    
+4. 颜色传感器:  http://revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
+## 库链接
+1. 颜色传感器 http://revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
+2. navx(imu) https://www.kauailabs.com/dist/frc/2020/navx_frc.json  
+3. Phoenix http://devsite.ctr-electronics.com/maven/release/com/ctre/phoenix/Phoenix-latest.json
+
+## 文档和API
+1. 颜色传感器  https://www.revrobotics.com/content/sw/color-sensor-v3/sdk/docs/cpp/index.html
+2. neo  https://www.revrobotics.com/neo-brushless-motor-locked-rotor-testing/
+3. SPARX MAX电调(neo): https://www.revrobotics.com/content/sw/max/sw-docs/cpp/index.html
+## 例程
+1. 颜色传感器  https://github.com/REVrobotics/Color-Sensor-v3-Examples
+2. Phoenix https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages
+
