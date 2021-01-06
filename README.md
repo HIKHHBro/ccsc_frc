@@ -62,3 +62,9 @@ double feedforward = 0.07;
 _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 
 使用操持输出模式
+
+
+## 物资网站
+1. 猎鹰电机:https://www.vexrobotics.com/ 
+2. neo电机:https://www.revrobotics.com/
+3. 摄像头:https://limelightvision.io/pages/downloads
