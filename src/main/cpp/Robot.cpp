@@ -24,6 +24,7 @@ int kTimeoutMs = 10;
 void Robot::RobotInit() 
 {
    chassis = new Chassis();
+
    std::cout<<"Period"<<GetPeriod()<<std::endl;
   //  chassis->set_series(0);
 #if 1
@@ -153,8 +154,23 @@ void Robot::TeleopPeriodic()
  */
  double leftYstick ,rightYstick,vzYstick;
  double last_lefts;
+void Robot::TestInit()
+{
+  gimbal = new Gimbal();
+  if (gimbal == nullptr)
+    std::cout<<"fail"<<std::endl;
+}
 void Robot::TestPeriodic() 
 {
+
+
+
+
+
+  // TODO: 显示有问题
+      // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
+      // gimbal->display();
+      
   //  leftYstick = _joystick->GetRawAxis(1)* 500.0 * 2048 / 600;
   //  rightYstick = _joystick->GetRawAxis(0)* 500.0 * 2048 / 600;
   //  vzYstick = _joystick->GetRawAxis(2)* 10;

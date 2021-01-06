@@ -79,11 +79,13 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 2. navx(imu) https://www.kauailabs.com/dist/frc/2020/navx_frc.json  
 3. Phoenix http://devsite.ctr-electronics.com/maven/release/com/ctre/phoenix/Phoenix-latest.json
 
-## 文档和API
+## 文档
+1. neo  https://www.revrobotics.com/neo-brushless-motor-locked-rotor-testing/
+## API  
 1. 颜色传感器  https://www.revrobotics.com/content/sw/color-sensor-v3/sdk/docs/cpp/index.html
-2. neo  https://www.revrobotics.com/neo-brushless-motor-locked-rotor-testing/
-3. SPARX MAX电调(neo): https://www.revrobotics.com/content/sw/max/sw-docs/cpp/index.html
+2. SPARX MAX电调(neo): https://www.revrobotics.com/content/sw/max/sw-docs/cpp/index.html    
+
 ## 例程
 1. 颜色传感器  https://github.com/REVrobotics/Color-Sensor-v3-Examples
 2. Phoenix https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages
-
+3. neo电机 sparx电调 https://docs.revrobotics.com/sparkmax/software-resources/spark-max-code-examples
