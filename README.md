@@ -5,12 +5,6 @@
 * [ ] 自动pid  不带电机，查看值正不正确
 * [ ]
 
-#### 21年1月6日
-* [ ] 带无线网卡
-* [ ] 摄像头使用
-* [ ] 颜色传感器使用
-#### 21年1月7日 
-下载摄像头所有软件
 ## 运动模型
 https://www.sohu.com/a/193593445_715708
 
@@ -84,7 +78,7 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 ## API  
 1. 颜色传感器  https://www.revrobotics.com/content/sw/color-sensor-v3/sdk/docs/cpp/index.html
 2. SPARX MAX电调(neo): https://www.revrobotics.com/content/sw/max/sw-docs/cpp/index.html    
-
+3.  Phoenix http://www.ctr-electronics.com/downloads/api/cpp/html/index.html
 ## 例程
 1. 颜色传感器  https://github.com/REVrobotics/Color-Sensor-v3-Examples
 2. Phoenix https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages

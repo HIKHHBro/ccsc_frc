@@ -89,5 +89,11 @@
     "mutex": "cpp",
     "sstream": "cpp",
     "cinttypes": "cpp"
-  }
+  },
+  "clang.cflags": [
+    "C:/Users/heikowang/.gradle/caches/transforms-2/files-2.1/d7b3e15668f704aa3914238843a0806f/wpiutil-cpp-2020.3.2-headers/"
+  ]
+
+
+
 }

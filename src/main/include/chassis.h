@@ -12,7 +12,7 @@
 #include <frc/controller/PIDController.h>
 #include <unistd.h>
 #include <thread>
-#include<signal.h>
+#include <signal.h>
 #include "pid_control.h"
 using namespace frc;
 class Chassis 
@@ -79,7 +79,6 @@ public:
         {0,0,10},
         {1,1,10}
     };
-
 
 };
 

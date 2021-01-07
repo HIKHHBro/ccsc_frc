@@ -49,8 +49,13 @@ private:
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:fasle ) 
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
 #define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
+///< x 为减速前,y为减速后
+inline  double reduction_ratio(double x,double y) { return (y/x);}
+
 
 /* 设置模式 */
 //比赛的时候一定要注释掉调试模式
 #define GIMBAL_DEBUG //设置云台调试模式
 // #define CHASSIS_DEBUG //设置底盘调试模式
+#define COM_DEBUG //在公司调试
+#define DIALS_DEBUG

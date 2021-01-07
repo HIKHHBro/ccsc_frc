@@ -14,17 +14,20 @@
 #include "ctre/Phoenix.h"
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
+#include <frc/livewindow//LiveWindow.h>
 TalonFX *fx;
 Joystick *_joystick;
 XboxController * xbox;
+;
 
 // frc::BuiltInAccelerometer accelerometer;
 // auto xAccelFilter = frc::LinearFilter<double>::MovingAverage(10);
-int kTimeoutMs = 10;
+
 void Robot::RobotInit() 
 {
    chassis = new Chassis();
-
+  //  frc::LiveWindow m_lw =  frc::LiveWindow::GetInstance();
+  
    std::cout<<"Period"<<GetPeriod()<<std::endl;
   //  chassis->set_series(0);
 #if 1
@@ -69,9 +72,16 @@ void Robot::RobotInit()
 	// 	fx->Config_kI(0, 0.0, kTimeoutMs);
 	// 	fx->Config_kD(0, 0.0, kTimeoutMs);
 
-
-
 #endif
+
+   #ifdef COM_DEBUG
+  gimbal = new Gimbal();
+  if (gimbal == nullptr)
+    std::cout<<"fail"<<std::endl;
+  // m_lw->
+
+
+   #endif
 
 }
 
@@ -89,6 +99,10 @@ void Robot::RobotPeriodic()
   //  frc2::CommandScheduler::GetInstance().Run();
     // std::cout<<"陀螺仪是否在线:"<<chassis->check_gyro()<<std::endl;
    chassis->chassis_pid_loop();
+   #ifdef COM_DEBUG
+      // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
+      // gimbal->color_display();
+   #endif
 }
 
 /**
@@ -156,9 +170,9 @@ void Robot::TeleopPeriodic()
  double last_lefts;
 void Robot::TestInit()
 {
-  gimbal = new Gimbal();
-  if (gimbal == nullptr)
-    std::cout<<"fail"<<std::endl;
+  // gimbal = new Gimbal();
+  // if (gimbal == nullptr)
+  //   std::cout<<"fail"<<std::endl;
 }
 void Robot::TestPeriodic() 
 {
