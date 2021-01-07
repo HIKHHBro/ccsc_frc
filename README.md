@@ -84,3 +84,15 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 1. 颜色传感器  https://github.com/REVrobotics/Color-Sensor-v3-Examples
 2. Phoenix https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages
 3. neo电机 sparx电调 https://docs.revrobotics.com/sparkmax/software-resources/spark-max-code-examples
+
+# 使用注意
+## neo 
+### pwm 
+1. 查看状态灯，常亮白色为有信号，如果闪烁，断电5s重启
+2. 不要使用pwm同时接usb
+
+## 猎鹰
+1. 扭矩过小，注意加减速比  50:14->42:22两级减速感觉还行
+
+## navx 
+1. yaw轴漂移严重
