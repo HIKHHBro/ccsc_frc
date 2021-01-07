@@ -62,7 +62,7 @@ public:
     bool spin_control_is_is_finished(void);
 #ifdef DIALS_DEBUG
     void display(void);
-    void Dials::set_para();
+    void set_para();
     bool color_sequence_check(COLOR curr);
 
 #endif

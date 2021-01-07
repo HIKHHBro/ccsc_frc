@@ -174,7 +174,7 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("is_finished_spin_control", is_finished_spin_control);
     frc::SmartDashboard::PutNumber("spin_control_thread", spin_control_thread);
 }
-///< 调试时设置参数
+// ///< 调试时设置参数
 void Dials::set_para()
 {
   double comp = frc::SmartDashboard::GetNumber("spin_numb_comp", spin_numb_comp);
