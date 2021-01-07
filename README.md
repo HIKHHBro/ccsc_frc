@@ -72,6 +72,7 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 1. 颜色传感器 http://revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
 2. navx(imu) https://www.kauailabs.com/dist/frc/2020/navx_frc.json  
 3. Phoenix http://devsite.ctr-electronics.com/maven/release/com/ctre/phoenix/Phoenix-latest.json
+4. sparx(neo) http://www.revrobotics.com/content/sw/max/sdk/REVRobotics.json
 
 ## 文档
 1. neo  https://www.revrobotics.com/neo-brushless-motor-locked-rotor-testing/

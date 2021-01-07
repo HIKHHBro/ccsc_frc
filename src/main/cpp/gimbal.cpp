@@ -3,7 +3,8 @@
 
 Gimbal::Gimbal(/* args */)
 {
-
+    //TODO: neo pwm使用
+// m_leftMotor.Set(m_stick.GetRawAxis(0));
 }
 
 Gimbal::~Gimbal()
