@@ -60,10 +60,11 @@ public:
     void spin_control(float numb);
     int c_numb_serson(float);
     bool spin_control_is_is_finished(void);
+    bool color_sequence_check(COLOR curr);
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();
-    bool color_sequence_check(COLOR curr);
+    
 
 #endif
 

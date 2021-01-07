@@ -100,13 +100,13 @@ bool Dials::color_sequence_check(COLOR curr)
   else return false;
 
 }
-///< 旋转转盘到指定颜色
-bool Dials::rotate_dials(COLOR color)
-{
-  curr_position = motor->GetSelectedSensorPosition();
+// ///< 旋转转盘到指定颜色
+// bool Dials::rotate_dials(COLOR color)
+// {
+//   curr_position = motor->GetSelectedSensorPosition();
   
 
-}
+// }
 ///< 装盘圈数转换猎鹰电机编码器位置  num 0~5 return 0 ~ 108850(5* 2048 * (810 / 76.2))
  int Dials::c_numb_serson(float numb)
  {

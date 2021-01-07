@@ -137,7 +137,7 @@ bool Chassis::milemter()
 {
     if(check_gyro())
     {
-        float temp_w = ahrs->GetYaw();
+        // float temp_w = ahrs->GetYaw(); 
              float w = 0;
         updata_series();
         milemeter[z] =  (series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
@@ -317,7 +317,7 @@ void Chassis::motor_init()
         motor[i]->ConfigVelocityMeasurementWindow(1,0);
         //TODO: 修改和测试滑动平均
         // fx->ConfigClosedloopRamp(0.5,0);
-        motor_pid[i] = new PIDControl(0.2,0.02,0.01,0,-1,1,MANUAL,DIRECT,20000.0000);
+        motor_pid[i] = new PIDControl(0.05,0.05,0,0,-1,1,MANUAL,DIRECT,20000.0000);
     }
 }
 //TODO: 待测试

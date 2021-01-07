@@ -159,8 +159,8 @@ void Robot::TeleopPeriodic()
     std::cout<<"1 = "<<_joystick->GetRawAxis(0);
     std::cout<<"2 = "<<_joystick->GetRawAxis(1);
     std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
-  chassis->rc_run(target[0],target[1],target[2]);
-  chassis->milemter();
+    chassis->rc_run(target[0],target[1],target[2]);
+    chassis->milemter();
 }
 
 /**
