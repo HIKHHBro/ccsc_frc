@@ -7,22 +7,17 @@ class RC
 {
 private:
    Joystick* joystick;
-   XboxController* xboxController;
+  //  XboxController* xboxController;
 public:
-  RC(XboxController *xbox);
-  RC(Joystick *joy);
+  RC(int id);
   ~RC();
-  // bool GetABtn
+  // // bool GetABtn
+  float getX();
+  float getY();
+  float getZ();
 
 };
 
 
-RC::~RC()
-{
-  // if(joystick != nullptr)
-  //   delete joystick;
-  // if(xboxController != nullptr)
-  //   delete xboxController;
-}
 
 #endif

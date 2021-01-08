@@ -8,7 +8,6 @@ Dials::Dials(int deviceNumber)
     motor = new TalonFX(can_id);
     //TODO: 设置位置模式
     fx_motor_magic(0.3,0.1,0);
-
 }
 
 Dials::~Dials()
@@ -42,14 +41,19 @@ Dials::COLOR Dials::get_color(void)
     curr_color = ALL_COLOR;
     return ALL_COLOR;
 }
+///<开启旋转控制
+void Dials::start_spin_control(float numb)
+{
+  // dials_thread->start(&spin_control_thread,this,numb);
+}
 ///< 旋转控制
 //TODO: 待测试整个流程  
 //TODO: 线程函数待写
-void Dials::spin_control(float numb)
+void Dials::spin_control_thread(float numb)
 {
-  if(!spin_control_thread)
+  if(!spin_control_thread_status)
   {
-    spin_control_thread = true;
+    spin_control_thread_status = true;
     color_sequence_pre = get_color();
     color_tran_count = 0;
     curr_position = motor->GetSelectedSensorPosition();
@@ -81,11 +85,8 @@ void Dials::spin_control(float numb)
   }
   else
   {
-    spin_control_thread = false;
+    spin_control_thread_status = false;
   }
-  
-
-
 }
 ///< 颜色传感器联系校验
 //TODO: 待验证 连续颜色突然插入不连续颜色
@@ -113,7 +114,7 @@ bool Dials::color_sequence_check(COLOR curr)
    return numb * serson * reduction;
  }
 ///< 获取转盘旋转是否完成
-bool Dials::spin_control_is_is_finished(void)
+bool Dials::spin_control_is_finished(void)
 {
   return is_finished_spin_control;
 }
@@ -158,7 +159,15 @@ void Dials::fx_motor_magic(float kf,float kp,float kd)
     motor->ConfigMotionSCurveStrength(2, 0);//平滑
 
 }
-
+///< 转盘线程函数
+void Dials::run()
+{
+  while (!isInterrupted())
+  {
+    /* code */
+  }
+  
+}
 
 #ifdef DIALS_DEBUG
 void Dials::display()
@@ -172,7 +181,7 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("frictiongear_d", frictiongear_d);
     frc::SmartDashboard::PutNumber("frictiongear_d", c_numb_serson_return);
     frc::SmartDashboard::PutNumber("is_finished_spin_control", is_finished_spin_control);
-    frc::SmartDashboard::PutNumber("spin_control_thread", spin_control_thread);
+    frc::SmartDashboard::PutNumber("spin_control_thread_status", spin_control_thread_status);
 }
 // ///< 调试时设置参数
 void Dials::set_para()

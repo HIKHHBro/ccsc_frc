@@ -13,6 +13,7 @@
 #include "RobotContainer.h"
 #include "chassis.h"
 #include "gimbal.h"
+#include "dials.h"
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
@@ -32,5 +33,6 @@ class Robot : public frc::TimedRobot {
   frc2::Command* m_autonomousCommand = nullptr;
   Chassis* chassis;
   Gimbal* gimbal;
+  Dials* dials;
   RobotContainer m_container;
 };

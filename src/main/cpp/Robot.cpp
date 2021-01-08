@@ -15,70 +15,23 @@
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
 #include <frc/livewindow//LiveWindow.h>
-TalonFX *fx;
+#include "my_thread.h"
 Joystick *_joystick;
 XboxController * xbox;
-;
-
-// frc::BuiltInAccelerometer accelerometer;
-// auto xAccelFilter = frc::LinearFilter<double>::MovingAverage(10);
-
 void Robot::RobotInit() 
 {
    chassis = new Chassis();
-  //  frc::LiveWindow m_lw =  frc::LiveWindow::GetInstance();
-  
+   gimbal = new Gimbal();
+   dials = new Dials(3);
    std::cout<<"Period"<<GetPeriod()<<std::endl;
-  //  chassis->set_series(0);
 #if 1
   //  xbox = new XboxController(0);
   _joystick = new Joystick(0);
-            // fx = new TalonFX(3);  
-            // fx->ConfigFactoryDefault();
-            // /* first choose the sensor */
-            // fx->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 0);
-            // // fx->SetSensorPhase(true);
-            // fx->ConfigNeutralDeadband(0);
-            // /* set the peak and nominal outputs */
-            // fx->ConfigNominalOutputForward(0, 0);
-            // fx->ConfigNominalOutputReverse(0, 0);
-            // fx->ConfigPeakOutputForward(1, 0);
-            // fx->ConfigPeakOutputReverse(-1, 0);
-            // /* set closed loop gains in slot0 */
-            // fx->Config_kF(0, 0.6, 0);
-            // fx->Config_kP(0, 0.25, 0);
-            // fx->Config_kI(0, 0.0, 0);
-            // fx->Config_kD(0, 0.7, 0);
-            // fx->ConfigClosedLoopPeriod(0,1,0);
-            // fx->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);
-            // fx->ConfigClosedloopRamp(0.5,0);
-
-
-  // _joystick = new Joystick(1);
-  // fx = new TalonFX(1);
-	// 	fx->ConfigFactoryDefault();
-  //       /* first choose the sensor */
-	// 	fx->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
-	// 	// fx->SetSensorPhase(true);
-
-	// 	/* set the peak and nominal outputs */
-	// 	fx->ConfigNominalOutputForward(0, kTimeoutMs);
-	// 	fx->ConfigNominalOutputReverse(0, kTimeoutMs);
-	// 	fx->ConfigPeakOutputForward(1, kTimeoutMs);
-	// 	fx->ConfigPeakOutputReverse(-1, kTimeoutMs);
-	// 	/* set closed loop gains in slot0 */
-	// 	fx->Config_kF(0, 0.3, kTimeoutMs);
-	// 	fx->Config_kP(0, 0.05, kTimeoutMs);
-	// 	fx->Config_kI(0, 0.0, kTimeoutMs);
-	// 	fx->Config_kD(0, 0.0, kTimeoutMs);
+  usleep(30000);
 
 #endif
 
    #ifdef COM_DEBUG
-  gimbal = new Gimbal();
-  if (gimbal == nullptr)
-    std::cout<<"fail"<<std::endl;
-  // m_lw->
 
 
    #endif
@@ -95,10 +48,9 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 {
-  // double filteredXAccel = xAccelFilter.Calculate(accelerometer.GetX());
-  //  frc2::CommandScheduler::GetInstance().Run();
-    // std::cout<<"陀螺仪是否在线:"<<chassis->check_gyro()<<std::endl;
-   chassis->chassis_pid_loop();
+  
+
+  //  chassis->chassis_pid_loop();
    #ifdef COM_DEBUG
       // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
       // gimbal->color_display();
@@ -149,18 +101,18 @@ void Robot::TeleopInit() {
 float target[3];
 void Robot::TeleopPeriodic() 
 {
-    //TODO: 传入指令  -1~1
-    target[0] = _joystick->GetRawAxis(0);
-    target[1] =_joystick->GetRawAxis(1);
-    target[2] =_joystick->GetRawAxis(2);
-    if(abs(target[0])<0.1) target[0] = 0;
-    if(abs(target[1])<0.1) target[1] = 0;
-    if(abs(target[2])<0.1) target[2] = 0;
-    std::cout<<"1 = "<<_joystick->GetRawAxis(0);
-    std::cout<<"2 = "<<_joystick->GetRawAxis(1);
-    std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
-    chassis->rc_run(target[0],target[1],target[2]);
-    chassis->milemter();
+    // //TODO: 传入指令  -1~1
+    // target[0] = _joystick->GetRawAxis(0);
+    // target[1] =_joystick->GetRawAxis(1);
+    // target[2] =_joystick->GetRawAxis(2);
+    // if(abs(target[0])<0.1) target[0] = 0;
+    // if(abs(target[1])<0.1) target[1] = 0;
+    // if(abs(target[2])<0.1) target[2] = 0;
+    // std::cout<<"1 = "<<_joystick->GetRawAxis(0);
+    // std::cout<<"2 = "<<_joystick->GetRawAxis(1);
+    // std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
+    // chassis->rc_run(target[0],target[1],target[2]);
+    // chassis->milemter();
 }
 
 /**
@@ -178,58 +130,10 @@ void Robot::TestPeriodic()
 {
 
 
-
-
-
   // TODO: 显示有问题
       // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
       // gimbal->display();
-      
-  //  leftYstick = _joystick->GetRawAxis(1)* 500.0 * 2048 / 600;
-  //  rightYstick = _joystick->GetRawAxis(0)* 500.0 * 2048 / 600;
-  //  vzYstick = _joystick->GetRawAxis(2)* 10;
-  //  chassis->rc_run(leftYstick ,rightYstick,vzYstick);
-  //  chassis->rc_run(1000,0,0);
 
-  //  std::cout<< leftYstick * 500.0 * 2048 / 600<<std::endl;
-  //  int tmp_v = fx->GetSelectedSensorVelocity();
-  // //  fx->GetPIDConfigs(&pid_temp,0,10);
-  //  std::cout << "v"<< tmp_v << std::endl;
-  // fx->Set(ControlMode::Velocity,leftYstick * 500.0 * 2048 / 600);
-  // int tmp_v = fx->GetSelectedSensorVelocity();
-  // leftYstick = xbox->GetRawAxis(1)*500;
-// chassis->motion_model(0,0,1000,0);
-// if(leftYstick - last_lefts >30)
-// {
-//   leftYstick = 30 + last_lefts;
-// }
-// if((leftYstick - last_lefts < -30))
-// {
-//   leftYstick = last_lefts - 30;
-// }
-//  int  tmp_v = chassis->motor[Chassis::M3]->GetSelectedSensorPosition();
-//  chassis->updata_series();
-// int tmp_s = fx->GetSelectedSensorPosition();
-  // std::cout<<"s"<<chassis->wheel_s[Chassis::M3]<<"v"<<tmp_v<<std::endl;
-// if(xbox->GetAButton())
-// {
-
-//   // fx->Set(ControlMode::Velocity,leftYstick);
-//   //  int temp = chassis->start_auto_run();
-   
-//   //  std::cout<<"temp"<<std::endl;
-// }
-// if(xbox->GetBButton())
-// {
-//   chassis->exit_auto_run();
-//    std::cout<<"exit"<<std::endl;
-// }
-//   last_lefts = leftYstick;
-// std::cout<<"text"<<"status<<"<<chassis->get_auto_run_status()<<std::endl;
-// chassis->motor[0]->Set(ControlMode::PercentOutput, _joystick->GetRawAxis(0));
-// for(int i = 0;i<Chassis::M_ALL;i++)
-//   std::cout<<"w1 v = "<<chassis->motor[i]->GetSelectedSensorVelocity()<<'\t';
-//   std::cout<<std::endl;
 }
 
 #ifndef RUNNING_FRC_TESTS

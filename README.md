@@ -67,7 +67,8 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 1. 猎鹰电机:https://www.vexrobotics.com/ 
 2. neo电机:https://www.revrobotics.com/
 3. 摄像头:https://limelightvision.io/pages/downloads    
-4. 颜色传感器:  http://revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
+4. 颜色传感器:  http://revrobotics.com/
+5. 气阀控制模块: http://www.ctr-electronics.com/pcm.html
 ## 库链接
 1. 颜色传感器 http://revrobotics.com/content/sw/color-sensor-v3/sdk/REVColorSensorV3.json
 2. navx(imu) https://www.kauailabs.com/dist/frc/2020/navx_frc.json  

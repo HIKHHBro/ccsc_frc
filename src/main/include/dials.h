@@ -6,12 +6,12 @@
 #include "rev/ColorMatch.h"
 #include "ctre/Phoenix.h"
 #include <atomic>
+#include "my_thread.h"
 #ifdef DIALS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
 
-
-class Dials
+class Dials:public MyThread
 {
 private:
     frc::I2C::Port i2cPort;
@@ -30,13 +30,18 @@ private:
     float spin_control_vel;
     int serson = 2048;
     double reduction = reduction_ratio(frictiongear_d,dials_d);
-    std::atomic<bool> spin_control_thread = false;
+    std::atomic<bool> spin_control_thread_status = false;
     std::atomic<bool> is_finished_spin_control = false;
     int color_tran_count = 0;
     /* 显示调试的变量 */
     int c_numb_serson_return;
     int spin_pos_error;
     int is_finished_spin_pos_err = (float)(c_numb_serson((1/float(ALL_COLOR))))/4.0;
+
+
+    /* 私有方法 */
+    void spin_control_thread(float numb);
+    void run() override;
 public:
   Dials();
   Dials(int deviceNumber);
@@ -49,6 +54,7 @@ public:
     int can_id;
     float spin_numb_comp = 0;
     COLOR color_sequence_pre;
+    
     /* 方法 */
     
     void set_color_rgb(void);
@@ -57,10 +63,12 @@ public:
     bool dials_init();
     bool rotate_dials(COLOR);
     void fx_motor_magic(float kf,float kp,float kd);
-    void spin_control(float numb);
     int c_numb_serson(float);
-    bool spin_control_is_is_finished(void);
+    bool spin_control_is_finished(void);
     bool color_sequence_check(COLOR curr);
+    void start_spin_control(float numb);
+    
+    
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();

@@ -5,6 +5,7 @@ Gimbal::Gimbal(/* args */)
 {
     //TODO: neo pwm使用
 // m_leftMotor.Set(m_stick.GetRawAxis(0));
+    std::cout<<"to be developed"<<std::endl;
 }
 
 Gimbal::~Gimbal()
