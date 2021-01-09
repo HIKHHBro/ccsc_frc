@@ -16,16 +16,29 @@ Grab::Grab(int pwm_c,int id,int pcm_c,float simpe_time)
 
 Grab::~Grab()
 {
+    delete motor;
+    delete solenoid[0];
+    delete solenoid[1];
+    delete ramp_func;
 }
+//TODO: 使用延迟 待增加反馈
 ///< 放下抓取
 bool Grab::put_down()
 {
-    solenoid[0]->Set(true);
-    solenoid[1]->Set(true);
-    motor->Set(ramp_func->set(speed));
-    // if(cal_run_count())
+    if(is_put_down == false && !cal_run_count())
+    {
+        solenoid[0]->Set(true);
+        solenoid[1]->Set(true);
+        std::cout<<"dow"<<std::endl;
+    }
+    else
+    {
         is_put_down = true;
-    return cal_run_count();
+        loosen_gas();
+        std::cout<<"loss"<<std::endl;
+    }    
+    motor->Set(ramp_func->set(speed));
+    return is_put_down;
 }
 ///< 抬起
 bool Grab::put_up()
@@ -34,22 +47,30 @@ bool Grab::put_up()
     solenoid[1]->Set(false);
     motor->Set(ramp_func->set(0));
     is_put_down = false;
-    return cal_run_count();
+    runned_count = 0;
+    return is_put_down;
+}
+//TODO: 编写松开气缸和何时松开气缸
+///< 松开气缸
+bool Grab::loosen_gas()
+{
+    solenoid[0]->Set(false);
+    solenoid[1]->Set(false);
+    return true;
 }
 ///< 运行时间记数
 bool Grab::cal_run_count()
 {
-    if( run_count < (1/simpe_time) && is_put_down == true)
+    if(is_put_down == false)
     {
-        run_count++;
-        return false;
+        if( runned_count < runned_time*(1.0/simpe_time))
+        {
+            runned_count++;
+            return false;
+        }
     }
-    else 
-    {
-        run_count = 0;
-        return true;
-    }
-
+    runned_count =0;
+    return true;
 }
 
 ///< 设置抓取传送速度  -1 ~1;
@@ -67,6 +88,7 @@ void Grab::display()
 {
     frc::SmartDashboard::PutNumber("set_max_pwm",speed);
     frc::SmartDashboard::PutNumber("set_acc",acc);
+    frc::SmartDashboard::PutNumber("runned_time",runned_time);
 }
 void Grab::debug()
 {
@@ -77,8 +99,15 @@ void Grab::debug()
     double a  = frc::SmartDashboard::GetNumber("set_acc",acc);
     if((a != acc)) { set_acc(a);}
 
+    float rt  = frc::SmartDashboard::GetNumber("runned_time",runned_time);
+    if((rt != runned_time)) { runned_time = limit(rt,0.02,5.0);}
+
     // display
-    frc::SmartDashboard::PutNumber("is_put_down:", is_put_down);
-    frc::SmartDashboard::PutNumber("motor_pwm:", ramp_func->get_last_data());
+    frc::SmartDashboard::PutNumber("is_put_down", is_put_down);
+    frc::SmartDashboard::PutNumber("motor_pwm", ramp_func->get_last_data());
+    frc::SmartDashboard::PutNumber("runned_count",runned_count);
+    frc::SmartDashboard::PutNumber("runned_count_max",runned_time*(1.0/simpe_time));
+    frc::SmartDashboard::PutNumber("max_rpm",max_rpm);
+
 }
 #endif

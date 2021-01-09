@@ -84,7 +84,7 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 ## 例程
 1. 颜色传感器  https://github.com/REVrobotics/Color-Sensor-v3-Examples
 2. Phoenix https://github.com/CrossTheRoadElec/Phoenix-Examples-Languages
-3. neo电机 sparx电调 https://docs.revrobotics.com/sparkmax/software-resources/spark-max-code-examples
+3. neo电机 sparx电调 https://github.com/REVrobotics/SPARK-MAX-Examples/tree/master/C%2B%2B
 
 # 使用注意
 ## neo 

@@ -9,6 +9,8 @@
 class Base
 {
 public:
+     Base(){};
+     ~Base(){};
     inline int limit(int data,int min,int max)
     {data = (data) > (max) ? (max) : (data);
      data = (data) < (min) ? (min) : (data);
@@ -17,7 +19,48 @@ public:
     {data = (data) > (max) ? (max) : (data); 
     data = (data) < (min) ? (min) : (data);
     return  data;}
+
+    virtual void display();
+    virtual void debug();
 };
+class Motor
+{
+private:
+    /* data */
+public:
+    Motor(/* args */);
+    Motor(double rpm,int enc,float redu);
+    ~Motor();
+    double max_rpm;//转/s
+    int encoder_l;//一圈电机编码器位数
+    float reduction_ratiop;
+    void set_reduction_ratiop(float);
+    void set_reduction_ratiop(int,int);
+    void set_reduction_ratiop(float,float);
+    void set_reduction_ratiop(int,int,int);
+    void set_reduction_ratiop(int,int,int,int);
+    double per_to_rpm(float);
+    float rpm_to_per(float);
+};
+
+class Falcon : public Motor
+{
+public:
+    Falcon();
+    ~Falcon();
+    int max_enc_100ms = 9326;
+    float enc_to_rpm(float);
+    int rpm_to_enc(float);
+private:
+};
+class Neo : public Motor
+{
+public:
+    Neo();
+    ~Neo();
+private:
+};
+
 typedef struct Gyro
 {
     float acc_x = 0;
@@ -37,7 +80,8 @@ typedef struct Gyro
 class RampFunction
 {
 public:
-    RampFunction(float k){this->k = k;};
+    
+    RampFunction(float k);
     ~RampFunction();
     float set(float value)
     {
@@ -52,7 +96,6 @@ public:
         last_value = value;
         return value;
     }
-    void set_k(float k){this->k = k;};
     inline float get_last_data(){return last_value;}
 private:
     float k;
@@ -76,4 +119,5 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 #define XBON_RC
 // #define RC_DEBGU
 #define GRAB_DEBUG
+#define LIFT_DEBUG
 
