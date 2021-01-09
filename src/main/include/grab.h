@@ -30,7 +30,7 @@ public:
     bool put_up();
     bool cal_run_count();
     void set_speed(float);
-
+    void set_acc(float a);
 #ifdef GRAB_DEBUG
     void display();
     void debug();

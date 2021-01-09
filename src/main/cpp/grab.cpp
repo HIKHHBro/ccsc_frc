@@ -57,24 +57,28 @@ void Grab::set_speed(float s)
 {
     speed = limit(s,-1.0,1.0);
 }
+///< 设置抓取传送加速度  -0 ~ 1;
+void Grab::set_acc(float a)
+{
+    acc = limit(a,0.0,1.0);
+}
 #ifdef GRAB_DEBUG
 void Grab::display()
 {
-    // frc::SmartDashboard::PutNumber("is_put_down:", is_put_down);
-    // frc::SmartDashboard::PutNumber("motor_pwm:", ramp_func->get_last_data());
-    // frc::SmartDashboard::PutNumber("set_max_pwm:", speed);
-    frc::SmartDashboard::PutNumber("set_max_pwm", speed);
-
+    frc::SmartDashboard::PutNumber("set_max_pwm",speed);
+    frc::SmartDashboard::PutNumber("set_acc",acc);
 }
 void Grab::debug()
 {
+    
+    double s  = frc::SmartDashboard::GetNumber("set_max_pwm",speed);
+    if((s != speed)) { set_speed(s);}
+
+    double a  = frc::SmartDashboard::GetNumber("set_acc",acc);
+    if((a != acc)) { set_acc(a);}
+
     // display
-    double s  = frc::SmartDashboard::GetNumber("set_max_pwm",0);
-    if((s != speed)) { speed = s;}
-    std::cout<<speed<<std::endl;
     frc::SmartDashboard::PutNumber("is_put_down:", is_put_down);
     frc::SmartDashboard::PutNumber("motor_pwm:", ramp_func->get_last_data());
-    
-
 }
 #endif
