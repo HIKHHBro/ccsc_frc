@@ -27,12 +27,6 @@ void Gimbal::set_snatch(bool sw)
 }
 
 
-
-
-
-
-
-
 #ifdef GIMBAL_DEBUG
 void Gimbal::color_display(void)
 {

@@ -31,9 +31,9 @@ public:
     Motor(/* args */);
     Motor(double rpm,int enc,float redu);
     ~Motor();
-    double max_rpm;//转/s
-    int encoder_l;//一圈电机编码器位数
-    float reduction_ratiop;
+    double max_rpm = 100;//转/s
+    int encoder_l = 2048;//一圈电机编码器位数
+    float reduction_ratiop = 1;
     void set_reduction_ratiop(float);
     void set_reduction_ratiop(int,int);
     void set_reduction_ratiop(float,float);
@@ -48,9 +48,12 @@ class Falcon : public Motor
 public:
     Falcon();
     ~Falcon();
-    int max_enc_100ms = 9326;
-    float enc_to_rpm(float);
-    int rpm_to_enc(float);
+    float enc_100ms_to_rpm(float);
+    int rpm_to_enc_100ms(float);
+    int mm_to_enc(float);
+    double enc_to_mm(int);
+    void set_dia(float);
+    float d = 100;//mm
 private:
 };
 class Neo : public Motor
@@ -101,7 +104,7 @@ private:
     float k;
     float last_value;
 };
-#define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:fasle ) 
+#define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
 #define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
 #define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
@@ -118,6 +121,6 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define JOY_RC
 #define XBON_RC
 // #define RC_DEBGU
-#define GRAB_DEBUG
+// #define GRAB_DEBUG
 #define LIFT_DEBUG
 

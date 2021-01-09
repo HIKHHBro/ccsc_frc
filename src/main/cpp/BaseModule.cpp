@@ -34,11 +34,12 @@ double Motor::per_to_rpm(float per)
 {
     return per * max_rpm;
 }
-///< 转每分钟转百分比
+///< 转每分钟转百分比 
 float Motor::rpm_to_per(float rpm)
 {
     return rpm / max_rpm;
 }
+///< //numb1 为输入, numbx 为最后电机真实输出
 void Motor::set_reduction_ratiop(float numb)
 {
     reduction_ratiop = numb;
@@ -63,23 +64,35 @@ void Motor::set_reduction_ratiop(int numb1 ,int numb2,int numb3,int numb4)
 
 Falcon::Falcon()
 {
-    encoder_l = 1023;
-    max_rpm = enc_to_rpm(encoder_l);
-    // reduction_ratiop = redu;
+    encoder_l = 2048;
+    max_rpm = 6380;
 }
 Falcon::~Falcon()
 {
 
-}\
+}
 //TODO: 待测试
-float Falcon::enc_to_rpm(float enc)
+float Falcon::enc_100ms_to_rpm(float enc)
 {
     return enc / float(encoder_l) * 600.0; 
 }
-int Falcon::rpm_to_enc(float rpm)
+int Falcon::rpm_to_enc_100ms(float rpm)
 {
     return int( rpm / 600.0 * encoder_l);
 }
+int Falcon::mm_to_enc(float len)
+{
+    return len *  (((float)encoder_l * reduction_ratiop) / (d * 3.1416));
+}
+double Falcon::enc_to_mm(int enc)
+{
+    return (float)enc /  (((float)encoder_l * reduction_ratiop) / (d * 3.1416));
+}
+void Falcon::set_dia(float len)
+{
+    d = len;
+}
+
 Neo::Neo()
 {
     max_rpm = 5700;
