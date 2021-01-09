@@ -14,6 +14,8 @@
 #include "chassis.h"
 #include "gimbal.h"
 #include "dials.h"
+#include "grab.h"
+#include  "rc.h"
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
@@ -34,5 +36,7 @@ class Robot : public frc::TimedRobot {
   Chassis* chassis;
   Gimbal* gimbal;
   Dials* dials;
+  Grab* grab;
+  RC* rc;
   RobotContainer m_container;
 };

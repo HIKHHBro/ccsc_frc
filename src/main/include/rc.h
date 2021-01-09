@@ -2,19 +2,26 @@
 #define __RC_H
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
+#include "BaseModule.h"
 using namespace frc;
 class RC
 {
 private:
+#ifdef JOY_RC
    Joystick* joystick;
-  //  XboxController* xboxController;
+#endif
+#ifdef XBON_RC
+   XboxController* xbox;
+#endif
+  
 public:
   RC(int id);
   ~RC();
-  // // bool GetABtn
   float getX();
   float getY();
   float getZ();
+  bool is_grab();
+  void display();
 
 };
 

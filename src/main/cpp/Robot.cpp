@@ -16,17 +16,21 @@
 #include <frc/XboxController.h>
 #include <frc/livewindow//LiveWindow.h>
 #include "my_thread.h"
-Joystick *_joystick;
-XboxController * xbox;
+
+
 void Robot::RobotInit() 
 {
    chassis = new Chassis();
    gimbal = new Gimbal();
    dials = new Dials(3);
+   grab = new Grab(0,20,0,0.02);
+  rc = new RC(0);
    std::cout<<"Period"<<GetPeriod()<<std::endl;
+
+   grab->display();
 #if 1
-  //  xbox = new XboxController(0);
-  _joystick = new Joystick(0);
+
+  // _joystick = new Joystick(0);
   usleep(30000);
 
 #endif
@@ -54,6 +58,7 @@ void Robot::RobotPeriodic()
    #ifdef COM_DEBUG
       // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
       // gimbal->color_display();
+      
    #endif
 }
 
@@ -64,7 +69,9 @@ void Robot::RobotPeriodic()
  */
 void Robot::DisabledInit() {}
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic() {
+
+}
 
 /**
  * This autonomous runs the autonomous command selected by your {@link
@@ -113,23 +120,33 @@ void Robot::TeleopPeriodic()
     // std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
     // chassis->rc_run(target[0],target[1],target[2]);
     // chassis->milemter();
+      if(rc->is_grab())
+      grab->put_down();
+    else
+    {
+      grab->put_up();
+    }
+  grab->debug();
+    
 }
 
 /**
  * This function is called periodically during test mode.
  */
- double leftYstick ,rightYstick,vzYstick;
- double last_lefts;
+// RC rc(0);
 void Robot::TestInit()
 {
+  
   // gimbal = new Gimbal();
   // if (gimbal == nullptr)
   //   std::cout<<"fail"<<std::endl;
+
+
 }
 void Robot::TestPeriodic() 
 {
 
-
+  // rc.display();
   // TODO: 显示有问题
       // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
       // gimbal->display();

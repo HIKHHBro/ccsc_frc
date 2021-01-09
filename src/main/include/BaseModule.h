@@ -6,7 +6,18 @@
 /*----------------------------------------------------------------------------*/
 #pragma once
 #include <iostream>
-
+class Base
+{
+public:
+    inline int limit(int data,int min,int max)
+    {data = (data) > (max) ? (max) : (data);
+     data = (data) < (min) ? (min) : (data);
+     return  data;} 
+    inline float limit(float data,float min,float max)
+    {data = (data) > (max) ? (max) : (data); 
+    data = (data) < (min) ? (min) : (data);
+    return  data;}
+};
 typedef struct Gyro
 {
     float acc_x = 0;
@@ -42,11 +53,13 @@ public:
         return value;
     }
     void set_k(float k){this->k = k;};
+    inline float get_last_data(){return last_value;}
 private:
     float k;
     float last_value;
 };
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:fasle ) 
+#define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
 #define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
 ///< x 为减速前,y为减速后
@@ -59,3 +72,8 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define CHASSIS_DEBUG //设置底盘调试模式
 // #define COM_DEBUG //在公司调试
 // #define DIALS_DEBUG
+// #define JOY_RC
+#define XBON_RC
+// #define RC_DEBGU
+#define GRAB_DEBUG
+
