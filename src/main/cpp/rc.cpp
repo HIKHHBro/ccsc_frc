@@ -55,10 +55,27 @@ bool RC::is_grab()
 {
     return xbox->GetBumper(frc::GenericHID::kLeftHand);
 }
-// void RC::text()
-// {
-//     for(int i = 0;i<)
-// }
+
+bool RC::is_reset()
+{
+   if(xbox->GetBackButton() && xbox->GetStartButton())
+   {
+    if(reset_count > unit_time)
+    {
+      return true;
+    }
+    else 
+    {
+       reset_count++;
+       return false;
+    }
+   }
+   else
+   {
+     reset_count = 0;
+      return false;
+   } 
+}
 
 #endif
 #ifdef RC_DEBGU
@@ -78,5 +95,7 @@ void RC::display()
     frc::SmartDashboard::PutNumber("12",xbox->GetX(frc::GenericHID::kLeftHand));
     frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
     frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
+    frc::SmartDashboard::PutNumber("reset",is_reset());
+
 }
 #endif

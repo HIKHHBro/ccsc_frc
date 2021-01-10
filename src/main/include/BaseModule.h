@@ -54,14 +54,12 @@ public:
     double enc_to_mm(int);
     void set_dia(float);
     float d = 100;//mm
-private:
 };
 class Neo : public Motor
 {
 public:
     Neo();
     ~Neo();
-private:
 };
 
 typedef struct Gyro
@@ -120,7 +118,7 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define DIALS_DEBUG
 // #define JOY_RC
 #define XBON_RC
-// #define RC_DEBGU
+#define RC_DEBGU
 // #define GRAB_DEBUG
-#define LIFT_DEBUG
+// #define LIFT_DEBUG
 

@@ -2,11 +2,12 @@
 #define __LIFTING_H
 #include "BaseModule.h"
 #include "ctre/Phoenix.h"
+#include "my_thread.h"
 #ifdef LIFT_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
 
-class Lifting : public Base,public Falcon
+class Lifting : public Base, public Falcon, public MyThread
 {
 private:
     enum MOTOR {M1,M2,M_ALL};
@@ -33,6 +34,7 @@ public:
     bool shrink();
     bool reset();
     bool carry_out(float s,float v);
+    void run() override;
 #ifdef LIFT_DEBUG
     void display() override;
     void debug() override;

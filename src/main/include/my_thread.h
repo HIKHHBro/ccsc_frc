@@ -6,21 +6,22 @@
 #include "ctre/Phoenix.h"
 class MyThread
 {
-
 public:
 	MyThread();
-  MyThread(int utime);
+	MyThread(int utime);
 	virtual ~MyThread();
- 
-	void start();
+	void start_detach();
+	void start_join();
 	std::thread::id getId();
 	void interrupt();
 	bool isInterrupted();
-  virtual void run();
-  int loop_time = 30000;//微秒
+	virtual void run();
+	void set_loop_time(int t);
+	void thread_sleep();
 private:
-	std::atomic<bool> isInterript = false;
-  std::thread th;
+	std::atomic<bool> isInterript = true;
+	std::thread th;
+	int loop_time = 30000;//微秒
   
 
   

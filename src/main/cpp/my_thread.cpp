@@ -18,18 +18,28 @@ MyThread::~MyThread()
   std::cout<<"~~~"<<std::endl;
 }
  
-void MyThread::start()
+void MyThread::start_detach()
 {
-  if (!this->isInterrupted())
+  if (this->isInterrupted())
   {
+    isInterript = false;
     std::thread thr(std::bind(&MyThread::run,this));
     this->th = std::move(thr);
     this->th.detach();
   }
   else  std::cout << "is created" << std::endl;
-
 }
- 
+void MyThread::start_join()
+{
+  if (this->isInterrupted())
+  {
+    isInterript = false;
+    std::thread thr(std::bind(&MyThread::run,this));
+    this->th = std::move(thr);
+    this->th.detach();
+  }
+  else  std::cout << "is created" << std::endl;
+}
 std::thread::id MyThread::getId()
 {
 	return this->th.get_id();
@@ -47,4 +57,13 @@ bool MyThread::isInterrupted()
 void MyThread::run()
 {
   std::cout << "MyThread" << std::endl;
+  thread_sleep();
+}
+void MyThread::set_loop_time(int t)
+{
+  loop_time = t;
+}
+void MyThread::thread_sleep()
+{
+    usleep(loop_time);
 }

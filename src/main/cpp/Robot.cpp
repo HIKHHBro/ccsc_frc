@@ -103,6 +103,7 @@ void Robot::TeleopInit() {
 
 
   lifting->display();
+  
 
 }
 
@@ -132,6 +133,7 @@ void Robot::TeleopPeriodic()
     }
   // grab->debug();
   lifting->debug();
+  rc ->display();
     
 }
 

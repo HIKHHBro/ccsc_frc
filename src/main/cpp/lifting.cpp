@@ -3,6 +3,7 @@ Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
     set_dia(50);//直径50mm
+    set_loop_time(50000);//50ms
     for(int i =0;i<M_ALL;i++)
     {
         motor[i] = new TalonFX(i+id);  
@@ -109,7 +110,6 @@ bool Lifting::shrink()
 ///< 复位
 bool Lifting::reset()
 {
-    float error[2],v[2];
     motor[0]->ConfigClosedLoopPeakOutput(0,reset_output,0);
     motor[1]->ConfigClosedLoopPeakOutput(0,reset_output,0);
     for(int i = 0;i<M_ALL;i++)
@@ -137,6 +137,35 @@ bool Lifting::get_reset_key(MOTOR M)
 bool Lifting::is_stretch_out()
 {
     return is_stretched;
+}
+void Lifting::run()
+{
+
+    motor[0]->ConfigClosedLoopPeakOutput(0,reset_output,0);
+    motor[1]->ConfigClosedLoopPeakOutput(0,reset_output,0);
+    while (!isInterrupted())
+    {
+        std::cout<<"初始化"<<std::endl;
+        thread_sleep();
+    }
+    
+    // for(int i = 0;i<M_ALL;i++)
+    // {
+    //     if(motor[i]->GetOutputCurrent() > reset_current_thres && motor[0]->GetSelectedSensorVelocity()==0)
+    //     {
+    //         if(get_reset_key(M1))
+    //         {
+    //             motor[i]->SetSelectedSensorPosition(0, 0, 10);
+    //             continue;
+    //         }
+    //     }
+    //     motor[i]->Set(ControlMode::Velocity,reset_speed);
+
+    // }
+
+
+    
+
 }
 #ifdef LIFT_DEBUG
 void Lifting::display()

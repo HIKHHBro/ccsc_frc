@@ -13,6 +13,9 @@ private:
 #ifdef XBON_RC
    XboxController* xbox;
 #endif
+
+   int reset_count = 0;
+   float unit_time = 50;
   
 public:
   RC(int id);
@@ -22,6 +25,7 @@ public:
   float getZ();
   bool is_grab();
   void display();
+  bool is_reset();
 
 };
 
