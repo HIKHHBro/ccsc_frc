@@ -23,7 +23,7 @@ void Robot::RobotInit()
   chassis = new Chassis();
   gimbal = new Gimbal();
   dials = new Dials(3);
-  grab = new Grab(0,20,0,0.02);
+  grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   lifting = new Lifting(5);
    std::cout<<"Period"<<GetPeriod()<<std::endl;
@@ -102,8 +102,10 @@ void Robot::TeleopInit() {
   }
 
 
-  lifting->display();
-  
+  // lifting->display();
+#ifdef GRAB_DEBUG
+    grab->display();
+#endif
 
 }
 
@@ -141,8 +143,12 @@ void Robot::TeleopPeriodic()
     }
     
   // grab->debug();
-  lifting->debug();
+  // lifting->debug();
   // rc ->display();
+
+  #ifdef GRAB_DEBUG
+    grab->debug();
+  #endif
     
 }
 

@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 #pragma once
 #include <iostream>
+#include "rev/SparkMax.h"
 class Base
 {
 public:
@@ -23,7 +24,34 @@ public:
     virtual void display();
     virtual void debug();
 };
-class Motor
+class RampFunction
+{
+public:
+    
+    RampFunction(float k);
+    ~RampFunction();
+    //TODO: 值为负的时候不能收敛
+    float cal_speed(float value)
+    {
+        if(abs(value) - abs(last_value) >k)
+        {
+            value = k + last_value;
+        }
+        if(abs(value) - abs(last_value) <-k)
+        {
+            value = last_value - k;
+        }
+        last_value = value;
+        return value;
+    };
+    inline float get_last_data(){return last_value;};
+    void set_k(float k){this->k = k;};
+    float get_k(){return this->k;};
+private:
+    float k;
+    float last_value;
+};
+class Motor : public Base
 {
 private:
     /* data */
@@ -55,10 +83,10 @@ public:
     void set_dia(float);
     float d = 100;//mm
 };
-class Neo : public Motor
+class Neo : public Motor,public rev::SparkMax,public RampFunction
 {
 public:
-    Neo();
+    Neo(int channel,float k);
     ~Neo();
 };
 
@@ -78,30 +106,6 @@ typedef struct Gyro
 
 }Gyro;
 
-class RampFunction
-{
-public:
-    
-    RampFunction(float k);
-    ~RampFunction();
-    float set(float value)
-    {
-        if(value - last_value >k)
-        {
-            value = k + last_value;
-        }
-        if(value - last_value <-k)
-        {
-            value = last_value - k;
-        }
-        last_value = value;
-        return value;
-    }
-    inline float get_last_data(){return last_value;}
-private:
-    float k;
-    float last_value;
-};
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
 #define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
@@ -119,6 +123,7 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define JOY_RC
 #define XBON_RC
 // #define RC_DEBGU
-// #define GRAB_DEBUG
-#define LIFT_DEBUG
+#define GRAB_DEBUG
+// #define LIFT_DEBUG
+#define SHOOT_DEBUG
 

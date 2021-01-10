@@ -11,7 +11,7 @@ void Base::debug()
 {
     std::cout<<"debug"<<std::endl;
 }
-RampFunction::RampFunction(float k){this->k = k;}
+RampFunction::RampFunction(float k):k(k){last_value = 0;}
 
 RampFunction::~RampFunction(){}
 
@@ -93,11 +93,12 @@ void Falcon::set_dia(float len)
     d = len;
 }
 
-Neo::Neo()
+Neo::Neo(int channel,float k):SparkMax(channel),RampFunction(k)
 {
     max_rpm = 5700;
     encoder_l = 4096;
 }
+
 Neo::~Neo()
 {
 

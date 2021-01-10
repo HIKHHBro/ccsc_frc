@@ -8,7 +8,7 @@
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
 
-class Lifting : public Base, public Falcon, public MyThread
+class Lifting : public Falcon, public MyThread
 {
 private:
     enum MOTOR {M1,M2,M_ALL};
