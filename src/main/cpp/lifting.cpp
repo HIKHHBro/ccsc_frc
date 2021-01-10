@@ -164,6 +164,11 @@ void Lifting::run()
         }
     }
 }
+///< 调试用遥控控制获取电机所需运行的位移
+bool Lifting::debug_get_para()
+{
+    
+}
 ///< 获取复位状态
 bool Lifting::get_reset_status()
 {

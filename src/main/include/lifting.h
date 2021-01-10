@@ -39,6 +39,7 @@ public:
     bool carry_out(float s,float v);
     void run() override;
     bool get_reset_status();
+    bool debug_get_para();
 #ifdef LIFT_DEBUG
     void display() override;
     void debug() override;
