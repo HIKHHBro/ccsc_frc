@@ -30,7 +30,6 @@ public:
     
     RampFunction(float k);
     ~RampFunction();
-    //TODO: 值为负的时候不能收敛
     float cal_speed(float value)
     {
         if(value - last_value >k)
