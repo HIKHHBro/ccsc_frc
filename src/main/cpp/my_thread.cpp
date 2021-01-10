@@ -67,3 +67,8 @@ void MyThread::thread_sleep()
 {
     usleep(loop_time);
 }
+///< 获取
+float MyThread::get_loop_freq()
+{
+  return (1.0*1000.0 * 1000.0) /(float)loop_time;
+}

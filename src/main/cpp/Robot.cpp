@@ -131,9 +131,18 @@ void Robot::TeleopPeriodic()
     {
       grab->put_up();
     }
+    if (rc->is_reset())
+    {
+      lifting->reset();
+    }
+    else
+    {
+      lifting->interrupt();
+    }
+    
   // grab->debug();
   lifting->debug();
-  rc ->display();
+  // rc ->display();
     
 }
 

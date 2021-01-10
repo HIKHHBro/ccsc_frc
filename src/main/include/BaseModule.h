@@ -118,7 +118,7 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define DIALS_DEBUG
 // #define JOY_RC
 #define XBON_RC
-#define RC_DEBGU
+// #define RC_DEBGU
 // #define GRAB_DEBUG
-// #define LIFT_DEBUG
+#define LIFT_DEBUG
 

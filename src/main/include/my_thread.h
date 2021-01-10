@@ -17,6 +17,7 @@ public:
 	bool isInterrupted();
 	virtual void run();
 	void set_loop_time(int t);
+	float get_loop_freq();
 	void thread_sleep();
 private:
 	std::atomic<bool> isInterript = true;

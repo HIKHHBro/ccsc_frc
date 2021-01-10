@@ -3,6 +3,7 @@
 #include "BaseModule.h"
 #include "ctre/Phoenix.h"
 #include "my_thread.h"
+#include <string>
 #ifdef LIFT_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -23,6 +24,8 @@ private:
     float reset_speed = 100;//rpm
     float reset_output = 0.1;//0~1
     float reset_current_thres = 10;//amps
+    bool is_reseted = false;
+    std::string error;
 public:
     Lifting(int id);
     ~Lifting();
@@ -35,6 +38,7 @@ public:
     bool reset();
     bool carry_out(float s,float v);
     void run() override;
+    bool get_reset_status();
 #ifdef LIFT_DEBUG
     void display() override;
     void debug() override;

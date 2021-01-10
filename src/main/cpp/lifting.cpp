@@ -110,22 +110,8 @@ bool Lifting::shrink()
 ///< 复位
 bool Lifting::reset()
 {
-    motor[0]->ConfigClosedLoopPeakOutput(0,reset_output,0);
-    motor[1]->ConfigClosedLoopPeakOutput(0,reset_output,0);
-    for(int i = 0;i<M_ALL;i++)
-    {
-        if(motor[i]->GetOutputCurrent() > reset_current_thres && motor[0]->GetSelectedSensorVelocity()==0)
-        {
-            if(get_reset_key(M1))
-            {
-                motor[i]->SetSelectedSensorPosition(0, 0, 10);
-                continue;
-            }
-        }
-        motor[i]->Set(ControlMode::Velocity,reset_speed);
-
-    }
-    return true;
+    start_join();
+    return is_reseted;
 }
 //TODO: 待写按键输入
 ///< 获取复位按键值
@@ -138,34 +124,50 @@ bool Lifting::is_stretch_out()
 {
     return is_stretched;
 }
+///< 复位线程
+//TODO: 待测试
 void Lifting::run()
 {
 
     motor[0]->ConfigClosedLoopPeakOutput(0,reset_output,0);
     motor[1]->ConfigClosedLoopPeakOutput(0,reset_output,0);
+    is_reseted = false;
     while (!isInterrupted())
     {
-        std::cout<<"初始化"<<std::endl;
-        thread_sleep();
+        if(get_reset_key(M1))
+        {
+            if(motor[0]->GetOutputCurrent() > reset_current_thres &&\
+               motor[0]->GetSelectedSensorVelocity()==0 &&\
+               motor[1]->GetOutputCurrent() > reset_current_thres &&\
+               motor[1]->GetSelectedSensorVelocity()==0
+             )
+             {
+                 motor[0]->SetSelectedSensorPosition(0, 0, 10);
+                 motor[1]->SetSelectedSensorPosition(0, 0, 10);
+                 is_reseted = true;
+                 interrupt();
+             }
+             else
+             {
+                motor[0]->SetSelectedSensorPosition(0, 0, 10);
+                motor[1]->SetSelectedSensorPosition(0, 0, 10);
+                error.append("reset fail - Check whether the lift reset light touch switch is damaged -\n");
+                is_reseted = false;
+                interrupt();
+             }
+
+        }
+        else
+        {
+            motor[0]->Set(ControlMode::Velocity,reset_speed);
+            motor[1]->Set(ControlMode::Velocity,reset_speed);
+        }
     }
-    
-    // for(int i = 0;i<M_ALL;i++)
-    // {
-    //     if(motor[i]->GetOutputCurrent() > reset_current_thres && motor[0]->GetSelectedSensorVelocity()==0)
-    //     {
-    //         if(get_reset_key(M1))
-    //         {
-    //             motor[i]->SetSelectedSensorPosition(0, 0, 10);
-    //             continue;
-    //         }
-    //     }
-    //     motor[i]->Set(ControlMode::Velocity,reset_speed);
-
-    // }
-
-
-    
-
+}
+///< 获取复位状态
+bool Lifting::get_reset_status()
+{
+    return is_reseted;
 }
 #ifdef LIFT_DEBUG
 void Lifting::display()
@@ -214,5 +216,8 @@ void Lifting::debug()
     frc::SmartDashboard::PutNumber("motor_R vel", motor[1]->GetSelectedSensorVelocity());
     frc::SmartDashboard::PutNumber("motor_L current", motor[0]->GetOutputCurrent());
     frc::SmartDashboard::PutNumber("motor_R current", motor[1]->GetOutputCurrent());
+    frc::SmartDashboard::PutNumber("reset loop hz", get_loop_freq());
+    frc::SmartDashboard::PutNumber("is_reseted", is_reseted);
+
 }
 #endif
