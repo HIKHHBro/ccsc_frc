@@ -33,11 +33,11 @@ public:
     //TODO: 值为负的时候不能收敛
     float cal_speed(float value)
     {
-        if(abs(value) - abs(last_value) >k)
+        if(value - last_value >k)
         {
             value = k + last_value;
         }
-        if(abs(value) - abs(last_value) <-k)
+        if(value - last_value <-k)
         {
             value = last_value - k;
         }
