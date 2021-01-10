@@ -106,6 +106,9 @@ void Robot::TeleopInit() {
 #ifdef GRAB_DEBUG
     grab->display();
 #endif
+#ifdef LIFT_DEBUG
+  lifting->display();
+#endif
 
 }
 
@@ -141,15 +144,24 @@ void Robot::TeleopPeriodic()
     {
       lifting->interrupt();
     }
+    if(rc->is_lift())
+      lifting->lift();
+    else
+    {
+      lifting->disable_motor();
+    }
     
   // grab->debug();
   // lifting->debug();
   // rc ->display();
 
-  #ifdef GRAB_DEBUG
-    grab->debug();
-  #endif
-    
+#ifdef GRAB_DEBUG
+  grab->debug();
+#endif
+#ifdef LIFT_DEBUG
+  lifting->debug();
+  rc->display();
+#endif
 }
 
 /**

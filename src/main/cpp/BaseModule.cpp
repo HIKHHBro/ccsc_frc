@@ -62,14 +62,17 @@ void Motor::set_reduction_ratiop(int numb1 ,int numb2,int numb3,int numb4)
 }
 
 
-Falcon::Falcon()
+Falcon::Falcon():Motor(6380,2048,1)
 {
-    encoder_l = 2048;
-    max_rpm = 6380;
+
 }
 Falcon::~Falcon()
 {
 
+}
+int Falcon::get_position_error(int target,int real)
+{
+    return (target - real);
 }
 //TODO: 待测试
 float Falcon::enc_100ms_to_rpm(float enc)

@@ -76,26 +76,31 @@ bool RC::is_reset()
       return false;
    } 
 }
-
+bool RC::is_lift()
+{
+  return xbox->GetBumper(frc::GenericHID::kRightHand);
+}
 #endif
 #ifdef RC_DEBGU
 
 void RC::display()
 {
-    frc::SmartDashboard::PutNumber("1:", xbox->GetAButton());
-    frc::SmartDashboard::PutNumber("2:", xbox->GetBackButton());
-    frc::SmartDashboard::PutNumber("3", xbox->GetBButton());
-    frc::SmartDashboard::PutNumber("4", xbox->GetBumper(frc::GenericHID::kLeftHand ));
-    frc::SmartDashboard::PutNumber("6",xbox->GetRawButton(0));
-    frc::SmartDashboard::PutNumber("7",xbox->GetPOV(0));
-    frc::SmartDashboard::PutNumber("8",xbox->GetRawAxis(0));
-    frc::SmartDashboard::PutNumber("9",xbox->GetStartButton());
-    frc::SmartDashboard::PutNumber("10",xbox->GetStickButton(frc::GenericHID::kLeftHand));
-    frc::SmartDashboard::PutNumber("11",xbox->GetTriggerAxis(frc::GenericHID::kLeftHand));
-    frc::SmartDashboard::PutNumber("12",xbox->GetX(frc::GenericHID::kLeftHand));
-    frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
-    frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
-    frc::SmartDashboard::PutNumber("reset",is_reset());
+    // frc::SmartDashboard::PutNumber("1:", xbox->GetAButton());
+    // frc::SmartDashboard::PutNumber("2:", xbox->GetBackButton());
+    // frc::SmartDashboard::PutNumber("3", xbox->GetBButton());
+    // frc::SmartDashboard::PutNumber("4", xbox->GetBumper(frc::GenericHID::kLeftHand ));
+    // frc::SmartDashboard::PutNumber("6",xbox->GetRawButton(0));
+    // frc::SmartDashboard::PutNumber("7",xbox->GetPOV(0));
+    // frc::SmartDashboard::PutNumber("8",xbox->GetRawAxis(0));
+    // frc::SmartDashboard::PutNumber("9",xbox->GetStartButton());
+    // frc::SmartDashboard::PutNumber("10",xbox->GetStickButton(frc::GenericHID::kLeftHand));
+    // frc::SmartDashboard::PutNumber("11",xbox->GetTriggerAxis(frc::GenericHID::kLeftHand));
+    // frc::SmartDashboard::PutNumber("12",xbox->GetX(frc::GenericHID::kLeftHand));
+    // frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
+    // frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
+    // frc::SmartDashboard::PutNumber("reset",is_reset());
+    frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
+
 
 }
 #endif

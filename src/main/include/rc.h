@@ -26,6 +26,7 @@ public:
   bool is_grab();
   void display();
   bool is_reset();
+  bool is_lift();
 
 };
 

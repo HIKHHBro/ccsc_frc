@@ -7,6 +7,7 @@
 #pragma once
 #include <iostream>
 #include "rev/SparkMax.h"
+#include "ctre/Phoenix.h"
 class Base
 {
 public:
@@ -81,6 +82,7 @@ public:
     double enc_to_mm(int);
     void set_dia(float);
     float d = 100;//mm
+    int get_position_error(int target,int real);
 };
 class Neo : public Motor,public rev::SparkMax,public RampFunction
 {
@@ -106,6 +108,8 @@ typedef struct Gyro
 }Gyro;
 
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
+#define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
+
 #define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
 #define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
@@ -121,8 +125,8 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define DIALS_DEBUG
 // #define JOY_RC
 #define XBON_RC
-// #define RC_DEBGU
-#define GRAB_DEBUG
-// #define LIFT_DEBUG
-#define SHOOT_DEBUG
+#define RC_DEBGU
+// #define GRAB_DEBUG
+#define LIFT_DEBUG
+// #define SHOOT_DEBUG
 

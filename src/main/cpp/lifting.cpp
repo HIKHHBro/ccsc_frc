@@ -28,7 +28,7 @@ Lifting::Lifting(int id)
 
         /* Set Motion Magic gains in slot0 - see documentation */
         motor[i]->SelectProfileSlot(0, 0);
-        motor[i]->Config_kF(0, 0.3, 10);
+        motor[i]->Config_kF(0, 0.2, 10);
         motor[i]->Config_kP(0, 0.1, 10);
         motor[i]->Config_kI(0, 0.0, 10);
         motor[i]->Config_kD(0, 0.0, 10);
@@ -40,6 +40,8 @@ Lifting::Lifting(int id)
         /* Zero the sensor */
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigMotionSCurveStrength(smoothing, 0);
+        motor[i]->SetNeutralMode(Brake);
+        motor[i]->ConfigNeutralDeadband(0,10);
     }
     //TODO: 待测试跟随
     // motor[0]->Follow(*motor[1],FollowerType::FollowerType_AuxOutput1);
@@ -59,35 +61,55 @@ void Lifting::set_point(float len)
 //TODO: 测试获取误差的api是否是GetClosedLoopError
 bool Lifting::lift()
 {
-    if(carry_out(lift_high,stretch_speed))
-    {
-        is_stretched = true;
-        return true;
-    }
-    return false;
+    return carry_out(lift_high,stretch_speed);
 }
 //TODO: 待测试
 ///< 伸出
 bool Lifting::stretch_out()
 {
-    if(carry_out(route,stretch_speed))
-    {
-        is_stretched = true;
-    }
-    return false;
+    return carry_out(route,stretch_speed,stretch_acc);
 }
 ///< 动作执行 s 位移 v 速度
 bool Lifting::carry_out(float s,float v)
 {
     float error[2],v_temp[2];
-    motor[0]->ConfigMotionCruiseVelocity(v, 10);
-    motor[1]->ConfigMotionCruiseVelocity(v, 10);
+    motor[0]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
+    motor[1]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
+    for(int i = 0;i<M_ALL;i++)
+    {
+        error[i] = get_position_error(mm_to_enc(s),motor[i]->GetSelectedSensorPosition());
+        v_temp[i] = motor[i]->GetSelectedSensorVelocity();
+    }
+    if(IS_X_SECTION(error[0],pos_thres) && \
+        IS_X_SECTION(error[1],pos_thres) &&\
+        v_temp[0] == 0 && \
+        v_temp[1] == 0)
+    {
+        return true;
+    }
+    else
+    {
+        set_point(s);
+        return false;
+    }
+}
+bool Lifting::carry_out(float s,float v,float acc)
+{
+    float error[2],v_temp[2];
+    motor[0]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
+    motor[0]->ConfigMotionAcceleration(rpm_to_enc_100ms(acc), 10);
+    motor[1]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
+    motor[1]->ConfigMotionAcceleration(rpm_to_enc_100ms(acc), 10);
+
     for(int i = 0;i<M_ALL;i++)
     {
         error[i] = motor[i]->GetClosedLoopError();
         v_temp[i] = motor[i]->GetSelectedSensorVelocity();
     }
-    if(IS_SECTION(error[0],-pos_thres,pos_thres) && v_temp[1] == speed_thres)
+    if(IS_X_SECTION(error[0],pos_thres) && \
+        IS_X_SECTION(error[1],pos_thres) &&\
+        v_temp[0] == 0 && \
+        v_temp[1] == 0)
     {
         return true;
     }
@@ -100,18 +122,14 @@ bool Lifting::carry_out(float s,float v)
 ///< 收缩
 bool Lifting::shrink()
 {
-    if(carry_out(0,stretch_speed))
-    {
-        is_stretched = false;
-    }
-    return false;
+    return carry_out(0,stretch_speed,stretch_acc);
 }
 //TODO：线程函数
 ///< 复位
 bool Lifting::reset()
 {
     start_join();
-    return is_reseted;
+    return false;
 }
 //TODO: 待写按键输入
 ///< 获取复位按键值
@@ -119,10 +137,25 @@ bool Lifting::get_reset_key(MOTOR M)
 {
     return false;
 }
-///< 是否完全伸长
-bool Lifting::is_stretch_out()
+
+///< 获取伸缩杆状态
+Lifting::STATUS Lifting::get_status()
 {
-    return is_stretched;
+    if(IS_X_SECTION(get_position_error(mm_to_enc(route),motor[0]->GetSelectedSensorPosition()),pos_thres) &&\
+       IS_X_SECTION(get_position_error(mm_to_enc(route),motor[1]->GetSelectedSensorPosition()),pos_thres))
+    {
+        lift_status = Stretched;
+    }
+    else if(IS_X_SECTION(get_position_error(0,motor[0]->GetSelectedSensorPosition()),pos_thres) &&\
+            IS_X_SECTION(get_position_error(0,motor[1]->GetSelectedSensorPosition()),pos_thres))
+    {
+        lift_status = Shrinked;
+    }
+    else
+    {
+        lift_status = Mid;
+    }
+    return lift_status;
 }
 ///< 复位线程
 //TODO: 待测试
@@ -131,7 +164,6 @@ void Lifting::run()
 
     motor[0]->ConfigClosedLoopPeakOutput(0,reset_output,0);
     motor[1]->ConfigClosedLoopPeakOutput(0,reset_output,0);
-    is_reseted = false;
     while (!isInterrupted())
     {
         if(get_reset_key(M1))
@@ -144,7 +176,6 @@ void Lifting::run()
              {
                  motor[0]->SetSelectedSensorPosition(0, 0, 10);
                  motor[1]->SetSelectedSensorPosition(0, 0, 10);
-                 is_reseted = true;
                  interrupt();
              }
              else
@@ -152,7 +183,6 @@ void Lifting::run()
                 motor[0]->SetSelectedSensorPosition(0, 0, 10);
                 motor[1]->SetSelectedSensorPosition(0, 0, 10);
                 error.append("reset fail - Check whether the lift reset light touch switch is damaged -\n");
-                is_reseted = false;
                 interrupt();
              }
 
@@ -164,6 +194,13 @@ void Lifting::run()
         }
     }
 }
+///< 失能电机
+//TODO: 不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
+void Lifting::disable_motor()
+{
+    motor[0]->Set(ControlMode::MotionMagic, motor[0]->GetSelectedSensorPosition());
+    motor[1]->Set(ControlMode::MotionMagic, motor[1]->GetSelectedSensorPosition());
+}
 ///< 调试用遥控控制获取电机所需运行的位移
 bool Lifting::debug_get_para()
 {
@@ -172,7 +209,7 @@ bool Lifting::debug_get_para()
 ///< 获取复位状态
 bool Lifting::get_reset_status()
 {
-    return is_reseted;
+    return false;
 }
 #ifdef LIFT_DEBUG
 void Lifting::display()
@@ -183,11 +220,14 @@ void Lifting::display()
  frc::SmartDashboard::PutNumber("lift_high",lift_high);
  frc::SmartDashboard::PutNumber("pos_thres",pos_thres);
  frc::SmartDashboard::PutNumber("speed_thres",speed_thres);
- frc::SmartDashboard::PutNumber("stretch_speed",stretch_speed);
- frc::SmartDashboard::PutNumber("is_stretched",is_stretched);
+ frc::SmartDashboard::PutNumber("get_stretch_speed",stretch_speed);
+ frc::SmartDashboard::PutNumber("get_shrink_speed",shrink_speed);
  frc::SmartDashboard::PutNumber("reset_speed",reset_speed);
  frc::SmartDashboard::PutNumber("reset_output",reset_output);
  frc::SmartDashboard::PutNumber("reset_current_thres",reset_current_thres);
+ frc::SmartDashboard::PutNumber("get_shrink_acc",shrink_acc);
+ frc::SmartDashboard::PutNumber("get_stretch_acc",stretch_acc);
+ frc::SmartDashboard::PutNumber("get_reset_acc",reset_acc);
 }
 void Lifting::debug()
 {
@@ -204,10 +244,10 @@ void Lifting::debug()
     if(get5 != pos_thres) {pos_thres = get5;}
     int get6 = frc::SmartDashboard::GetNumber("speed_thres",speed_thres);
     if(get6 != speed_thres) {speed_thres = get6;}
-    int get7 = frc::SmartDashboard::GetNumber("stretch_speed",stretch_speed);
+    int get7 = frc::SmartDashboard::GetNumber("get_stretch_speed",stretch_speed);
     if(get7 != stretch_speed) {stretch_speed = get7;}
-    int get8 = frc::SmartDashboard::GetNumber("is_stretched",is_stretched);
-    if(get8 != is_stretched) {is_stretched = get8;}
+    // int get8 = frc::SmartDashboard::GetNumber("is_stretched",is_stretched);
+    // if(get8 != is_stretched) {is_stretched = get8;}
     int get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
     if(get9 != reset_speed) {reset_speed = get9;}
     int get10 = frc::SmartDashboard::GetNumber("reset_output",reset_output);
@@ -215,14 +255,34 @@ void Lifting::debug()
     int get11 = frc::SmartDashboard::GetNumber("reset_current_thres",reset_current_thres);
     if(get11 != reset_current_thres) {reset_current_thres = get11;}
 
-    frc::SmartDashboard::PutNumber("motor_L error", motor[0]->GetClosedLoopError());
-    frc::SmartDashboard::PutNumber("motor_R error", motor[1]->GetClosedLoopError());
-    frc::SmartDashboard::PutNumber("motor_L vel", motor[0]->GetSelectedSensorVelocity());
-    frc::SmartDashboard::PutNumber("motor_R vel", motor[1]->GetSelectedSensorVelocity());
+    int get12 = frc::SmartDashboard::GetNumber("get_shrink_speed",shrink_speed);
+    if(get12 != shrink_speed) {shrink_speed = get12;}
+
+    int get13 = frc::SmartDashboard::GetNumber("get_shrink_acc",shrink_acc);
+    if(get13 != shrink_acc) {shrink_acc = get13;}
+
+    int get14 = frc::SmartDashboard::GetNumber("stretch_acc",stretch_acc);
+    if(get14 != stretch_acc) {stretch_acc = get14;}
+
+
+    int get15 = frc::SmartDashboard::GetNumber("get_reset_acc",reset_acc);
+    if(get15 != reset_acc) {reset_acc = get15;}
+
+    frc::SmartDashboard::PutNumber("motor_L error", get_position_error(mm_to_enc(lift_high),motor[0]->GetSelectedSensorPosition()));
+    frc::SmartDashboard::PutNumber("motor_R error", get_position_error(mm_to_enc(lift_high),motor[1]->GetSelectedSensorPosition()));
+    frc::SmartDashboard::PutNumber("motor_L vel", enc_100ms_to_rpm(motor[0]->GetSelectedSensorVelocity()));
+    frc::SmartDashboard::PutNumber("motor_R vel", enc_100ms_to_rpm(motor[1]->GetSelectedSensorVelocity()));
     frc::SmartDashboard::PutNumber("motor_L current", motor[0]->GetOutputCurrent());
     frc::SmartDashboard::PutNumber("motor_R current", motor[1]->GetOutputCurrent());
     frc::SmartDashboard::PutNumber("reset loop hz", get_loop_freq());
-    frc::SmartDashboard::PutNumber("is_reseted", is_reseted);
-
+    frc::SmartDashboard::PutNumber("lift_status", get_status());
+    frc::SmartDashboard::PutNumber("motor L ID", motor[0]->GetDeviceID());
+    frc::SmartDashboard::PutNumber("motor R ID", motor[1]->GetDeviceID());
+    frc::SmartDashboard::PutNumber("motor L pos", motor[0]->GetSelectedSensorPosition());
+    frc::SmartDashboard::PutNumber("motor R pos", motor[1]->GetSelectedSensorPosition());
+    frc::SmartDashboard::PutNumber("motor target pos", mm_to_enc(lift_high) + len_comp);
+    frc::SmartDashboard::PutNumber("rpm_to_enc_100ms(v)", rpm_to_enc_100ms(stretch_speed));
+    frc::SmartDashboard::PutNumber("motor_L vel 100ms", motor[0]->GetSelectedSensorVelocity());
+    frc::SmartDashboard::PutNumber("motor_R vel 100ms", motor[1]->GetSelectedSensorVelocity());
 }
 #endif
