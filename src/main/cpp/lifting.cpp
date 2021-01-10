@@ -40,7 +40,8 @@ Lifting::Lifting(int id)
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigMotionSCurveStrength(smoothing, 0);
     }
-    motor[0]->Follow(*motor[1],FollowerType::FollowerType_AuxOutput1);
+    //TODO: 待测试跟随
+    // motor[0]->Follow(*motor[1],FollowerType::FollowerType_AuxOutput1);
 }           
 
 
@@ -140,34 +141,49 @@ bool Lifting::is_stretch_out()
 #ifdef LIFT_DEBUG
 void Lifting::display()
 {
-//  frc::SmartDashboard::PutNumber("enc_get",0);
- frc::SmartDashboard::PutNumber("mm_get",0);
- frc::SmartDashboard::PutNumber("enc_get",0);
-
+ frc::SmartDashboard::PutNumber("smoothing",smoothing);
+ frc::SmartDashboard::PutNumber("len_comp",len_comp);
+ frc::SmartDashboard::PutNumber("route",route);
+ frc::SmartDashboard::PutNumber("lift_high",lift_high);
+ frc::SmartDashboard::PutNumber("pos_thres",pos_thres);
+ frc::SmartDashboard::PutNumber("speed_thres",speed_thres);
+ frc::SmartDashboard::PutNumber("stretch_speed",stretch_speed);
+ frc::SmartDashboard::PutNumber("is_stretched",is_stretched);
+ frc::SmartDashboard::PutNumber("reset_speed",reset_speed);
+ frc::SmartDashboard::PutNumber("reset_output",reset_output);
+ frc::SmartDashboard::PutNumber("reset_current_thres",reset_current_thres);
 }
 void Lifting::debug()
 {
 
-// int enc = frc::SmartDashboard::GetNumber("enc_get",0);
-// int per = frc::SmartDashboard::GetNumber("per_get",0);
-// int rpm = frc::SmartDashboard::GetNumber("rpm_get",0);
-// display
-//  frc::SmartDashboard::PutNumber("enc_show",rpm_to_enc(rpm));
-//  frc::SmartDashboard::PutNumber("per",rpm_to_per(rpm));
-//  frc::SmartDashboard::PutNumber("rpm",enc_to_rpm(enc));
-//  frc::SmartDashboard::PutNumber("max_rpm",max_rpm);
-//  frc::SmartDashboard::PutNumber("perrpm_show",per_to_rpm(per));
-//  frc::SmartDashboard::PutNumber("enc_how",rpm_to_enc(per_to_rpm(per)));
+    int get1 = frc::SmartDashboard::GetNumber("smoothing",smoothing);
+    if(get1 != smoothing) {smoothing = get1;}
+    int get2 = frc::SmartDashboard::GetNumber("len_comp",len_comp);
+    if(get2 != len_comp) {len_comp = get2;}
+    int get3 = frc::SmartDashboard::GetNumber("route",route);
+    if(get3 != route) {route = get3;}
+    int get4 = frc::SmartDashboard::GetNumber("lift_high",lift_high);
+    if(get4 != lift_high) {lift_high = get4;}
+    int get5 = frc::SmartDashboard::GetNumber("pos_thres",pos_thres);
+    if(get5 != pos_thres) {pos_thres = get5;}
+    int get6 = frc::SmartDashboard::GetNumber("speed_thres",speed_thres);
+    if(get6 != speed_thres) {speed_thres = get6;}
+    int get7 = frc::SmartDashboard::GetNumber("stretch_speed",stretch_speed);
+    if(get7 != stretch_speed) {stretch_speed = get7;}
+    int get8 = frc::SmartDashboard::GetNumber("is_stretched",is_stretched);
+    if(get8 != is_stretched) {is_stretched = get8;}
+    int get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
+    if(get9 != reset_speed) {reset_speed = get9;}
+    int get10 = frc::SmartDashboard::GetNumber("reset_output",reset_output);
+    if(get10 != reset_output) {reset_output = get10;}
+    int get11 = frc::SmartDashboard::GetNumber("reset_current_thres",reset_current_thres);
+    if(get11 != reset_current_thres) {reset_current_thres = get11;}
 
-
-int mm_get = frc::SmartDashboard::GetNumber("mm_get",0);
-int enc_get = frc::SmartDashboard::GetNumber("enc_get",0);
- frc::SmartDashboard::PutNumber("mm",enc_to_mm(enc_get));
- frc::SmartDashboard::PutNumber("enc",mm_to_enc(mm_get));
-
-//  frc::SmartDashboard::PutNumber("position_to_enc_coep",position_to_enc_coep);
- frc::SmartDashboard::PutNumber("reduction_ratiop",reduction_ratiop);
- frc::SmartDashboard::PutNumber("d",d);
-
+    frc::SmartDashboard::PutNumber("motor_L error", motor[0]->GetClosedLoopError());
+    frc::SmartDashboard::PutNumber("motor_R error", motor[1]->GetClosedLoopError());
+    frc::SmartDashboard::PutNumber("motor_L vel", motor[0]->GetSelectedSensorVelocity());
+    frc::SmartDashboard::PutNumber("motor_R vel", motor[1]->GetSelectedSensorVelocity());
+    frc::SmartDashboard::PutNumber("motor_L current", motor[0]->GetOutputCurrent());
+    frc::SmartDashboard::PutNumber("motor_R current", motor[1]->GetOutputCurrent());
 }
 #endif
