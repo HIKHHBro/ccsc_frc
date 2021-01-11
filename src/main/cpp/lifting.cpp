@@ -4,6 +4,8 @@ Lifting::Lifting(int id)
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
     set_dia(50);//直径50mm
     set_loop_time(50000);//50ms
+    reset_sw[0] = new frc::DigitalInput(0);//0通道
+    reset_sw[1] = new frc::DigitalInput(1);//0通道
     for(int i =0;i<M_ALL;i++)
     {
         motor[i] = new TalonFX(i+id);  
@@ -50,6 +52,7 @@ Lifting::Lifting(int id)
 
 Lifting::~Lifting()
 {
+    delete reset_sw;
 }
 ///< 设置电机执行
 void Lifting::set_point(float len)
@@ -67,7 +70,7 @@ bool Lifting::lift()
 ///< 伸出
 bool Lifting::stretch_out()
 {
-    return carry_out(route,stretch_speed,stretch_acc);
+    return carry_out(route,stretch_speed);
 }
 ///< 动作执行 s 位移 v 速度
 bool Lifting::carry_out(float s,float v)
@@ -93,36 +96,11 @@ bool Lifting::carry_out(float s,float v)
         return false;
     }
 }
-bool Lifting::carry_out(float s,float v,float acc)
-{
-    float error[2],v_temp[2];
-    motor[0]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
-    motor[0]->ConfigMotionAcceleration(rpm_to_enc_100ms(acc), 10);
-    motor[1]->ConfigMotionCruiseVelocity(rpm_to_enc_100ms(v), 10);
-    motor[1]->ConfigMotionAcceleration(rpm_to_enc_100ms(acc), 10);
 
-    for(int i = 0;i<M_ALL;i++)
-    {
-        error[i] = motor[i]->GetClosedLoopError();
-        v_temp[i] = motor[i]->GetSelectedSensorVelocity();
-    }
-    if(IS_X_SECTION(error[0],pos_thres) && \
-        IS_X_SECTION(error[1],pos_thres) &&\
-        v_temp[0] == 0 && \
-        v_temp[1] == 0)
-    {
-        return true;
-    }
-    else
-    {
-        set_point(s);
-        return false;
-    }
-}
 ///< 收缩
 bool Lifting::shrink()
 {
-    return carry_out(0,stretch_speed,stretch_acc);
+    return carry_out(0,stretch_speed);
 }
 //TODO：线程函数
 ///< 复位
@@ -131,11 +109,11 @@ bool Lifting::reset()
     start_join();
     return false;
 }
-//TODO: 待写按键输入
+//TODO: 待测试
 ///< 获取复位按键值
 bool Lifting::get_reset_key(MOTOR M)
 {
-    return false;
+    return reset_sw[M]->Get();
 }
 
 ///< 获取伸缩杆状态
@@ -176,16 +154,44 @@ void Lifting::run()
              {
                  motor[0]->SetSelectedSensorPosition(0, 0, 10);
                  motor[1]->SetSelectedSensorPosition(0, 0, 10);
+                 is_reseted = true;
+                 reset_error_count =0;
                  interrupt();
              }
              else
              {
-                motor[0]->SetSelectedSensorPosition(0, 0, 10);
-                motor[1]->SetSelectedSensorPosition(0, 0, 10);
-                error.append("reset fail - Check whether the lift reset light touch switch is damaged -\n");
-                interrupt();
+                if(reset_error_count < reset_error_thre)
+                {
+                    motor[0]->Set(ControlMode::Velocity,reset_speed);
+                    motor[1]->Set(ControlMode::Velocity,reset_speed);
+                    reset_error_count++;
+                }
+                else
+                {
+                    motor[0]->SetSelectedSensorPosition(0, 0, 10);
+                    motor[1]->SetSelectedSensorPosition(0, 0, 10);
+                    error.append("reset fail - Check whether the lift reset light touch switch is damaged -\n");
+                    motor[0]->Set(ControlMode::Velocity,0);
+                    motor[1]->Set(ControlMode::Velocity,0);
+                    is_reseted = false;
+                    interrupt();
+                }
              }
 
+        }
+        else if(motor[0]->GetOutputCurrent() > reset_current_thres &&\
+               motor[0]->GetSelectedSensorVelocity()==0 &&\
+               motor[1]->GetOutputCurrent() > reset_current_thres &&\
+               motor[1]->GetSelectedSensorVelocity()==0
+             )
+        {
+            motor[0]->SetSelectedSensorPosition(0, 0, 10);
+            motor[1]->SetSelectedSensorPosition(0, 0, 10);
+            error.append("reset fail - Check whether the lift reset light touch switch is damaged -\n");
+            motor[0]->Set(ControlMode::Velocity,0);
+            motor[1]->Set(ControlMode::Velocity,0);
+            is_reseted = false;
+            interrupt();
         }
         else
         {
@@ -198,8 +204,8 @@ void Lifting::run()
 //TODO: 不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
 void Lifting::disable_motor()
 {
-    motor[0]->Set(ControlMode::MotionMagic, motor[0]->GetSelectedSensorPosition());
-    motor[1]->Set(ControlMode::MotionMagic, motor[1]->GetSelectedSensorPosition());
+    motor[0]->Set(ControlMode::Velocity,0);
+    motor[1]->Set(ControlMode::Velocity,0);
 }
 ///< 调试用遥控控制获取电机所需运行的位移
 bool Lifting::debug_get_para()
@@ -207,9 +213,10 @@ bool Lifting::debug_get_para()
     
 }
 ///< 获取复位状态
+//TODO: 待写
 bool Lifting::get_reset_status()
 {
-    return false;
+    return is_reseted;
 }
 #ifdef LIFT_DEBUG
 void Lifting::display()
@@ -225,8 +232,7 @@ void Lifting::display()
  frc::SmartDashboard::PutNumber("reset_speed",reset_speed);
  frc::SmartDashboard::PutNumber("reset_output",reset_output);
  frc::SmartDashboard::PutNumber("reset_current_thres",reset_current_thres);
- frc::SmartDashboard::PutNumber("get_shrink_acc",shrink_acc);
- frc::SmartDashboard::PutNumber("get_stretch_acc",stretch_acc);
+ frc::SmartDashboard::PutNumber("get_acc",acc);
  frc::SmartDashboard::PutNumber("get_reset_acc",reset_acc);
 }
 void Lifting::debug()
@@ -258,12 +264,14 @@ void Lifting::debug()
     int get12 = frc::SmartDashboard::GetNumber("get_shrink_speed",shrink_speed);
     if(get12 != shrink_speed) {shrink_speed = get12;}
 
-    int get13 = frc::SmartDashboard::GetNumber("get_shrink_acc",shrink_acc);
-    if(get13 != shrink_acc) {shrink_acc = get13;}
-
-    int get14 = frc::SmartDashboard::GetNumber("stretch_acc",stretch_acc);
-    if(get14 != stretch_acc) {stretch_acc = get14;}
-
+    int get13 = frc::SmartDashboard::GetNumber("get_acc",acc);
+    if(get13 != acc)
+    {
+        acc = get13;
+        acc = limit(acc,0.0,3000.0);
+        motor[0]->ConfigMotionAcceleration(mm_to_enc(acc), 10);
+        motor[1]->ConfigMotionAcceleration(mm_to_enc(acc), 10);
+    }//TODO: 待测试
 
     int get15 = frc::SmartDashboard::GetNumber("get_reset_acc",reset_acc);
     if(get15 != reset_acc) {reset_acc = get15;}
