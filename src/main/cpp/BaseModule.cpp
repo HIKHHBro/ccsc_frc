@@ -74,7 +74,6 @@ int Falcon::get_position_error(int target,int real)
 {
     return (target - real);
 }
-//TODO: 待测试
 float Falcon::enc_100ms_to_rpm(float enc)
 {
     return enc / float(encoder_l) * 600.0; 

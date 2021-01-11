@@ -102,8 +102,11 @@ void RC::display()
     // frc::SmartDashboard::PutNumber("12",xbox->GetX(frc::GenericHID::kLeftHand));
     // frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
     // frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
-    // frc::SmartDashboard::PutNumber("reset",is_reset());
+    frc::SmartDashboard::PutNumber("reset",is_reset());
+#ifdef LIFT_DEBUG
     frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
+#endif
+
 
 
 }

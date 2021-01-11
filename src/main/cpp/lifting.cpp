@@ -63,12 +63,10 @@ void Lifting::set_point(float len)
     motor[1]->Set(ControlMode::MotionMagic, mm_to_enc(len) + len_comp);
 }
 ///< 提升
-//TODO: 测试获取误差的api是否是GetClosedLoopError
 bool Lifting::lift()
 {
-    return carry_out(lift_high,stretch_speed);
+    return carry_out(lift_high,shrink_speed);
 }
-//TODO: 待测试
 ///< 伸出
 bool Lifting::stretch_out()
 {
@@ -104,18 +102,16 @@ bool Lifting::shrink()
 {
     return carry_out(0,stretch_speed);
 }
-//TODO：线程函数
 ///< 复位
 bool Lifting::reset()
 {
     start_join();
     return is_reseted;
 }
-//TODO: 待测试
-///< 获取复位按键值
+///< 获取复位按键值 松开是高电平，按下是低电平
 bool Lifting::get_reset_key(MOTOR M)
 {
-    return reset_sw[M]->Get();
+    return !reset_sw[M]->Get();
 }
 
 ///< 获取伸缩杆状态
@@ -203,7 +199,9 @@ void Lifting::run()
     }
 }
 ///< 失能电机
-//TODO: 不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
+//TODO: 当前位置赋值模式不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
+//TODO: 速度模式会急刹
+//TODO: 待优化
 void Lifting::disable_motor()
 {
     motor[0]->Set(ControlMode::Velocity,0);
@@ -215,7 +213,6 @@ void Lifting::disable_motor()
     
 // }
 ///< 获取复位状态
-//TODO: 待写
 bool Lifting::get_reset_status()
 {
     return is_reseted;
@@ -240,43 +237,47 @@ void Lifting::display()
 void Lifting::debug()
 {
 
-    int get1 = frc::SmartDashboard::GetNumber("smoothing",smoothing);
+    float get1 = frc::SmartDashboard::GetNumber("smoothing",smoothing);
     if(get1 != smoothing) {smoothing = get1;}
-    int get2 = frc::SmartDashboard::GetNumber("len_comp",len_comp);
+    float get2 = frc::SmartDashboard::GetNumber("len_comp",len_comp);
     if(get2 != len_comp) {len_comp = get2;}
-    int get3 = frc::SmartDashboard::GetNumber("route",route);
+    float get3 = frc::SmartDashboard::GetNumber("route",route);
     if(get3 != route) {route = get3;}
-    int get4 = frc::SmartDashboard::GetNumber("lift_high",lift_high);
+    float get4 = frc::SmartDashboard::GetNumber("lift_high",lift_high);
     if(get4 != lift_high) {lift_high = get4;}
-    int get5 = frc::SmartDashboard::GetNumber("pos_thres",pos_thres);
+    float get5 = frc::SmartDashboard::GetNumber("pos_thres",pos_thres);
     if(get5 != pos_thres) {pos_thres = get5;}
-    int get6 = frc::SmartDashboard::GetNumber("speed_thres",speed_thres);
+    float get6 = frc::SmartDashboard::GetNumber("speed_thres",speed_thres);
     if(get6 != speed_thres) {speed_thres = get6;}
-    int get7 = frc::SmartDashboard::GetNumber("get_stretch_speed",stretch_speed);
+    float get7 = frc::SmartDashboard::GetNumber("get_stretch_speed",stretch_speed);
     if(get7 != stretch_speed) {stretch_speed = get7;}
     // int get8 = frc::SmartDashboard::GetNumber("is_stretched",is_stretched);
     // if(get8 != is_stretched) {is_stretched = get8;}
-    int get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
+    float get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
     if(get9 != reset_speed) {reset_speed = get9;}
-    int get10 = frc::SmartDashboard::GetNumber("reset_output",reset_output);
+    float get10 = frc::SmartDashboard::GetNumber("reset_output",reset_output);
     if(get10 != reset_output) {reset_output = get10;}
-    int get11 = frc::SmartDashboard::GetNumber("reset_current_thres",reset_current_thres);
+    float get11 = frc::SmartDashboard::GetNumber("reset_current_thres",reset_current_thres);
     if(get11 != reset_current_thres) {reset_current_thres = get11;}
 
-    int get12 = frc::SmartDashboard::GetNumber("get_shrink_speed",shrink_speed);
+    float get12 = frc::SmartDashboard::GetNumber("get_shrink_speed",shrink_speed);
     if(get12 != shrink_speed) {shrink_speed = get12;}
 
-    int get13 = frc::SmartDashboard::GetNumber("get_acc",acc);
+    float get13 = frc::SmartDashboard::GetNumber("get_acc",acc);
     if(get13 != acc)
     {
-        acc = get13;
-        acc = limit(acc,0.0,3000.0);
-        motor[0]->ConfigMotionAcceleration(mm_to_enc(acc), 10);
-        motor[1]->ConfigMotionAcceleration(mm_to_enc(acc), 10);
-    }//TODO: 待测试
+        acc = limit(get13,0.0,3000.0);
+        motor[0]->ConfigMotionAcceleration(acc, 10);
+        motor[1]->ConfigMotionAcceleration(acc, 10);
+    }
 
-    int get15 = frc::SmartDashboard::GetNumber("get_reset_acc",reset_acc);
-    if(get15 != reset_acc) {reset_acc = get15;}
+    float get15 = frc::SmartDashboard::GetNumber("get_reset_acc",reset_acc);
+    if(get15 != reset_acc)
+    {
+        reset_acc = limit(get15,0.0,3000.0);
+        motor[0]->ConfigMotionAcceleration(reset_acc, 10);
+        motor[1]->ConfigMotionAcceleration(reset_acc, 10);
+    }
 
     frc::SmartDashboard::PutNumber("motor_L error", get_position_error(mm_to_enc(lift_high),motor[0]->GetSelectedSensorPosition()));
     frc::SmartDashboard::PutNumber("motor_R error", get_position_error(mm_to_enc(lift_high),motor[1]->GetSelectedSensorPosition()));
@@ -294,5 +295,14 @@ void Lifting::debug()
     frc::SmartDashboard::PutNumber("rpm_to_enc_100ms(v)", rpm_to_enc_100ms(stretch_speed));
     frc::SmartDashboard::PutNumber("motor_L vel 100ms", motor[0]->GetSelectedSensorVelocity());
     frc::SmartDashboard::PutNumber("motor_R vel 100ms", motor[1]->GetSelectedSensorVelocity());
+    frc::SmartDashboard::PutNumber("get_reset_keyL", get_reset_key(M1));
+    frc::SmartDashboard::PutNumber("get_reset_keyR", get_reset_key(M2));
+    frc::SmartDashboard::PutNumber("reset_acc enc", reset_acc);
+    frc::SmartDashboard::PutNumber("acc_enc", acc);
+    frc::SmartDashboard::PutNumber("复位标志", is_reseted);
+
+    
 }
 #endif
+
+//TODO: 速度和加速度单位，刻度/100ms -> RPM -> mm/s

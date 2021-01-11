@@ -19,7 +19,7 @@ private:
     float smoothing = 0;
     float len_comp = 0;//长度补偿值
     float route = 1100;//mm  伸缩最大行程
-    float lift_high = 0;//mm 不能大于最大行程
+    float lift_high = 0;//mm 车抬升不能大于最大行程
     float pos_thres = 200;//TODO:待测试
     float speed_thres = 0;//TODO:待测试
     float stretch_speed = 0;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
@@ -28,7 +28,7 @@ private:
     float reset_speed = 100;//rpm 0~6000
     float reset_acc = 0;//rpm
     float reset_output = 0.1;//0~1
-    float reset_current_thres = 10;//amps
+    float reset_current_thres = 2;//amps
     float is_reseted = false;
     int reset_error_count = 0;
     int reset_error_thre = (int)(1.0/0.05 * 0.1);//50ms线程运行周期,检测时间阈值为0.1s

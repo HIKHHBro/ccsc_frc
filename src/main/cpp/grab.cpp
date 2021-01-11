@@ -45,7 +45,6 @@ bool Grab::put_up()
     runned_count = 0;
     return is_put_down;
 }
-//TODO: 编写松开气缸和何时松开气缸
 ///< 松开气缸
 bool Grab::loosen_gas()
 {
