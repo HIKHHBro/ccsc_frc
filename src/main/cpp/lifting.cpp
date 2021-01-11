@@ -135,9 +135,9 @@ Lifting::STATUS Lifting::get_status()
     return lift_status;
 }
 ///< 复位线程
-//TODO: 待测试
 //TODO: 添加失败是报详细左右的错误log
 //TODO: 增加log信息
+//TODO: 复位的单位仍然是原始单位 待转换
 void Lifting::run()
 {
     for(int i = 0;i<M_ALL;i++)

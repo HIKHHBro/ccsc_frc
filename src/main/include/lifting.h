@@ -26,10 +26,10 @@ private:
     float shrink_speed = 0;//rpm 0~6000
     float acc = 1500;
     float reset_speed = 100;//rpm 0~6000
-    float reset_acc = 0;//rpm
+    float reset_acc = 0;
     float reset_output = 0.1;//0~1
     float reset_current_thres = 2;//amps
-    float reset_speed_thres = 2;//amps
+    float reset_speed_thres = 2;
     float is_reseted = false;
     int reset_error_count[2] = {0,0};
     float reset_period = 10000;//us
