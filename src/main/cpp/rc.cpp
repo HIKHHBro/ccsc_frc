@@ -80,6 +80,10 @@ bool RC::is_lift()
 {
   return xbox->GetBumper(frc::GenericHID::kRightHand);
 }
+// float get_angle()
+// {
+//   return ;
+// }
 #endif
 #ifdef RC_DEBGU
 

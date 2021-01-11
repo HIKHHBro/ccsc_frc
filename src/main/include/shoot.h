@@ -18,6 +18,7 @@ public:
     void close_horizontal_transfer();
     void carry_out(MOTOR M,float rpm);
     void set_gimbal_angle(float angle);
+    void set_gimbal_percent(float percent);
     bool reset();
 
     TalonFX* gimbal_motor;
@@ -29,7 +30,7 @@ public:
 private:
     void run()   override;
 
-    
+
     Neo* motor[ALL];
     float acc[ALL] = {0.01,0.01,0.01,0.01};
     float smoothing = 0;
