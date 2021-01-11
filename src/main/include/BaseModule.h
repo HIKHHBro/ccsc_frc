@@ -8,6 +8,15 @@
 #include <iostream>
 #include "rev/SparkMax.h"
 #include "ctre/Phoenix.h"
+
+#define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
+#define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
+
+#define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
+#define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
+#define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
+///< x 为减速前,y为减速后
+inline  double reduction_ratio(double x,double y) { return (y/x);}
 class Base
 {
 public:
@@ -47,6 +56,7 @@ public:
     inline float get_last_data(){return last_value;};
     void set_k(float k){this->k = k;};
     float get_k(){return this->k;};
+    float is_complete_acc(float speed){return IS_X_SECTION((speed - last_value),k); }//TODO: 待测试
 private:
     float k;
     float last_value;
@@ -69,6 +79,8 @@ public:
     void set_reduction_ratiop(int,int,int,int);
     double per_to_rpm(float);
     float rpm_to_per(float);
+    float angle_to_enc(float input){return (input/360.0/reduction_ratiop); }//TODO: 待测试
+    float enc_to_angle(int enc){return ((float)enc * 360.0 * reduction_ratiop);}//TODO: 待测试
 };
 
 class Falcon : public Motor
@@ -107,14 +119,7 @@ typedef struct Gyro
 
 }Gyro;
 
-#define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
-#define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
 
-#define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
-#define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
-#define RAD_TO_DEG(rag_) ((rag_) *(45.0 / atan(1.0)) )
-///< x 为减速前,y为减速后
-inline  double reduction_ratio(double x,double y) { return (y/x);}
 
 
 /* 设置模式 */
@@ -129,4 +134,5 @@ inline  double reduction_ratio(double x,double y) { return (y/x);}
 // #define GRAB_DEBUG
 #define LIFT_DEBUG
 // #define SHOOT_DEBUG
+#define SHOOT_DEBUG
 

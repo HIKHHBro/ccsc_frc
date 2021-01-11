@@ -52,7 +52,9 @@ Lifting::Lifting(int id)
 
 Lifting::~Lifting()
 {
-    delete reset_sw;
+    delete reset_sw[0];
+    delete reset_sw[1];
+
 }
 ///< 设置电机执行
 void Lifting::set_point(float len)
@@ -107,7 +109,7 @@ bool Lifting::shrink()
 bool Lifting::reset()
 {
     start_join();
-    return false;
+    return is_reseted;
 }
 //TODO: 待测试
 ///< 获取复位按键值
@@ -208,10 +210,10 @@ void Lifting::disable_motor()
     motor[1]->Set(ControlMode::Velocity,0);
 }
 ///< 调试用遥控控制获取电机所需运行的位移
-bool Lifting::debug_get_para()
-{
+// bool Lifting::debug_get_para()
+// {
     
-}
+// }
 ///< 获取复位状态
 //TODO: 待写
 bool Lifting::get_reset_status()

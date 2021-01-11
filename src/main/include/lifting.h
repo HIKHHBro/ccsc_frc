@@ -46,7 +46,6 @@ public:
     bool carry_out(float s,float v);
     void run() override;
     bool get_reset_status();
-    bool debug_get_para();
     void disable_motor();
     STATUS get_status();
 #ifdef LIFT_DEBUG
