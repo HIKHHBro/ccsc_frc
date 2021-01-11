@@ -87,7 +87,7 @@ void Shoot::set_gimbal_angle(float angle)
 {
   gimbal_motor->Set(ControlMode::MotionMagic,angle_to_enc(limit(angle,0.0,max_angle)));
 }
-
+///< 
 ///< 云台初始化校准线程函数
 //TODO: 待测试
 void Shoot::run()
