@@ -138,10 +138,15 @@ void Robot::TeleopPeriodic()
     }
     if (rc->is_reset())
     {
-      lifting->reset();
+      if(!lifting->reset_once)
+      {
+        lifting->reset_once = true;//防止复位失败后一直从进复位线程
+        lifting->reset();
+      }
     }
     else
     {
+      lifting->reset_once = false;
       lifting->interrupt();
     }
     if(rc->is_lift())
