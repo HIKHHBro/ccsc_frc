@@ -4,6 +4,7 @@
 #include <atomic>
 #include <thread>
 #include "ctre/Phoenix.h"
+#include <unistd.h>
 class MyThread
 {
 public:

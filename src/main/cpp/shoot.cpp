@@ -94,21 +94,37 @@ void Shoot::run()
 {
 
     gimbal_motor->ConfigClosedLoopPeakOutput(0,reset_output,0);    
+    reset_error_count = 0;
+    is_reseted = false;
     while (!isInterrupted())
     {
         if(gimbal_motor->GetOutputCurrent() > reset_current_thres &&\
-           gimbal_motor->GetSelectedSensorVelocity()==0)
+           IS_X_SECTION(gimbal_motor->GetSelectedSensorVelocity(),reset_speed_thres))
         {
-            gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
-            is_reseted = true;
-            interrupt();
+            if(reset_error_count < reset_error_thre)
+            {
+                gimbal_motor->Set(ControlMode::Velocity,reset_speed/10);
+                reset_error_count++;
+            }
+            else
+            {
+                gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
+                is_reseted = true;
+                interrupt();
+            }
         }
         else
         {
             gimbal_motor->Set(ControlMode::Velocity,reset_speed);
         }
+        usleep(reset_period);
     }
 }
+
+
+
+
+
 bool Shoot::reset()
 {
     start_join();
@@ -130,6 +146,8 @@ frc::SmartDashboard::PutNumber("set_gimbal_kp",kp);
 frc::SmartDashboard::PutNumber("set_gimbal_kf",kf);
 frc::SmartDashboard::PutNumber("set_gimbal_smoothing",smoothing);
 frc::SmartDashboard::PutNumber("gimbal max angle",max_angle);
+frc::SmartDashboard::PutNumber("get_reset_output",reset_output);
+frc::SmartDashboard::PutNumber("get_reset_speed_thres",reset_speed_thres);
 
 }
 void Shoot::debug() 
@@ -155,6 +173,11 @@ void Shoot::debug()
     double Get7  = frc::SmartDashboard::GetNumber("set_gimbal_smoothing",smoothing);
     if((Get7 != smoothing)) { smoothing = Get7; gimbal_motor->ConfigMotionSCurveStrength(smoothing, 0);}
 
+    double Get8  = frc::SmartDashboard::GetNumber("get_reset_output",reset_output);
+    if((Get8 != reset_output)) { reset_output = Get8;}
+
+    double Get9  = frc::SmartDashboard::GetNumber("get_reset_speed_thres",reset_speed_thres);
+    if((Get9 != reset_speed_thres)) { reset_speed_thres = Get9;}
 
     frc::SmartDashboard::PutNumber("gimbal angle",enc_to_angle(gimbal_motor->GetSelectedSensorPosition()));
     frc::SmartDashboard::PutNumber("gimbal encoder",gimbal_motor->GetSelectedSensorPosition());

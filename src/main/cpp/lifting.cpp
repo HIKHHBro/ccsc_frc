@@ -1,5 +1,5 @@
 #include "lifting.h"
-#include <unistd.h>
+
 Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
@@ -150,6 +150,7 @@ void Lifting::run()
         motor[i]->Config_kP(0, reset_kp, 10);
         reset_error_count[i] = 0;
     }
+    is_reseted = false;
     while (!isInterrupted())
     {
         for(int i = 0;i<M_ALL;i++)

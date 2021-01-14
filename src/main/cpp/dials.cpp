@@ -4,6 +4,12 @@ Dials::Dials(int deviceNumber)
     i2cPort = frc::I2C::Port::kOnboard;
     m_colorSensor = new rev::ColorSensorV3(i2cPort);
     set_color_rgb();
+    set_reduction_ratiop(frictiongear_d,dials_d);//1为位移输入,100为电机输出
+    set_dia(frictiongear_d);
+    set_loop_time(5000);//50ms
+    time_thre[0] = (int)(get_loop_freq())*wait_time[Spin];
+    time_thre[1] = (int)(get_loop_freq())*wait_time[Pos];
+
     can_id = deviceNumber;
     motor = new TalonFX(can_id);
     //TODO: 设置位置模式
@@ -42,51 +48,66 @@ Dials::COLOR Dials::get_color(void)
     return ALL_COLOR;
 }
 ///<开启旋转控制
-void Dials::start_spin_control(float numb)
+bool Dials::start_spin_control(float numb)
 {
-  // dials_thread->start(&spin_control_thread,this,numb);
+    spin_numb = numb;
+    state = Spin;
+    start_detach();
+    return spin_control_is_finished();
 }
+
+///<开启位置控制
+bool Dials::start_pos_control(COLOR color)
+{
+    target_color = color;
+    state = Pos;
+    start_detach();
+}
+
 ///< 旋转控制
 //TODO: 待测试整个流程  
 //TODO: 线程函数待写
-void Dials::spin_control_thread(float numb)
+void Dials::spin_control_thread()
 {
-  if(!spin_control_thread_status)
-  {
-    spin_control_thread_status = true;
     color_sequence_pre = get_color();
     color_tran_count = 0;
-    curr_position = motor->GetSelectedSensorPosition();
+    motor->SetSelectedSensorPosition(0, 0, 10);
     motor->ConfigMotionCruiseVelocity(spin_control_vel, 10);
-    c_numb_serson_return = c_numb_serson(numb + spin_numb_comp);
-    motor->Set(ControlMode::MotionMagic,c_numb_serson_return + curr_position);    
-    while (!is_finished_spin_control)
+    c_numb_serson_return = angle_to_enc((spin_numb + spin_numb_comp)*360);
+    motor->Set(ControlMode::MotionMagic,c_numb_serson_return);   
+    time_count[Spin] = 0; 
+    is_finished_spin_control = false;
+    while (!isInterrupted())
     {
       /* code */
       //TODO: 写颜色累计
       COLOR color = get_color();
-      spin_pos_error = motor->GetClosedLoopError();
+      spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
       if(color_sequence_check(color))
         color_tran_count++;
-      if(color_tran_count >= ALL_COLOR * 2 * numb - 1)
-        is_finished_spin_control = true;
-      else if(spin_pos_error < is_finished_spin_pos_err)
+      if(color_tran_count >= ALL_COLOR * 2 * spin_numb - 1)
+      {
+            if(time_count[Spin] < time_thre[Spin])
+                time_count[Spin]++;
+            else
+            {
+                is_finished_spin_control = true;
+                interrupt();
+            }
+
+      }
+      else if(abs(spin_pos_error) < is_finished_spin_pos_err)
       {
         curr_position = motor->GetSelectedSensorPosition();
-        c_numb_serson_return = c_numb_serson((1/float(ALL_COLOR)) + spin_numb_comp);
+        c_numb_serson_return = angle_to_enc(((1/float(ALL_COLOR)) + spin_numb_comp)*360);
         motor->Set(ControlMode::MotionMagic,c_numb_serson_return + curr_position);    
       }
       else
       {
         std::cout<<"spin_control"<<std::endl;
       }
+      usleep(reset_period);
     }
-    
-  }
-  else
-  {
-    spin_control_thread_status = false;
-  }
 }
 ///< 颜色传感器联系校验
 //TODO: 待验证 连续颜色突然插入不连续颜色
@@ -101,18 +122,89 @@ bool Dials::color_sequence_check(COLOR curr)
   else return false;
 
 }
-// ///< 旋转转盘到指定颜色
-// bool Dials::rotate_dials(COLOR color)
-// {
-//   curr_position = motor->GetSelectedSensorPosition();
-  
+///< 选择旋转最优路径 返回角度值//顺时针 对应电机逆时针
+float Dials::optimal_path(COLOR target,COLOR curr)
+{
+    int error =  curr - target;
+    if(abs(error) > 3)
+    {
+        std::cout<<"Color recognition failure"<<std::endl;
+        return 0;
+    }
+    if(abs(error) ==3)
+    {
+        return direction *(abs(error)/error)*color_angle;
+    } 
+    else
+    {
+        return error * color_angle;
+    }
+    
+}
+///< 旋转转盘到指定颜色
+//TODO: 待测试
+void Dials::pos_control_thread()
+{
+    color_sequence_pre = get_color();
+    if(color_sequence_pre == ALL_COLOR)
+    {
+        interrupt();
+        is_finished_pos_control = false;
+    }    
+    color_tran_count = 0;
+    is_finished_pos_control = false;
+    motor->SetSelectedSensorPosition(0, 0, 10);
+    motor->ConfigMotionCruiseVelocity(spin_control_vel, 10);
+    target_angle = optimal_path(target_color,color_sequence_pre);
+    motor->Set(ControlMode::MotionMagic,angle_to_enc(target_angle));   
+    time_count[Pos] = 0; 
+    int color_numb = target_angle/color_angle;
+    while (!isInterrupted())
+    {
+      /* code */
+      //TODO: 写颜色累计
+      COLOR color = get_color();
+      spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
+      if(color_sequence_check(color))
+      {
+          if(color_numb > 0)
+          {
+              color_tran_count++;
+          }
+          else 
+          {
+              color_tran_count--;
+          }
+      }
+      if(abs(spin_pos_error) < is_finished_spin_pos_err)
+      {
+        if(abs(color_tran_count) < abs(color_numb))
+        {
+            curr_position = motor->GetSelectedSensorPosition();
+            c_numb_serson_return = angle_to_enc((color_numb - color_tran_count)*360);
+            motor->Set(ControlMode::MotionMagic,c_numb_serson_return + curr_position);  
+        }
+        else
+        {
+            if(time_count[Pos] < time_thre[Pos])
+            {
+                time_count[Pos]++;
+            } 
+            else
+            {
+                is_finished_pos_control = true;
+                interrupt();
+            }
+        }
+      }
+      else
+      {
+          motor->Set(ControlMode::MotionMagic,angle_to_enc(target_angle)); 
+      }
+      usleep(reset_period);
+    }
+}
 
-// }
-///< 装盘圈数转换猎鹰电机编码器位置  num 0~5 return 0 ~ 108850(5* 2048 * (810 / 76.2))
- int Dials::c_numb_serson(float numb)
- {
-   return numb * serson * reduction;
- }
 ///< 获取转盘旋转是否完成
 bool Dials::spin_control_is_finished(void)
 {
@@ -162,9 +254,17 @@ void Dials::fx_motor_magic(float kf,float kp,float kd)
 ///< 转盘线程函数
 void Dials::run()
 {
-  while (!isInterrupted())
+  switch (state)
   {
-    /* code */
+  case Spin:
+    spin_control_thread();
+    break;
+  case Pos:
+    pos_control_thread();
+    break;
+  
+  default:
+    break;
   }
   
 }

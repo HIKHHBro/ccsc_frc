@@ -41,7 +41,11 @@ private:
     float reset_acc = 0;//rpm
     float reset_output = 0.1;//0~1
     float reset_current_thres = 10;//amps
+    float reset_speed_thres = 30;//100ms转的刻度
+    float reset_period = 10000;//us
     bool is_reseted;
+    int reset_error_count = 0;
+    int reset_error_thre =  (int)(1000000.0/reset_period * 0.3);
 /*
  * 电机方向:
  * Hor_tr: 顺时针 负

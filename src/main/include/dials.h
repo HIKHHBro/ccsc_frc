@@ -11,37 +11,9 @@
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
 
-class Dials:public MyThread
+class Dials:public MyThread,public Falcon
 {
-private:
-    frc::I2C::Port i2cPort;
-    rev::ColorSensorV3 *m_colorSensor;
-    rev::ColorMatch m_colorMatcher;
-    frc::Color color_target[4];
-    frc::Color detectedColor;
-    double confidence = 0.0;
-    TalonFX* motor;
-    float dials_d = 810;          //转盘直径 mm
-    float color_angle = 45;      //每个颜色对应的角度 单位度
-    float curr_position;
-    float dials_perimeter = dials_d * 3.1415; //圆周长mm
-    float frictiongear_d = 76.2; //摩擦轮直径 mm
-    float arc_length = dials_perimeter / (360.0/color_angle); //每个颜色对应的弧长 单位mm
-    float spin_control_vel;
-    int serson = 2048;
-    double reduction = reduction_ratio(frictiongear_d,dials_d);
-    std::atomic<bool> spin_control_thread_status = false;
-    std::atomic<bool> is_finished_spin_control = false;
-    int color_tran_count = 0;
-    /* 显示调试的变量 */
-    int c_numb_serson_return;
-    int spin_pos_error;
-    int is_finished_spin_pos_err = (float)(c_numb_serson((1/float(ALL_COLOR))))/4.0;
 
-
-    /* 私有方法 */
-    void spin_control_thread(float numb);
-    void run() override;
 public:
   Dials();
   Dials(int deviceNumber);
@@ -50,6 +22,8 @@ public:
 
     /* 属性 */
     enum COLOR{B,G,R,Y,ALL_COLOR};
+    enum MODE{Spin,Pos};
+    MODE state = Spin;
     COLOR curr_color;//当前颜色
     int can_id;
     float spin_numb_comp = 0;
@@ -66,8 +40,46 @@ public:
     int c_numb_serson(float);
     bool spin_control_is_finished(void);
     bool color_sequence_check(COLOR curr);
-    void start_spin_control(float numb);
-    
+    bool start_spin_control(float numb);
+    bool start_pos_control(COLOR);
+    float optimal_path(COLOR target,COLOR curr);
+
+private:
+    frc::I2C::Port i2cPort;
+    rev::ColorSensorV3 *m_colorSensor;
+    rev::ColorMatch m_colorMatcher;
+    frc::Color color_target[4];
+    frc::Color detectedColor;
+    double confidence = 0.0;
+    TalonFX* motor;
+    float dials_d = 810;          //转盘直径 mm
+    float color_angle = 45;      //每个颜色对应的角度 单位度
+    float curr_position;
+    float dials_perimeter = dials_d * 3.1415; //圆周长mm
+    float frictiongear_d = 76.2; //摩擦轮直径 mm
+    float arc_length = dials_perimeter / (360.0/color_angle); //每个颜色对应的弧长 单位mm
+    float spin_control_vel;
+    double reduction = reduction_ratio(frictiongear_d,dials_d);
+    int color_tran_count = 0;
+    /* 显示调试的变量 */
+    int c_numb_serson_return;
+    int spin_pos_error;
+    int is_finished_spin_pos_err = (float)(c_numb_serson((1/float(ALL_COLOR))))/4.0;
+    float spin_numb = 0;
+    COLOR target_color; //需要旋转到的指定颜色
+    bool is_finished_spin_control = false;
+    bool is_finished_pos_control = false;
+    int reset_period = 5000;//5ms
+    int time_count[2] = {0,0};
+    float wait_time[2] = {2,3};
+    int time_thre[2] = {(int)(1000000.0/reset_period)*wait_time[Spin],(int)(1000000.0/reset_period)*wait_time[Pos]};
+    int direction = -1;//和电机方向相反
+    float target_angle;
+
+    /* 私有方法 */
+    void spin_control_thread();
+    void pos_control_thread();
+    void run() override;
     
 #ifdef DIALS_DEBUG
     void display(void);
