@@ -13,7 +13,7 @@
 //*********************************************************************************
 
 PIDControl::PIDControl (float kp, float ki, float kd, float sampleTimeSeconds, float minOutput, 
-            float maxOutput, PIDiTermMode mode, PIDDirection controllerDirection,float max_speed,PIDMode pid_mode)     	
+            float maxOutput, PIDiTermMode mode, PIDDirection controllerDirection,float max_speed)     	
 {
     controllerDirection = controllerDirection;
     mode = mode;
@@ -23,67 +23,75 @@ PIDControl::PIDControl (float kp, float ki, float kd, float sampleTimeSeconds, f
     output = 0.0f;
     setpoint = 0.0f;
     max_speed = max_speed;
-    pidMode = pid_mode;
     if(sampleTimeSeconds > 0.0f)
     {
         sampleTime = sampleTimeSeconds;
     }
     else
     {
-        // If the passed parameter was incorrect, set to 1 s
+        // If the passed parameter was incorrect, set to 1 ms
         sampleTime = 1.0f;
     }
+    
     PIDOutputLimitsSet(minOutput, maxOutput);
     PIDTuningsSet(kp, ki, kd);
-    start_detach();
 }
-PIDControl::~PIDControl()
-{
-    interrupt();
-}
-void PIDControl::pid_cal() 
-{
-    float e_pre_2;
-    float e_pre_1;
-    float e;
-    double A;
-    double B;
-    double C;
-    switch (pidMode)
-    {
-
-    case Inc:
-        //更新误差
-        e_pre_2 = last_error;
-        e_pre_1 = error;
-        e = setpoint - input;
-        pre_last_error = e_pre_2;
-        last_error = e_pre_1;
-        error = e;
-        //计算系数
-        A = alteredKp + alteredKi + alteredKd;
-        B = -alteredKp - 2 * alteredKd;
-        C = alteredKd;
-        output += (A*e + B*e_pre_1 + C*e_pre_2);
-        output = CONSTRAIN(output, outMin, outMax);
-        break;
-    case Abs:
         
-        break;
-    default:
-        break;
+bool PIDControl::PIDCompute() 
+{
+    float error, dInput;
+
+    if(mode == MANUAL)
+    {
+        return false;
     }
     
+    // The classic PID error term
+    error = setpoint - input;
+    
+    // Compute the integral term separately ahead of time
+    iTerm += alteredKi * error;
+    
+    // Constrain the integrator to make sure it does not exceed output bounds
+    iTerm = CONSTRAIN(iTerm, outMin, outMax);
+    
+    // Take the "derivative on measurement" instead of "derivative on error"
+    dInput = input - lastInput;
+    
+    // Run all the terms together to get the overall output
+    output = alteredKp * error + iTerm - alteredKd * dInput;
+    
+    // Bound the output
+    output = CONSTRAIN(output, outMin, outMax);
+    
+    // Make the current input the former input
+    lastInput = input;
+    
+    return true;
 }
-void PIDControl::PIDCompute(float in)
+float PIDControl::PIDCompute(float in)
 {
     input = in;
+    //更新误差
+    float e_pre_2 = last_error;
+    float e_pre_1 = error;
+    float e = setpoint - input;
+    pre_last_error = e_pre_2;
+    last_error = e_pre_1;
+    error = e;
+    //计算系数
+    double A = alteredKp + alteredKi + alteredKd;
+    double B = -alteredKp - 2 * alteredKd;
+    double C = alteredKd;
+    output += (A*e + B*e_pre_1 + C*e_pre_2)/2048.00;
+    output = CONSTRAIN(output, outMin, outMax);
+    return output;
 }
 
-void PIDControl::pid_iterm_mode(PIDiTermMode m)
+void PIDControl::pid_iterm_mode(PIDiTermMode mode)
 {
     // If the mode changed from MANUAL to AUTOMATIC
-    if(m != mode && m == AUTOMATIC)
+    if(mode != mode && mode == AUTOMATIC)
     {
         // Initialize a few PID parameters to new values
         iTerm = output;
@@ -92,7 +100,7 @@ void PIDControl::pid_iterm_mode(PIDiTermMode m)
         // Constrain the integrator to make sure it does not exceed output bounds
         iTerm = CONSTRAIN(iTerm, outMin, outMax);
     }
-    mode = m;
+    mode = mode;
 }
 
 void PIDControl::PIDOutputLimitsSet(float min, float max)
@@ -189,17 +197,4 @@ void PIDControl::PIDSampleTimeSet(float sampleTimeSeconds)
 void PIDControl::pid_set(float point)
 {
     setpoint = point;
-}
-float PIDControl::get_out()
-{
-    return output;
-}
-void PIDControl::run()
-{
-    while (isInterrupted())
-    {
-        pid_cal();
-        usleep(sampleTime*1000 * 1000);
-    }
-    
 }

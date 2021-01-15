@@ -14,13 +14,16 @@ Chassis::Chassis(int can_id):MyThread(20000)
         ahrs = new AHRS(SPI::Port::kMXP);//陀螺仪
         motor_init(can_id);//电机初始化
         set_reference(CAR);//坐标系设置
-        set_series(0);
         if(check_gyro())
         {
             world_angle = ahrs->GetYaw();
         }
         set_dia(76.2);
         set_reduction_ratiop(22,42,14,50);
+
+        std::thread thr(std::bind(&Chassis::pid_loop,this));
+        this->pid_thread = std::move(thr);
+        this->pid_thread.detach();
     }
     catch(const std::exception& e)
     {
@@ -114,10 +117,7 @@ void Chassis::rc_run(float vx,float vy,float vz)
     motion_model(target_vel[0],target_vel[1],target_vel[2]);
     for(int i=0;i<M_ALL;i++)
     {
-        // std::cout<<"s1 = "<<ramp_func[i]->set(speed[i]);
         motor_pid[i]->pid_set(speed[i]);
-        motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
-        motor[i]->Set(ControlMode::PercentOutput,motor_pid[i]->get_out());
     }
 }
 
@@ -128,32 +128,28 @@ void Chassis::rc_run(float vx,float vy,float vz)
 float tmp_angle = 0;
 bool Chassis::milemter()
 {
-    // if(check_gyro())
-    // {
-    //     // float temp_w = ahrs->GetYaw(); 
-    //          float w = 0;
-    //     updata_series();
-    //     milemeter[z] =  (series_to_mm(wheel_s[M1]) +   series_to_mm(wheel_s[M2]) + \
-    //                     series_to_mm(wheel_s[M3]) +   series_to_mm(wheel_s[M4]))/3.355556/4.0;
-    //     w = milemeter[z] + world_angle;                
-    //     milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
-    //                     + sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
-    //                     - sin(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
-    //                     - sin(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M4]);
-    //     milemeter[y]  = - cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M1]) \
-    //                     + cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M2]) \
-    //                     + cos(DEG_TO_RAD(wheel_theta + w)) * series_to_mm(wheel_s[M3]) \
-    //                     - cos(DEG_TO_RAD(wheel_theta - w)) * series_to_mm(wheel_s[M4]);
-    //     std::cout<<" milemeter[x]= "<< milemeter[x]\
-    //              <<" milemeter[y]= "<< milemeter[y]\
-    //              <<" w= "<< w<<std::endl;
-    //     return true;
-    // }
-    // else 
-    // {
-    //     std::cout<<"无陀螺仪"<<std::endl;
-    //     return false;
-    // }
+    if(check_gyro())
+    {
+             float w = 0;
+        updata_series();
+        milemeter[z] =  (enc_to_mm(wheel_s[M1]) +   enc_to_mm(wheel_s[M2]) + \
+                        enc_to_mm(wheel_s[M3]) +   enc_to_mm(wheel_s[M4]))/3.355556/4.0;
+        w = milemeter[z] + world_angle;                
+        milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M1]) \
+                        + sin(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M2]) \
+                        - sin(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M3]) \
+                        - sin(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M4]);
+        milemeter[y]  = - cos(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M1]) \
+                        + cos(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M2]) \
+                        + cos(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M3]) \
+                        - cos(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M4]);
+        return true;
+    }
+    else 
+    {
+        std::cout<<"无陀螺仪"<<std::endl;
+        return false;
+    }
    
 return false;
 }
@@ -169,21 +165,20 @@ void Chassis::set_reference(Reference ref)
 {
     reference = ref;
 }
-//TODO: 哪个才是当前编码器的值
 ///<更新和累计编码器值
 void Chassis::updata_series(void)
 {
     for (int i = 0;i<M_ALL;i++)
     {
-        wheel_s[i] = motor[i]->GetSelectedSensorPosition() - series_position[i];
+        wheel_s[i] = motor[i]->GetSelectedSensorPosition();
     }
 }
 //TODO: 待完善
 ///<重设编码器值
-void Chassis::set_series(int value)
+void Chassis::set_series()
 {
     for(int i = 0;i<M_ALL;i++)
-        series_position[i] = motor[i]->GetSelectedSensorPosition() + value;
+        motor[i]->SetSelectedSensorPosition(0, 0, 10);
 }
 //TODO: 待测试pid  新加了pid初始化
 //DONE: 完成线程测试
@@ -216,18 +211,18 @@ void Chassis::motor_init(int id)
         /* Factory default hardware to prevent unexpected behavior */
         motor[i]->ConfigFactoryDefault();
         /* first choose the sensor */
-        motor[i]->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 0);
-        // motor[i]->SetSensorPhase(true);
+        motor[i]->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, 10);
         motor[i]->SetNeutralMode(NeutralMode::Brake);
-        motor[i]->ConfigNeutralDeadband(0);
         /* set the peak and nominal outputs */
-        motor[i]->ConfigNominalOutputForward(0, 0);
-        motor[i]->ConfigNominalOutputReverse(0, 0);
-        motor[i]->ConfigPeakOutputForward(1, 0);
-        motor[i]->ConfigPeakOutputReverse(-1, 0);
-        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,0);//TODO:改成1ms
-        motor[i]->ConfigVelocityMeasurementWindow(1,0);
-        motor_pid[i] = new PIDControl(0.05,0.05,0,0.001,-1,1,MANUAL,DIRECT,20000,PIDControl::Inc);
+        motor[i]->ConfigNominalOutputForward(0, 10);
+        motor[i]->ConfigNominalOutputReverse(0, 10);
+        motor[i]->ConfigPeakOutputForward(1, 10);
+        motor[i]->ConfigPeakOutputReverse(-1, 10);
+        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,10);//TODO:改成1ms
+        motor[i]->SetSelectedSensorPosition(0, 0, 10);
+        motor[i]->ConfigNeutralDeadband(0,10);
+
+        motor_pid[i] = new PIDControl(0.05,0.05,0,0.001,-1,1,MANUAL,DIRECT,20000);
     }
 }
 //TODO: 待测试
@@ -271,8 +266,23 @@ void Chassis::run()
     }
     auto_run_is_finished = true;
 }
-
-
+///< 底盘pid计算线程
+//待测试
+void Chassis::pid_loop()
+{
+    float output[M_ALL];
+    while (!is_interript_pid)
+    {
+        for(int i = 0;i<M_ALL;i++)
+        {
+            output[i] = motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
+            output[i] = limit(output[i],-1.0,1.0);
+            motor[i]->Set(ControlMode::PercentOutput,output[i]);
+        }
+        usleep(1000);
+    }
+    
+}
 
 #ifdef CHASSIS_DEBUG
 void Chassis::display()

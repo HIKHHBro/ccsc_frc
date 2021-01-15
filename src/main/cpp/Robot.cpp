@@ -26,12 +26,11 @@ void Robot::RobotInit()
   grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   lifting = new Lifting(5);
-   std::cout<<"Period"<<GetPeriod()<<std::endl;
-    // chassis->display();
-    rc->display();
-    // frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
-    // frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
-    // frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
+  chassis->display();
+  rc->display();
+    frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
+    frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
+    frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
 
 
 }
@@ -49,16 +48,16 @@ void Robot::RobotPeriodic()
 {
   
 #ifdef COM_DEBUG
-    // float Get1 = frc::SmartDashboard::GetNumber("sepp[0]",sepp[0]);
-    // if(sepp[0] != Get1){sepp[0] = Get1;}
+    float Get1 = frc::SmartDashboard::GetNumber("sepp[0]",sepp[0]);
+    if(sepp[0] != Get1){sepp[0] = Get1;}
 
-    // float Get2 = frc::SmartDashboard::GetNumber("sepp[1]",sepp[1]);
-    // if(sepp[1] != Get2){sepp[1] = Get2;}
+    float Get2 = frc::SmartDashboard::GetNumber("sepp[1]",sepp[1]);
+    if(sepp[1] != Get2){sepp[1] = Get2;}
 
-    // float Get3 = frc::SmartDashboard::GetNumber("sepp[2]",sepp[2]);
-    // if(sepp[2] != Get3){sepp[2] = Get3;}
-    // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
-    // chassis->debug();
+    float Get3 = frc::SmartDashboard::GetNumber("sepp[2]",sepp[2]);
+    if(sepp[2] != Get3){sepp[2] = Get3;}
+    chassis->rc_run(sepp[0],sepp[1],sepp[2]);
+    chassis->debug();
     rc->debug();
 
 #endif

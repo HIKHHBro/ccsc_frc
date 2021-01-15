@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "my_thread.h"
+
 typedef enum
 {
     MANUAL,
@@ -17,10 +17,9 @@ typedef enum
     REVERSE
 }PIDDirection;
 
-class PIDControl :public MyThread
+class PIDControl
 {
 public:
-    enum PIDMode{Abs,Inc};
     // 
     // Constructor
     // Description:
@@ -47,10 +46,9 @@ public:
     // Returns:
     //      Nothing.
     // 
-    PIDControl(float kp, float ki, float kd, float sampleTimeSeconds, \
-              float minOutput,float maxOutput, PIDiTermMode mode, \
-              PIDDirection controllerDirection,float max_speed,\
-              PIDMode pid_mode);    	
+    PIDControl(float kp, float ki, float kd, float sampleTimeSeconds, 
+                float minOutput, float maxOutput, PIDiTermMode mode, 
+                PIDDirection controllerDirection,float max_speed);     	
     
     // 
     // PID Compute
@@ -63,10 +61,10 @@ public:
     // Returns:
     //      True if in AUTOMATIC. False if in MANUAL.
     //                     
-    ~PIDControl();
-    void PIDCompute(float in);
+    bool PIDCompute(); 
+    float PIDCompute(float in);
     void pid_set(float point);
-    float get_out();
+    
     // 
     // PID Mode Set
     // Description:
@@ -261,6 +259,7 @@ public:
     //      controller to.
     // 
     inline PIDDirection PIDDirectionGet() { return this->controllerDirection; }
+    enum PIDMode{Abs,Inc};
 private:
     // 
     // Input to the PID Controller
@@ -333,9 +332,6 @@ private:
     float last_error;
     float pre_last_error;
     float max_speed;
-    void run() override;
-    PIDMode pidMode = Abs;
-    void pid_cal(); 
 };
 
 #endif  // PID_CONTROLLER_H

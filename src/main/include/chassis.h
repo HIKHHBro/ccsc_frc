@@ -13,6 +13,9 @@
 #include "pid_control.h"
 #include <signal.h>
 #include "my_thread.h"
+#include <atomic>
+#include <thread>
+#include <unistd.h>
 #ifdef CHASSIS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -52,8 +55,7 @@ class Chassis :public Falcon,public MyThread
     void set_reference(Reference ref);
     float w_rc_to_sensor(float value);
     void updata_series(void);//更新和累计编码器值
-    void set_series(int);//重设编码器值
-    long int series_position[M_ALL];
+    void set_series();//重设编码器值
     void start_auto_run(void);
     bool get_auto_run_status();
     void exit_auto_run();
@@ -74,8 +76,11 @@ class Chassis :public Falcon,public MyThread
     void auto_run();
     bool auto_run_is_finished =false;
     float target_vel[all_dir];
- 	PIDControl *motor_pid[M_ALL];
     void run() override;
+    PIDControl *motor_pid[4];
+    void pid_loop();
+    std::thread pid_thread;
+    std::atomic<bool> is_interript_pid = false;
 public:
     const int map_len = 2;
     const double map[2][3] = 
@@ -85,7 +90,6 @@ public:
     };
 
 };
-
 
 #endif
 
