@@ -30,7 +30,6 @@ public:
     {data = (data) > (max) ? (max) : (data); 
     data = (data) < (min) ? (min) : (data);
     return  data;}
-
     virtual void display();
     virtual void debug();
 };
@@ -95,6 +94,8 @@ public:
     void set_dia(float);
     float d = 100;//mm
     int get_position_error(int target,int real);
+    int mms_to_enc100ms(float mms);
+    float enc100ms_to_mms(int enc);
 };
 class Neo : public Motor,public rev::SparkMax,public RampFunction
 {
