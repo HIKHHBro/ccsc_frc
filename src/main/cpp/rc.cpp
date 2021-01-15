@@ -28,13 +28,13 @@ float RC::filter(float data,float section)
     if(d > 0)
     {
         if(d >0.2)
-          d = (d-0.2) * 1500;//TODO: 待确认猎鹰做大速度
+          d = (d-0.2);//TODO: 待确认猎鹰做大速度
           else d =0;
     }
     else if(d < 0)
     {
         if(d <-0.2)
-          d = (d+0.2) * 1500;
+          d = (d+0.2);
         else d =0;
     }
     return d;
@@ -58,18 +58,21 @@ float RC::getZ()
 #endif
 
 #ifdef XBON_RC
+///< x方向速度 0 ~ 5000 mm/s 
 float RC::getX()
 {
-  return filter(xbox->GetRawAxis(0),0.2);
+  return (filter(xbox->GetRawAxis(0),0.2) * chassis_speed[0]);
 
 }
+///< y方向速度 0 ~ 5000 mm/s 
 float RC::getY()
 {
-  return filter(xbox->GetRawAxis(1),0.2);
+  return (filter(xbox->GetRawAxis(1),0.2)* chassis_speed[1]);
 }
+///< 角速度方向速度 0 ~ 4 rad/s  
 float RC::getZ()
 {
-    return filter(xbox->GetRawAxis(2),0.1);
+    return filter(xbox->GetRawAxis(2),0.1) * chassis_speed[2];
 }
 bool RC::is_grab()
 {
@@ -110,8 +113,9 @@ bool RC::is_lift()
 void RC::display()
 {
 #ifdef CHASSIS_DEBUG
-    frc::SmartDashboard::PutNumber("test_data",test_filter_data);
-    frc::SmartDashboard::PutNumber("test_section",test_filter_section);
+    frc::SmartDashboard::PutNumber("遥控给定X轴最大速度mm/s",chassis_speed[0]);
+    frc::SmartDashboard::PutNumber("遥控给定Y轴最大速度mm/s",chassis_speed[1]);
+    frc::SmartDashboard::PutNumber("遥控给定角速度rad/s",chassis_speed[2]);
 #endif
 }
 void RC::debug()
@@ -135,22 +139,18 @@ void RC::debug()
 #endif
 
 #ifdef CHASSIS_DEBUG
-    float Get1 = frc::SmartDashboard::GetNumber("test_data",test_filter_data);
-    if(test_filter_data != Get1){test_filter_data = Get1 ;}
+    float Get1 = frc::SmartDashboard::GetNumber("遥控给定X轴最大速度mm/s",chassis_speed[0]);
+    if(chassis_speed[0] != Get1){chassis_speed[0] = Get1;}
 
-    float Get2 = frc::SmartDashboard::GetNumber("test_section",test_filter_section);
-    if(test_filter_section != Get2){test_filter_section = Get2;}
+    float Get2 = frc::SmartDashboard::GetNumber("遥控给定Y轴最大速度mm/s",chassis_speed[1]);
+    if(chassis_speed[1] != Get2){chassis_speed[1] = Get2;}
 
-    frc::SmartDashboard::PutNumber("原遥控X轴",xbox->GetRawAxis(0));
-    frc::SmartDashboard::PutNumber("原遥控Y轴",xbox->GetRawAxis(1));
-    frc::SmartDashboard::PutNumber("原遥控Z轴",xbox->GetRawAxis(2));
+    float Get3 = frc::SmartDashboard::GetNumber("遥控给定角速度rad/s",chassis_speed[2]);
+    if(chassis_speed[2] != Get3){chassis_speed[2] = Get3;}
 
     frc::SmartDashboard::PutNumber("遥控X轴",getX());
     frc::SmartDashboard::PutNumber("遥控Y轴",getY());
     frc::SmartDashboard::PutNumber("遥控Z轴",getZ());
-
-    frc::SmartDashboard::PutNumber("滤波测试",filter(test_filter_data,test_filter_section));
-
 
 #endif
 }

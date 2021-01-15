@@ -6,7 +6,8 @@
 /*----------------------------------------------------------------------------*/
 #include "chassis.h"
 #include "Math.h"
-#include "my_thread.h"
+#include "frc/shuffleboard/Shuffleboard.h"
+
 Chassis::Chassis(int can_id):MyThread(20000)
 {
     try
@@ -41,12 +42,10 @@ Chassis::~Chassis()
     delete motor[1];
     delete motor[2];
     delete motor[3];
-
-
 }
 
-//TODO: 待测试  1、机体坐标系 2、世界坐标系 //单位 mm/s
-///< 底盘运动模型正解
+//TODO: 待测试  1、机体坐标系 2、世界坐标系
+///< 底盘运动模型正解 单位 每100ms所转的编码器线数
 void Chassis::motion_model(float vx,float vy,float vz)
 {
     float w = 0;
@@ -102,12 +101,8 @@ void Chassis::get_run_target(float* target)
 {
 
 }
-///< 更新遥控指令
-void Chassis::update_rc_data()
-{
 
-}
-//速度 mm/s
+///< 手动模式 vx:mm/s  vy:mm/s   vz:rad/s
 //待测试
 void Chassis::rc_run(float vx,float vy,float vz)
 {
@@ -125,7 +120,6 @@ void Chassis::rc_run(float vx,float vy,float vz)
 //TODO:待测试
 ///<< 里程计计算
 //TODO: 世界坐标系没有成功
-float tmp_angle = 0;
 bool Chassis::milemter()
 {
     if(check_gyro())
@@ -134,7 +128,8 @@ bool Chassis::milemter()
         updata_series();
         milemeter[z] =  (enc_to_mm(wheel_s[M1]) +   enc_to_mm(wheel_s[M2]) + \
                         enc_to_mm(wheel_s[M3]) +   enc_to_mm(wheel_s[M4]))/3.355556/4.0;
-        w = milemeter[z] + world_angle;                
+        
+        w = milemeter[z];                
         milemeter[x]  =   sin(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M1]) \
                         + sin(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M2]) \
                         - sin(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M3]) \
@@ -150,8 +145,6 @@ bool Chassis::milemter()
         std::cout<<"无陀螺仪"<<std::endl;
         return false;
     }
-   
-return false;
 }
 
 ///<位置控制
@@ -179,14 +172,6 @@ void Chassis::set_series()
 {
     for(int i = 0;i<M_ALL;i++)
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
-}
-//TODO: 待测试pid  新加了pid初始化
-//DONE: 完成线程测试
-///<自动阶段
-void Chassis:: auto_run()
-{
-
-
 }
 
 //DONE: 完成测试
@@ -222,7 +207,7 @@ void Chassis::motor_init(int id)
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigNeutralDeadband(0,10);
 
-        motor_pid[i] = new PIDControl(0.05,0.05,0,0.001,-1,1,MANUAL,DIRECT,20000);
+        motor_pid[i] = new PIDControl(0.05,0.05,0,0.001,0,0,MANUAL,DIRECT,20000);
     }
 }
 //TODO: 待测试
@@ -231,15 +216,14 @@ bool Chassis::get_auto_run_is_finished()
 {
     return auto_run_is_finished;
 }
-
 ///< 线程函数的重写
 void Chassis::run()
 {
 
     float output[3];
-    auto_run_map_pid[x] = new frc2::PIDController(5.0,0.02,5.0);
-    auto_run_map_pid[y] = new frc2::PIDController(5.0,0.02,5.0);
-    auto_run_map_pid[z] = new frc2::PIDController(5.0,0.02,5.0);
+    auto_run_map_pid[x] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
+    auto_run_map_pid[y] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
+    auto_run_map_pid[z] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
     auto_run_is_finished =false;
     for(int i =1;(i<map_len)||!isInterrupted();i++)
     {
@@ -287,9 +271,47 @@ void Chassis::pid_loop()
 #ifdef CHASSIS_DEBUG
 void Chassis::display()
 { 
+    // frc::Shuffleboard::GetTab("Example tab").Add(gyro);
+    frc::SmartDashboard::PutNumber("速度环Kp",speed_loop_kp); 
+    frc::SmartDashboard::PutNumber("速度环Ki",speed_loop_ki); 
+
+    frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp); 
+    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki); 
+    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd);
+    
 }
 void Chassis::debug()
 {
+
+    float Get1 = frc::SmartDashboard::GetNumber("速度环Kp",speed_loop_kp);
+    if(Get1 != speed_loop_kp) {speed_loop_kp = Get1;};
+
+    float Get2 = frc::SmartDashboard::GetNumber("速度环Ki",speed_loop_ki);
+    if(Get2 != speed_loop_ki) {speed_loop_ki = Get2;};
+
+    float Get3 = frc::SmartDashboard::GetNumber("位置环Kp",pos_loop_kp);
+    if(Get3 != pos_loop_kp)
+    {
+        pos_loop_kp = Get3;
+        for(int i = 0;i<3;i++)
+            auto_run_map_pid[i]->SetP(pos_loop_kp);
+    }
+
+    float Get4 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_ki);
+    if(Get4 != pos_loop_ki)
+    {
+        pos_loop_ki = Get4;
+        for(int i = 0;i<3;i++)
+            auto_run_map_pid[i]->SetI(pos_loop_ki);
+    }
+
+    float Get5 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_kd);
+    if(Get5 != pos_loop_kd)
+    {
+        pos_loop_kd = Get5;
+        for(int i = 0;i<3;i++)
+            auto_run_map_pid[i]->SetD(pos_loop_kd);
+    }
 
     frc::SmartDashboard::PutNumber("X 速度enc/100ms",target_vel[x]); //速度范围-6380~6380
     frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
@@ -300,9 +322,20 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("左后轮enc/100ms",speed[2]); 
     frc::SmartDashboard::PutNumber("右后轮enc/100ms",speed[3]); 
 
-
     frc::SmartDashboard::PutNumber("坐标系",reference); 
     frc::SmartDashboard::PutNumber("减速比",reduction_ratiop); 
+
+
+    frc::SmartDashboard::PutNumber("test速度环Kp",speed_loop_kp); 
+    frc::SmartDashboard::PutNumber("test速度环Ki",speed_loop_ki); 
+
+    frc::SmartDashboard::PutNumber("test位置环Kp",pos_loop_kp); 
+    frc::SmartDashboard::PutNumber("test位置环Ki",pos_loop_ki); 
+    frc::SmartDashboard::PutNumber("test位置环Ki",pos_loop_kd);
+
+    frc::SmartDashboard::PutNumber("位置X ms",milemeter[x]);
+    frc::SmartDashboard::PutNumber("位置Y ms",milemeter[y]);
+    frc::SmartDashboard::PutNumber("角度 ms",milemeter[z]);
 
 }
 #endif

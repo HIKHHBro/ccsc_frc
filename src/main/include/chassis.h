@@ -16,6 +16,7 @@
 #include <atomic>
 #include <thread>
 #include <unistd.h>
+#include <frc/ADXRS450_Gyro.h> 
 #ifdef CHASSIS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -47,7 +48,6 @@ class Chassis :public Falcon,public MyThread
     bool to_position(float x,float y,float w);
     float wheel_theta = 45;
     float chassis_r = 382.835;//mm//382.835
-    float wheel_r = 38.1;//mm
     TalonFX* motor[4];
     float rc_control_x_y = 1;//控制x和y最大速度系数
     float rc_control_w = 0.2;//控制旋转最大速度系数 //TODO: 精度不够
@@ -81,6 +81,12 @@ class Chassis :public Falcon,public MyThread
     void pid_loop();
     std::thread pid_thread;
     std::atomic<bool> is_interript_pid = false;
+    float speed_loop_kp = 0.05;
+    float speed_loop_ki = 0.05;
+
+    float pos_loop_kp = 0.05;
+    float pos_loop_ki = 0;
+    float pos_loop_kd = 0;
 public:
     const int map_len = 2;
     const double map[2][3] = 

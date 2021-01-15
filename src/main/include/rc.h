@@ -16,8 +16,7 @@ private:
 
    int reset_count = 0;
    float unit_time = 50;
-   float test_filter_section = 0.1;
-   float test_filter_data = 0;
+   float chassis_speed[3] = {5000,5000,4};
 public:
   RC(int id);
   ~RC();
