@@ -246,8 +246,9 @@ void Chassis::run()
                 auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[1][0]);
                 auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[1][1]);
                 auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
-                limit(auto_output[x],-map[1][2],map[1][2]);
-                limit(auto_output[y],-map[1][2],map[1][2]);
+                //TODO: 调试好之后打开限制速度
+                // auto_output[0] = limit(auto_output[x],-map[1][2],map[1][2]);
+                // auto_output[1] = limit(auto_output[y],-map[1][2],map[1][2]);
                 // rc_run(auto_output[x],auto_output[y],auto_output[z]);
             }
         }
@@ -364,6 +365,10 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("y位置误差",y_pos_error);
     frc::SmartDashboard::PutNumber("X速度误差",x_v_error);
     frc::SmartDashboard::PutNumber("y速度误差",y_v_error);
+
+    frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
+    frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
+    frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
 
     frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
     frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
