@@ -16,7 +16,8 @@ private:
 
    int reset_count = 0;
    float unit_time = 50;
-  
+   float test_filter_section = 0.1;
+   float test_filter_data = 0;
 public:
   RC(int id);
   ~RC();
@@ -25,9 +26,10 @@ public:
   float getZ();
   bool is_grab();
   void display();
+  void debug();
   bool is_reset();
   bool is_lift();
-
+  float filter(float data,float section);
 };
 
 

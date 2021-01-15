@@ -41,7 +41,7 @@ public:
     bool spin_control_is_finished(void);
     bool color_sequence_check(COLOR curr);
     bool start_spin_control(float numb);
-    bool start_pos_control(COLOR);
+    void start_pos_control(COLOR);
     float optimal_path(COLOR target,COLOR curr);
 
 private:
@@ -64,7 +64,7 @@ private:
     /* 显示调试的变量 */
     int c_numb_serson_return;
     int spin_pos_error;
-    int is_finished_spin_pos_err = (float)(c_numb_serson((1/float(ALL_COLOR))))/4.0;
+    int is_finished_spin_pos_err = (float)(angle_to_enc((1/float(ALL_COLOR))))/4.0;
     float spin_numb = 0;
     COLOR target_color; //需要旋转到的指定颜色
     bool is_finished_spin_control = false;
@@ -72,7 +72,7 @@ private:
     int reset_period = 5000;//5ms
     int time_count[2] = {0,0};
     float wait_time[2] = {2,3};
-    int time_thre[2] = {(int)(1000000.0/reset_period)*wait_time[Spin],(int)(1000000.0/reset_period)*wait_time[Pos]};
+    int time_thre[2];
     int direction = -1;//和电机方向相反
     float target_angle;
 

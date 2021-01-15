@@ -18,28 +18,21 @@
 #include "my_thread.h"
 
 
+float sepp[3];
 void Robot::RobotInit() 
 {
-  chassis = new Chassis();
-  gimbal = new Gimbal();
+  chassis = new Chassis(0);
   dials = new Dials(3);
   grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   lifting = new Lifting(5);
    std::cout<<"Period"<<GetPeriod()<<std::endl;
+    // chassis->display();
+    rc->display();
+    // frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
+    // frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
+    // frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
 
-  
-#if 1
-
-  // _joystick = new Joystick(0);
-  usleep(30000);
-
-#endif
-
-   #ifdef COM_DEBUG
-
-
-   #endif
 
 }
 
@@ -51,16 +44,24 @@ void Robot::RobotInit()
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
+
 void Robot::RobotPeriodic() 
 {
   
+#ifdef COM_DEBUG
+    // float Get1 = frc::SmartDashboard::GetNumber("sepp[0]",sepp[0]);
+    // if(sepp[0] != Get1){sepp[0] = Get1;}
 
-  //  chassis->chassis_pid_loop();
-   #ifdef COM_DEBUG
-      // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
-      // gimbal->color_display();
-      
-   #endif
+    // float Get2 = frc::SmartDashboard::GetNumber("sepp[1]",sepp[1]);
+    // if(sepp[1] != Get2){sepp[1] = Get2;}
+
+    // float Get3 = frc::SmartDashboard::GetNumber("sepp[2]",sepp[2]);
+    // if(sepp[2] != Get3){sepp[2] = Get3;}
+    // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+    // chassis->debug();
+    rc->debug();
+
+#endif
 }
 
 /**
@@ -130,31 +131,31 @@ void Robot::TeleopPeriodic()
     // std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
     // chassis->rc_run(target[0],target[1],target[2]);
     // chassis->milemter();
-      if(rc->is_grab())
-      grab->put_down();
-    else
-    {
-      grab->put_up();
-    }
-    if (rc->is_reset())
-    {
-      if(!lifting->reset_once)
-      {
-        lifting->reset_once = true;//防止复位失败后一直从进复位线程
-        lifting->reset();
-      }
-    }
-    else
-    {
-      lifting->reset_once = false;
-      lifting->interrupt();
-    }
-    if(rc->is_lift())
-      lifting->lift();
-    else
-    {
-      lifting->disable_motor();
-    }
+    //   if(rc->is_grab())
+    //   grab->put_down();
+    // else
+    // {
+    //   grab->put_up();
+    // }
+    // if (rc->is_reset())
+    // {
+    //   if(!lifting->reset_once)
+    //   {
+    //     lifting->reset_once = true;//防止复位失败后一直从进复位线程
+    //     lifting->reset();
+    //   }
+    // }
+    // else
+    // {
+    //   lifting->reset_once = false;
+    //   lifting->interrupt();
+    // }
+    // if(rc->is_lift())
+    //   lifting->lift();
+    // else
+    // {
+    //   lifting->disable_motor();
+    // }
     
   // grab->debug();
   // lifting->debug();
@@ -175,10 +176,7 @@ void Robot::TeleopPeriodic()
 // RC rc(0);
 void Robot::TestInit()
 {
-  
-  // gimbal = new Gimbal();
-  // if (gimbal == nullptr)
-  //   std::cout<<"fail"<<std::endl;
+
 
 
 }

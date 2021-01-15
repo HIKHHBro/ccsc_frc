@@ -21,6 +21,25 @@ RC::~RC()
    delete xbox;
 #endif
 }
+///< 过滤中间区间，防止误触
+float RC::filter(float data,float section)
+{
+    float d = data;
+    if(d > 0)
+    {
+        if(d >0.2)
+          d = (d-0.2) * 1500;//TODO: 待确认猎鹰做大速度
+          else d =0;
+    }
+    else if(d < 0)
+    {
+        if(d <-0.2)
+          d = (d+0.2) * 1500;
+        else d =0;
+    }
+    return d;
+}
+
 #ifdef JOY_RC
 float RC::getX()
 {
@@ -41,15 +60,16 @@ float RC::getZ()
 #ifdef XBON_RC
 float RC::getX()
 {
-  return xbox->GetRawAxis(0);
+  return filter(xbox->GetRawAxis(0),0.2);
+
 }
 float RC::getY()
 {
-  return xbox->GetRawAxis(1); 
+  return filter(xbox->GetRawAxis(1),0.2);
 }
 float RC::getZ()
 {
-    return xbox->GetRawAxis(2); 
+    return filter(xbox->GetRawAxis(2),0.1);
 }
 bool RC::is_grab()
 {
@@ -89,6 +109,13 @@ bool RC::is_lift()
 
 void RC::display()
 {
+#ifdef CHASSIS_DEBUG
+    frc::SmartDashboard::PutNumber("test_data",test_filter_data);
+    frc::SmartDashboard::PutNumber("test_section",test_filter_section);
+#endif
+}
+void RC::debug()
+{
     // frc::SmartDashboard::PutNumber("1:", xbox->GetAButton());
     // frc::SmartDashboard::PutNumber("2:", xbox->GetBackButton());
     // frc::SmartDashboard::PutNumber("3", xbox->GetBButton());
@@ -107,7 +134,25 @@ void RC::display()
     frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
 #endif
 
+#ifdef CHASSIS_DEBUG
+    float Get1 = frc::SmartDashboard::GetNumber("test_data",test_filter_data);
+    if(test_filter_data != Get1){test_filter_data = Get1 ;}
+
+    float Get2 = frc::SmartDashboard::GetNumber("test_section",test_filter_section);
+    if(test_filter_section != Get2){test_filter_section = Get2;}
+
+    frc::SmartDashboard::PutNumber("原遥控X轴",xbox->GetRawAxis(0));
+    frc::SmartDashboard::PutNumber("原遥控Y轴",xbox->GetRawAxis(1));
+    frc::SmartDashboard::PutNumber("原遥控Z轴",xbox->GetRawAxis(2));
+
+    frc::SmartDashboard::PutNumber("遥控X轴",getX());
+    frc::SmartDashboard::PutNumber("遥控Y轴",getY());
+    frc::SmartDashboard::PutNumber("遥控Z轴",getZ());
+
+    frc::SmartDashboard::PutNumber("滤波测试",filter(test_filter_data,test_filter_section));
 
 
+#endif
 }
+
 #endif

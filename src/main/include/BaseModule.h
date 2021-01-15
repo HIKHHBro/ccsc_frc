@@ -10,7 +10,7 @@
 #include "ctre/Phoenix.h"
 
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
-#define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
+#define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x)))?true:false) 
 
 #define LIMIT(data_,min,max) { (data_) = ((data_) < (min) ? (min) : (data_)); (data_) = ((data_) > (max) ? (max) : (data_));}
 #define  DEG_TO_RAD(deg_) ((deg_) /(45.0 / atan(1.0)) )
@@ -75,7 +75,6 @@ public:
     void set_reduction_ratiop(float);
     void set_reduction_ratiop(int,int);
     void set_reduction_ratiop(float,float);
-    void set_reduction_ratiop(int,int,int);
     void set_reduction_ratiop(int,int,int,int);
     double per_to_rpm(float);
     float rpm_to_per(float);
@@ -95,6 +94,8 @@ public:
     void set_dia(float);
     float d = 100;//mm
     int get_position_error(int target,int real);
+    int mms_to_enc100ms(float);
+    float enc100ms_to_mms(int);
 };
 class Neo : public Motor,public rev::SparkMax,public RampFunction
 {
@@ -126,13 +127,14 @@ typedef struct Gyro
 //比赛的时候一定要注释掉调试模式
 // #define GIMBAL_DEBUG //设置云台调试模式
 // #define CHASSIS_DEBUG //设置底盘调试模式
-// #define COM_DEBUG //在公司调试
+#define COM_DEBUG //在公司调试
 // #define DIALS_DEBUG
 // #define JOY_RC
 #define XBON_RC
 #define RC_DEBGU
 // #define GRAB_DEBUG
-#define LIFT_DEBUG
+// #define LIFT_DEBUG
 // #define SHOOT_DEBUG
-#define SHOOT_DEBUG
+// #define SHOOT_DEBUG
+#define CHASSIS_DEBUG
 

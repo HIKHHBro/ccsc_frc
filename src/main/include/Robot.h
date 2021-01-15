@@ -12,7 +12,6 @@
 
 #include "RobotContainer.h"
 #include "chassis.h"
-#include "gimbal.h"
 #include "dials.h"
 #include "grab.h"
 #include  "rc.h"
@@ -35,7 +34,6 @@ class Robot : public frc::TimedRobot {
   // doesn't have undefined behavior and potentially crash.
   frc2::Command* m_autonomousCommand = nullptr;
   Chassis* chassis;
-  Gimbal* gimbal;
   Dials* dials;
   Grab* grab;
   RC* rc;

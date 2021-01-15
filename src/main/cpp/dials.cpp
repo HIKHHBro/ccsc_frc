@@ -57,7 +57,7 @@ bool Dials::start_spin_control(float numb)
 }
 
 ///<开启位置控制
-bool Dials::start_pos_control(COLOR color)
+void Dials::start_pos_control(COLOR color)
 {
     target_color = color;
     state = Pos;

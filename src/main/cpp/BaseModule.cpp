@@ -52,17 +52,13 @@ void Motor::set_reduction_ratiop(int numb1,int numb2)
 {
     reduction_ratiop = float(numb2)/float(numb1);
 }
-void Motor::set_reduction_ratiop(int numb1 ,int numb2,int numb3)
-{
-    reduction_ratiop = float(numb3)/float(numb2)/float(numb1);
-}
 void Motor::set_reduction_ratiop(int numb1 ,int numb2,int numb3,int numb4)
 {
-    reduction_ratiop = float(numb4)/float(numb3)/float(numb2)/float(numb1);
+    reduction_ratiop = (float(numb4)/float(numb3)) * (float(numb2)/float(numb1));
 }
 
 
-Falcon::Falcon():Motor(6380,2048,1)
+Falcon::Falcon():Motor(6000,2048,1)
 {
 
 }
@@ -94,6 +90,19 @@ void Falcon::set_dia(float len)
 {
     d = len;
 }
+///< mm/s 转 enc/100ms
+int Falcon::mms_to_enc100ms(float mms)
+{
+    return int( (mms * reduction_ratiop * 0.1 * (float)encoder_l ) / (3.14 * d));
+}
+///<  enc/100ms 转 mm/s
+float Falcon::enc100ms_to_mms(int enc)
+{
+    float enc_temp = (float)enc;
+    return ((enc_temp / 0.1) / (float)encoder_l) * d * 3.145 / reduction_ratiop;
+}
+
+
 
 Neo::Neo(int channel,float k):SparkMax(channel),RampFunction(k)
 {
