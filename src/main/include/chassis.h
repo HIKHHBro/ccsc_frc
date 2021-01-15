@@ -87,10 +87,14 @@ class Chassis :public Falcon,public MyThread
     float pos_loop_kp = 0.05;
     float pos_loop_ki = 0;
     float pos_loop_kd = 0;
+    float is_arrived_pos_error[2] = {10,10};
+    float is_arrived_vel_error[2] = {10,10};
 public:
     const int map_len = 2;
-    const double map[2][3] = 
+    
+    const float map[2][3] = 
     {
+      /* {x(mm),y(mm),speed(mms)}*/
         {0,0,10},
         {1,1,10}
     };

@@ -225,30 +225,37 @@ void Chassis::run()
     auto_run_map_pid[y] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
     auto_run_map_pid[z] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
     auto_run_is_finished =false;
-    for(int i =1;(i<map_len)||!isInterrupted();i++)
+    while (isInterrupted())
     {
         milemter();
         try
         {
-            if(abs(auto_run_map_pid[y]->GetPositionError()) > abs(map[i][y-1] - map[i][y])/2)
+            if((abs(auto_run_map_pid[y]->GetPositionError()) < is_arrived_pos_error[y]) &&\
+               (abs(auto_run_map_pid[x]->GetPositionError()) < is_arrived_pos_error[x]) &&\
+               (abs(motor[y]->GetSelectedSensorVelocity()) < is_arrived_vel_error[y]) &&\
+               (abs(motor[x]->GetSelectedSensorVelocity()) < is_arrived_vel_error[x])
+               )
             {
-                i--;
+                interrupt();
+                auto_run_is_finished = true;
             }
-            for(int j = 0;j<3;j++)
+            else
             {
-                output[j] = auto_run_map_pid[j]->Calculate(milemeter[j],map[i][j]);
-                
+                output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[1][0]);
+                output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[1][1]);
+                output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
+                limit(output[x],-map[1][2],map[1][2]);
+                limit(output[y],-map[1][2],map[1][2]);
+                rc_run(output[x],output[y],output[z]);
             }
-            rc_run(output[x],output[y],output[z]);
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << '\n';
+            interrupt();
         }
         thread_sleep();
-        std::cout<< "this auto run"<<"i="<<i<<std::endl;
     }
-    auto_run_is_finished = true;
 }
 ///< 底盘pid计算线程
 //待测试
