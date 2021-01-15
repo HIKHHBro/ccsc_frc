@@ -19,9 +19,9 @@ private:
     float smoothing = 0;
     float len_comp = 0;//长度补偿值
     float route = 1100;//mm  伸缩最大行程
-    float lift_high = 0;//mm 车抬升不能大于最大行程
+    float lift_high = 400;//mm 车抬升不能大于最大行程
     float pos_thres = 200;//TODO:待测试
-    float speed_thres = 0;//TODO:待测试
+    float speed_thres = 10;//TODO:待测试
     float stretch_speed = 0;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
     float shrink_speed = 0;//rpm 0~6000
     float acc = 1500;
@@ -40,7 +40,7 @@ private:
     float kp = 0.1;
     float kf = 0.2;
     float reset_kp = 0.01;
-    float reset_kf = 0.2;
+    float reset_kf = 0.1;
     
 public:
     Lifting(int id);

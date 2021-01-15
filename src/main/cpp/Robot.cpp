@@ -22,8 +22,8 @@ float sepp[3];
 void Robot::RobotInit() 
 {
   chassis = new Chassis(0);
-  dials = new Dials(3);
-  grab = new Grab(0,20,0,0.02,0.01);
+  // dials = new Dials(3);
+  // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   lifting = new Lifting(5);
   chassis->display();
@@ -61,6 +61,18 @@ void Robot::RobotPeriodic()
     rc->debug();
 
 #endif
+
+
+#ifdef CHASSIS_DEBUG
+  chassis->debug();
+#endif
+#ifdef GRAB_DEBUG
+  grab->debug();
+#endif
+#ifdef LIFT_DEBUG
+  lifting->debug();
+#endif
+ rc->debug();
 }
 
 /**
@@ -71,6 +83,8 @@ void Robot::RobotPeriodic()
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
+
+  chassis->interrupt();
 
 }
 
@@ -87,8 +101,8 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {   
-  std::cout <<( m_autonomousCommand ==nullptr) << std::endl;
-  // chassis->start_auto_run();
+
+  chassis->start_auto_run();
 }
 
 void Robot::TeleopInit() {
@@ -118,55 +132,35 @@ void Robot::TeleopInit() {
 float target[3];
 void Robot::TeleopPeriodic() 
 {
-    // //TODO: 传入指令  -1~1
-    // target[0] = _joystick->GetRawAxis(0);
-    // target[1] =_joystick->GetRawAxis(1);
-    // target[2] =_joystick->GetRawAxis(2);
-    // if(abs(target[0])<0.1) target[0] = 0;
-    // if(abs(target[1])<0.1) target[1] = 0;
-    // if(abs(target[2])<0.1) target[2] = 0;
-    // std::cout<<"1 = "<<_joystick->GetRawAxis(0);
-    // std::cout<<"2 = "<<_joystick->GetRawAxis(1);
-    // std::cout<<"3 = "<<_joystick->GetRawAxis(2)<<std::endl;
-    // chassis->rc_run(target[0],target[1],target[2]);
-    // chassis->milemter();
     //   if(rc->is_grab())
     //   grab->put_down();
     // else
     // {
     //   grab->put_up();
     // }
-    // if (rc->is_reset())
-    // {
-    //   if(!lifting->reset_once)
-    //   {
-    //     lifting->reset_once = true;//防止复位失败后一直从进复位线程
-    //     lifting->reset();
-    //   }
-    // }
-    // else
-    // {
-    //   lifting->reset_once = false;
-    //   lifting->interrupt();
-    // }
-    // if(rc->is_lift())
-    //   lifting->lift();
-    // else
-    // {
-    //   lifting->disable_motor();
-    // }
+    if (rc->is_reset())
+    {
+      if(!lifting->reset_once)
+      {
+        lifting->reset_once = true;//防止复位失败后一直从进复位线程
+        lifting->reset();
+      }
+    }
+    else
+    {
+      lifting->reset_once = false;
+      lifting->interrupt();
+      // lifting->disable_motor();
+    }
+    if(rc->is_lift())
+      lifting->lift();
+    else
+    {
+      lifting->disable_motor();
+    }
     
-  // grab->debug();
-  // lifting->debug();
-  // rc ->display();
-  chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
-#ifdef GRAB_DEBUG
-  grab->debug();
-#endif
-#ifdef LIFT_DEBUG
-  lifting->debug();
-  rc->debug();
-#endif
+  // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+
 }
 
 /**
@@ -181,6 +175,7 @@ void Robot::TestInit()
 }
 void Robot::TestPeriodic() 
 {
+
 }
 
 #ifndef RUNNING_FRC_TESTS

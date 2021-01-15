@@ -16,7 +16,6 @@
 #include <atomic>
 #include <thread>
 #include <unistd.h>
-#include <frc/ADXRS450_Gyro.h> 
 #ifdef CHASSIS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -89,14 +88,21 @@ class Chassis :public Falcon,public MyThread
     float pos_loop_kd = 0;
     float is_arrived_pos_error[2] = {10,10};
     float is_arrived_vel_error[2] = {10,10};
+
+   //调试变量，方便查看
+   float y_pos_error= 0;
+   float x_pos_error= 0;
+   float x_v_error= 0;
+   float y_v_error= 0;
+   float auto_output[3];
 public:
     const int map_len = 2;
     
-    const float map[2][3] = 
+    float map[2][3] = 
     {
       /* {x(mm),y(mm),speed(mms)}*/
         {0,0,10},
-        {1,1,10}
+        {1,4000,10}
     };
 
 };

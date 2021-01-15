@@ -1,5 +1,6 @@
 #include "my_thread.h"
 #include <unistd.h>
+#include <frc/smartdashboard/smartdashboard.h>
 MyThread::MyThread()
 {
  
@@ -26,8 +27,8 @@ void MyThread::start_detach()
     std::thread thr(std::bind(&MyThread::run,this));
     this->th = std::move(thr);
     this->th.detach();
+    thread_count++;
   }
-  else  std::cout << "is created" << std::endl;
 }
 void MyThread::start_join()
 {
@@ -36,9 +37,9 @@ void MyThread::start_join()
     isInterript = false;
     std::thread thr(std::bind(&MyThread::run,this));
     this->th = std::move(thr);
-    this->th.detach();
+    this->th.join();
+    thread_count++;
   }
-  else  std::cout << "is created" << std::endl;
 }
 std::thread::id MyThread::getId()
 {
@@ -58,6 +59,7 @@ void MyThread::run()
 {
   std::cout << "MyThread" << std::endl;
   thread_sleep();
+  interrupt();
 }
 void MyThread::set_loop_time(int t)
 {
@@ -71,4 +73,13 @@ void MyThread::thread_sleep()
 float MyThread::get_loop_freq()
 {
   return (1.0*1000.0 * 1000.0) /(float)loop_time;
+}
+void MyThread::thread_debug()
+{
+  wpi::StringRef status_str;
+  frc::SmartDashboard::PutNumber("线程被创建次数",thread_count);
+  if(isInterript == true)
+    status_str = "shop";
+  else status_str = "run";
+  frc::SmartDashboard::PutString("线程运行转态",status_str);
 }

@@ -25,6 +25,9 @@ Chassis::Chassis(int can_id):MyThread(20000)
         std::thread thr(std::bind(&Chassis::pid_loop,this));
         this->pid_thread = std::move(thr);
         this->pid_thread.detach();
+        auto_run_map_pid[x] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
+        auto_run_map_pid[y] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
+        auto_run_map_pid[z] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
     }
     catch(const std::exception& e)
     {
@@ -203,7 +206,7 @@ void Chassis::motor_init(int id)
         motor[i]->ConfigNominalOutputReverse(0, 10);
         motor[i]->ConfigPeakOutputForward(1, 10);
         motor[i]->ConfigPeakOutputReverse(-1, 10);
-        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,10);//TODO:改成1ms
+        motor[i]->ConfigVelocityMeasurementPeriod(VelocityMeasPeriod::Period_100Ms,10);
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigNeutralDeadband(0,10);
 
@@ -219,21 +222,20 @@ bool Chassis::get_auto_run_is_finished()
 ///< 线程函数的重写
 void Chassis::run()
 {
-
-    float output[3];
-    auto_run_map_pid[x] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
-    auto_run_map_pid[y] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
-    auto_run_map_pid[z] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
     auto_run_is_finished =false;
-    while (isInterrupted())
+    while (!isInterrupted())
     {
         milemter();
         try
         {
-            if((abs(auto_run_map_pid[y]->GetPositionError()) < is_arrived_pos_error[y]) &&\
-               (abs(auto_run_map_pid[x]->GetPositionError()) < is_arrived_pos_error[x]) &&\
-               (abs(motor[y]->GetSelectedSensorVelocity()) < is_arrived_vel_error[y]) &&\
-               (abs(motor[x]->GetSelectedSensorVelocity()) < is_arrived_vel_error[x])
+            y_pos_error = abs(get_position_error(map[1][y],milemeter[y]));
+            x_pos_error = abs(get_position_error(map[1][x],milemeter[x]));
+            x_v_error = abs(motor[x]->GetSelectedSensorVelocity());
+            y_v_error = abs(motor[y]->GetSelectedSensorVelocity());
+            if((y_pos_error < is_arrived_pos_error[y]) &&\
+               (x_pos_error < is_arrived_pos_error[x]) &&\
+               (x_v_error < is_arrived_vel_error[x])   &&\
+               (y_v_error < is_arrived_vel_error[y])
                )
             {
                 interrupt();
@@ -241,12 +243,12 @@ void Chassis::run()
             }
             else
             {
-                output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[1][0]);
-                output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[1][1]);
-                output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
-                limit(output[x],-map[1][2],map[1][2]);
-                limit(output[y],-map[1][2],map[1][2]);
-                rc_run(output[x],output[y],output[z]);
+                auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[1][0]);
+                auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[1][1]);
+                auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
+                limit(auto_output[x],-map[1][2],map[1][2]);
+                limit(auto_output[y],-map[1][2],map[1][2]);
+                // rc_run(auto_output[x],auto_output[y],auto_output[z]);
             }
         }
         catch(const std::exception& e)
@@ -256,6 +258,15 @@ void Chassis::run()
         }
         thread_sleep();
     }
+    //线程结束，数据清除
+    y_pos_error= 0;
+    x_pos_error= 0;
+    x_v_error= 0;
+    y_v_error= 0;
+    auto_output[0] = 0;
+    auto_output[1] = 0;
+    auto_output[2] = 0;
+    interrupt();
 }
 ///< 底盘pid计算线程
 //待测试
@@ -285,6 +296,7 @@ void Chassis::display()
     frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp); 
     frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki); 
     frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd);
+
     
 }
 void Chassis::debug()
@@ -320,6 +332,10 @@ void Chassis::debug()
             auto_run_map_pid[i]->SetD(pos_loop_kd);
     }
 
+    map[1][0] = get_number("目标点x mm",map[1][0],0.0,10000.0);
+    map[1][1] = get_number("目标点y mm",map[1][1],0.0,10000.0);
+    map[1][2] = get_number("目标速度mm/s",map[1][2],0.0,10000.0);
+
     frc::SmartDashboard::PutNumber("X 速度enc/100ms",target_vel[x]); //速度范围-6380~6380
     frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
     frc::SmartDashboard::PutNumber("Z 速度enc/100ms",target_vel[z]); 
@@ -344,5 +360,19 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("位置Y ms",milemeter[y]);
     frc::SmartDashboard::PutNumber("角度 ms",milemeter[z]);
 
+    frc::SmartDashboard::PutNumber("X位置误差",x_pos_error);
+    frc::SmartDashboard::PutNumber("y位置误差",y_pos_error);
+    frc::SmartDashboard::PutNumber("X速度误差",x_v_error);
+    frc::SmartDashboard::PutNumber("y速度误差",y_v_error);
+
+    frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
+    frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
+    frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
+
+    thread_debug();
+
+
+    
 }
 #endif
+

@@ -119,6 +119,7 @@ void Shoot::run()
         }
         usleep(reset_period);
     }
+    interrupt();
 }
 
 

@@ -108,6 +108,7 @@ void Dials::spin_control_thread()
       }
       usleep(reset_period);
     }
+    interrupt();
 }
 ///< 颜色传感器联系校验
 //TODO: 待验证 连续颜色突然插入不连续颜色
@@ -203,6 +204,7 @@ void Dials::pos_control_thread()
       }
       usleep(reset_period);
     }
+    interrupt();
 }
 
 ///< 获取转盘旋转是否完成

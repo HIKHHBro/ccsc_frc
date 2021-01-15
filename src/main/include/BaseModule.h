@@ -30,6 +30,8 @@ public:
     {data = (data) > (max) ? (max) : (data); 
     data = (data) < (min) ? (min) : (data);
     return  data;}
+    float get_number(wpi::StringRef keyName, double value,double min,double max);
+    int get_number(wpi::StringRef keyName, int value,int min,int max);
     virtual void display();
     virtual void debug();
 };

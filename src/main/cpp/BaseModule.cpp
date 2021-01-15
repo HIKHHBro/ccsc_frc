@@ -1,5 +1,5 @@
 #include "BaseModule.h"
-
+#include <frc/smartdashboard/smartdashboard.h>
 // Base::Base(){}
 
 // Base::~Base(){}
@@ -11,6 +11,31 @@ void Base::debug()
 {
     std::cout<<"debug"<<std::endl;
 }
+float Base::get_number(wpi::StringRef keyName, double value,double min,double max)
+{
+    float value_temp = value;
+    float get = frc::SmartDashboard::GetNumber(keyName,value_temp);
+    if(get != value_temp)
+    {
+        value_temp = limit(get,min,max);
+    }
+    frc::SmartDashboard::PutNumber(keyName,value_temp);
+    return value_temp;
+}
+
+int Base::get_number(wpi::StringRef keyName, int value,int min,int max)
+{
+    int value_temp = value;
+    int get = frc::SmartDashboard::GetNumber(keyName,value_temp);
+    if(get != value_temp)
+    {
+        value_temp = limit(get,min,max);
+    }
+    frc::SmartDashboard::PutNumber(keyName,value_temp);
+    return value_temp;
+}
+
+
 RampFunction::RampFunction(float k):k(k){last_value = 0;}
 
 RampFunction::~RampFunction(){}

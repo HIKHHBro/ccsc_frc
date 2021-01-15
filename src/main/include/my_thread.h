@@ -20,6 +20,8 @@ public:
 	void set_loop_time(int t);
 	float get_loop_freq();
 	void thread_sleep();
+	int thread_count = 0;
+	void thread_debug();
 private:
 	std::atomic<bool> isInterript = true;
 	std::thread th;

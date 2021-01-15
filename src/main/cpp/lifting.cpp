@@ -4,7 +4,7 @@ Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
     set_dia(50);//直径50mm
-    set_loop_time(50000);//50ms
+    set_loop_time(10000);
     reset_sw[0] = new frc::DigitalInput(0);//0通道
     reset_sw[1] = new frc::DigitalInput(1);//0通道
     for(int i =0;i<M_ALL;i++)
@@ -43,7 +43,7 @@ Lifting::Lifting(int id)
         /* Zero the sensor */
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigMotionSCurveStrength(smoothing, 0);
-        motor[i]->SetNeutralMode(Brake);
+        motor[i]->SetNeutralMode(NeutralMode::Coast);
         motor[i]->ConfigNeutralDeadband(0,10);
     }
     //TODO: 待测试跟随
@@ -106,7 +106,7 @@ bool Lifting::shrink()
 ///< 复位
 bool Lifting::reset()
 {
-    start_join();
+    start_detach();
     return is_reseted;
 }
 ///< 获取复位按键值 松开是高电平，按下是低电平
@@ -201,13 +201,15 @@ void Lifting::run()
             is_reseted = true;
             interrupt();
         }
-        usleep(reset_period);
+        // usleep(reset_period);
+        thread_sleep();
     }
     for(int i = 0;i<M_ALL;i++)
     {
         motor[i]->Config_kF(0, kf, 10);
         motor[i]->Config_kP(0, kp, 10);
     }
+    interrupt();
 
 }
 ///< 失能电机
@@ -216,8 +218,8 @@ void Lifting::run()
 //TODO: 待优化
 void Lifting::disable_motor()
 {
-    motor[0]->Set(ControlMode::Velocity,0);
-    motor[1]->Set(ControlMode::Velocity,0);
+    motor[0]->Set(ControlMode::PercentOutput,0);
+    motor[1]->Set(ControlMode::PercentOutput,0);
 }
 ///< 调试用遥控控制获取电机所需运行的位移
 // bool Lifting::debug_get_para()
@@ -364,7 +366,7 @@ void Lifting::debug()
     frc::SmartDashboard::PutNumber("左复位堵转累计记数", reset_error_count[M1]);
     frc::SmartDashboard::PutNumber("右复位堵转累计记数", reset_error_count[M2]);
 
-
+    thread_debug();
 
     
 }
