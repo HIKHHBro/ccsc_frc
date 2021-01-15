@@ -126,14 +126,14 @@ typedef struct Gyro
 /* 设置模式 */
 //比赛的时候一定要注释掉调试模式
 // #define GIMBAL_DEBUG //设置云台调试模式
-// #define CHASSIS_DEBUG //设置底盘调试模式
+#define CHASSIS_DEBUG //设置底盘调试模式
 // #define COM_DEBUG //在公司调试
 // #define DIALS_DEBUG
 // #define JOY_RC
 #define XBON_RC
 #define RC_DEBGU
 // #define GRAB_DEBUG
-#define LIFT_DEBUG
+// #define LIFT_DEBUG
 // #define SHOOT_DEBUG
-#define SHOOT_DEBUG
+// #define SHOOT_DEBUG
 

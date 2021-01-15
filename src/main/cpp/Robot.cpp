@@ -28,9 +28,9 @@ void Robot::RobotInit()
   lifting = new Lifting(5);
   chassis->display();
   rc->display();
-    frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
-    frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
-    frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
+    // frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
+    // frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
+    // frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
 
 
 }
@@ -159,13 +159,13 @@ void Robot::TeleopPeriodic()
   // grab->debug();
   // lifting->debug();
   // rc ->display();
-
+  chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
 #ifdef GRAB_DEBUG
   grab->debug();
 #endif
 #ifdef LIFT_DEBUG
   lifting->debug();
-  rc->display();
+  rc->debug();
 #endif
 }
 
@@ -181,12 +181,6 @@ void Robot::TestInit()
 }
 void Robot::TestPeriodic() 
 {
-
-  // rc.display();
-  // TODO: 显示有问题
-      // std::cout<<"color = "<<gimbal->get_target_color()<<std::endl;
-      // gimbal->display();
-
 }
 
 #ifndef RUNNING_FRC_TESTS
