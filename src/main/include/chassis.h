@@ -48,6 +48,7 @@ class Chassis :public Falcon,public MyThread
     float wheel_theta = 45;
     float chassis_r = 382.835;//mm//382.835
     TalonFX* motor[4];
+    RampFunction *rampf[all_dir];
     float rc_control_x_y = 1;//控制x和y最大速度系数
     float rc_control_w = 0.2;//控制旋转最大速度系数 //TODO: 精度不够
     int wheel_rc_to_sensor(float);
@@ -61,6 +62,7 @@ class Chassis :public Falcon,public MyThread
     void motor_init(int id);
     bool get_auto_run_is_finished();
     void chassis_pid_loop();
+    void chassis_dis();
 #ifdef CHASSIS_DEBUG
     void debug() override;
     void display() override;
@@ -80,14 +82,14 @@ class Chassis :public Falcon,public MyThread
     void pid_loop();
     std::thread pid_thread;
     std::atomic<bool> is_interript_pid = false;
-    float speed_loop_kp = 0.05;
-    float speed_loop_ki = 0.05;
+    float speed_loop_kp = 0.3;
+    float speed_loop_ki = 8;
 
-    float pos_loop_kp = 0.05;
-    float pos_loop_ki = 0;
-    float pos_loop_kd = 0;
-    float is_arrived_pos_error[2] = {10,10};
-    float is_arrived_vel_error[2] = {10,10};
+    float pos_loop_kp[all_dir] = {0.3,0.3,0.05};
+    float pos_loop_ki[all_dir] = {0,0,0};
+    float pos_loop_kd[all_dir] = {0,0,0};
+    float is_arrived_pos_error[2] = {100,100};
+    float is_arrived_vel_error[2] = {30,30};
 
    //调试变量，方便查看
    float y_pos_error= 0;
@@ -95,14 +97,15 @@ class Chassis :public Falcon,public MyThread
    float x_v_error= 0;
    float y_v_error= 0;
    float auto_output[3];
+   float speed_output_per[M_ALL];
 public:
     const int map_len = 2;
     
-    float map[2][3] = 
+    float map[2][4] = 
     {
-      /* {x(mm),y(mm),speed(mms)}*/
-        {0,0,10},
-        {1,4000,10}
+      /* {x(mm),y(mm),speed(mm/s),acc(mm/s^2)}*/
+        {0,0,1000,10},
+        {0,2000,1000,10}
     };
 
 };

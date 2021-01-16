@@ -43,17 +43,51 @@ float RC::filter(float data,float section)
 #ifdef JOY_RC
 float RC::getX()
 {
-  return joystick->GetRawAxis(0);
+  return (filter(joystick->GetRawAxis(0),0.2) * chassis_speed[0]);
 }
 float RC::getY()
 {
-  return joystick->GetRawAxis(1); 
+  return -(filter(joystick->GetRawAxis(1),0.2)* chassis_speed[1]);
 }
 float RC::getZ()
 {
-    return joystick->GetRawAxis(2); 
-
+  return filter(joystick->GetRawAxis(2),0.1) * chassis_speed[2];
 }
+
+
+bool RC::is_grab()
+{
+    // return xbox->GetBumper(frc::GenericHID::kLeftHand);
+}
+
+bool RC::is_reset()
+{
+  //  if(xbox->GetBackButton() && xbox->GetStartButton())
+  //  {
+  //   if(reset_count > unit_time)
+  //   {
+  //     return true;
+  //   }
+  //   else 
+  //   {
+  //      reset_count++;
+  //      return false;
+  //   }
+  //  }
+  //  else
+  //  {
+  //    reset_count = 0;
+  //     return false;
+  //  } 
+}
+bool RC::is_lift()
+{
+  // return xbox->GetBumper(frc::GenericHID::kRightHand);
+}
+// float get_angle()
+// {
+//   return ;
+// }
 
 #endif
 

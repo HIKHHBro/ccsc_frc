@@ -98,6 +98,8 @@ public:
     int get_position_error(int target,int real);
     int mms_to_enc100ms(float mms);
     float enc100ms_to_mms(int enc);
+    int max_enc_100ms = 20000;
+    float enc100ms_to_per(float enc){return enc/(float)max_enc_100ms;};
 };
 class Neo : public Motor,public rev::SparkMax,public RampFunction
 {
@@ -131,8 +133,8 @@ typedef struct Gyro
 #define CHASSIS_DEBUG //设置底盘调试模式
 // #define COM_DEBUG //在公司调试
 // #define DIALS_DEBUG
-// #define JOY_RC
-#define XBON_RC
+#define JOY_RC
+// #define XBON_RC
 #define RC_DEBGU
 // #define GRAB_DEBUG
 // #define LIFT_DEBUG

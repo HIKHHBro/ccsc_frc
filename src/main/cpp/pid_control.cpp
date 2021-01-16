@@ -83,7 +83,7 @@ float PIDControl::PIDCompute(float in)
     double A = alteredKp + alteredKi + alteredKd;
     double B = -alteredKp - 2 * alteredKd;
     double C = alteredKd;
-    output += (A*e + B*e_pre_1 + C*e_pre_2)/2048.00;
+    output += (A*e + B*e_pre_1 + C*e_pre_2);
     output = CONSTRAIN(output, outMin, outMax);
     return output;
 }
@@ -197,4 +197,9 @@ void PIDControl::PIDSampleTimeSet(float sampleTimeSeconds)
 void PIDControl::pid_set(float point)
 {
     setpoint = point;
+}
+
+void PIDControl::clear_output()
+{
+    output = 0;
 }

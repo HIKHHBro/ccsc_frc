@@ -64,6 +64,7 @@ public:
     bool PIDCompute(); 
     float PIDCompute(float in);
     void pid_set(float point);
+    void clear_output();
     
     // 
     // PID Mode Set
@@ -264,62 +265,62 @@ private:
     // 
     // Input to the PID Controller
     // 
-    float input;
+    float input = 0;
     
     // 
     // Previous input to the PID Controller
     // 
-    float lastInput;
+    float lastInput = 0;
     
     // 
     // Output of the PID Controller
     // 
-    double output;
+    double output = 0;
     
     // 
     // Gain constant values that were passed by the user
     // These are for display purposes
     // 
-    float dispKp;
-    float dispKi;
-    float dispKd;
+    float dispKp = 0;
+    float dispKi = 0;
+    float dispKd = 0;
     
     // 
     // Gain constant values that the controller alters for
     // its own use
     // 
-    float alteredKp;
-    float alteredKi;
-    float alteredKd;
+    float alteredKp = 0;
+    float alteredKi = 0;
+    float alteredKd = 0;
     
     // 
     // The Integral Term
     // 
-    float iTerm;
+    float iTerm = 0;
     
     // 
     // The interval (in seconds) on which the PID controller
     // will be called
     // 
-    float sampleTime;
+    float sampleTime = 0;
     
     // 
     // The values that the output will be constrained to
     // 
-    float outMin;
-    float outMax;
+    float outMin = 0;
+    float outMax = 0;
     
     // 
     // The user chosen operating point
     // 
-    float setpoint;
+    float setpoint = 0;
     
     // 
     // The sense of direction of the controller
     // DIRECT:  A positive setpoint gives a positive output
     // REVERSE: A positive setpoint gives a negative output
     // 
-    PIDDirection controllerDirection;
+    PIDDirection controllerDirection = DIRECT;
     
     // 
     // Tells how the controller should respond if the user has
@@ -327,11 +328,11 @@ private:
     // MANUAL:    PID controller is off.
     // AUTOMATIC: PID controller is on.
     // 
-    PIDiTermMode mode;
-    float error;
-    float last_error;
-    float pre_last_error;
-    float max_speed;
+    PIDiTermMode mode = MANUAL;
+    float error = 0;
+    float last_error = 0;
+    float pre_last_error = 0;
+    float max_speed = 0;
 };
 
 #endif  // PID_CONTROLLER_H

@@ -21,17 +21,17 @@
 float sepp[3];
 void Robot::RobotInit() 
 {
-  chassis = new Chassis(0);
+  chassis = new Chassis(1);
   // dials = new Dials(3);
   // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
-  lifting = new Lifting(5);
+  // lifting = new Lifting(5);
   chassis->display();
   rc->display();
     // frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
     // frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
     // frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
-
+  sleep(2);
 
 }
 
@@ -85,7 +85,8 @@ void Robot::DisabledInit() {}
 void Robot::DisabledPeriodic() {
 
   chassis->interrupt();
-
+  chassis->chassis_dis();
+  chassis->set_series();
 }
 
 /**
@@ -98,6 +99,7 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Schedule();
   }
+  sleep(2);
 }
 
 void Robot::AutonomousPeriodic() {   
@@ -114,7 +116,7 @@ void Robot::TeleopInit() {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
-
+sleep(2);
 
   // lifting->display();
 #ifdef GRAB_DEBUG
@@ -138,28 +140,28 @@ void Robot::TeleopPeriodic()
     // {
     //   grab->put_up();
     // }
-    if (rc->is_reset())
-    {
-      if(!lifting->reset_once)
-      {
-        lifting->reset_once = true;//防止复位失败后一直从进复位线程
-        lifting->reset();
-      }
-    }
-    else
-    {
-      lifting->reset_once = false;
-      lifting->interrupt();
-      // lifting->disable_motor();
-    }
-    if(rc->is_lift())
-      lifting->lift();
-    else
-    {
-      lifting->disable_motor();
-    }
+    // if (rc->is_reset())
+    // {
+    //   if(!lifting->reset_once)
+    //   {
+    //     lifting->reset_once = true;//防止复位失败后一直从进复位线程
+    //     lifting->reset();
+    //   }
+    // }
+    // else
+    // {
+    //   lifting->reset_once = false;
+    //   lifting->interrupt();
+    //   // lifting->disable_motor();
+    // }
+    // if(rc->is_lift())
+    //   lifting->lift();
+    // else
+    // {
+    //   lifting->disable_motor();
+    // }
     
-  // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+  chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
 
 }
 
@@ -170,7 +172,7 @@ void Robot::TeleopPeriodic()
 void Robot::TestInit()
 {
 
-
+sleep(2);
 
 }
 void Robot::TestPeriodic() 

@@ -21,13 +21,14 @@ Chassis::Chassis(int can_id):MyThread(20000)
         }
         set_dia(76.2);
         set_reduction_ratiop(22,42,14,50);
-
         std::thread thr(std::bind(&Chassis::pid_loop,this));
         this->pid_thread = std::move(thr);
         this->pid_thread.detach();
-        auto_run_map_pid[x] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
-        auto_run_map_pid[y] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
-        auto_run_map_pid[z] = new frc2::PIDController(pos_loop_kp,pos_loop_ki,pos_loop_kd);
+        for(int i = 0;i<3;i++)
+        {
+            rampf[i] = new RampFunction(100);
+            auto_run_map_pid[i] = new frc2::PIDController(pos_loop_kp[i],pos_loop_ki[i],pos_loop_kd[i]);
+        }
     }
     catch(const std::exception& e)
     {
@@ -45,6 +46,10 @@ Chassis::~Chassis()
     delete motor[1];
     delete motor[2];
     delete motor[3];
+    for(int i = 0;i<3;i++)
+    {
+    delete rampf[i];
+    }
 }
 
 //TODO: 待测试  1、机体坐标系 2、世界坐标系
@@ -117,6 +122,7 @@ void Chassis::rc_run(float vx,float vy,float vz)
     {
         motor_pid[i]->pid_set(speed[i]);
     }
+    milemter();
 }
 
 
@@ -125,8 +131,8 @@ void Chassis::rc_run(float vx,float vy,float vz)
 //TODO: 世界坐标系没有成功
 bool Chassis::milemter()
 {
-    if(check_gyro())
-    {
+    // if(check_gyro())
+    // {
              float w = 0;
         updata_series();
         milemeter[z] =  (enc_to_mm(wheel_s[M1]) +   enc_to_mm(wheel_s[M2]) + \
@@ -142,12 +148,12 @@ bool Chassis::milemter()
                         + cos(DEG_TO_RAD(wheel_theta + w)) * enc_to_mm(wheel_s[M3]) \
                         - cos(DEG_TO_RAD(wheel_theta - w)) * enc_to_mm(wheel_s[M4]);
         return true;
-    }
-    else 
-    {
-        std::cout<<"无陀螺仪"<<std::endl;
-        return false;
-    }
+    // }
+    // else 
+    // {
+    //     std::cout<<"无陀螺仪"<<std::endl;
+    //     return false;
+    // }
 }
 
 ///<位置控制
@@ -169,10 +175,11 @@ void Chassis::updata_series(void)
         wheel_s[i] = motor[i]->GetSelectedSensorPosition();
     }
 }
-//TODO: 待完善
+//TODO: 编写底盘清除
 ///<重设编码器值
 void Chassis::set_series()
 {
+    auto_run_is_finished = false;
     for(int i = 0;i<M_ALL;i++)
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
 }
@@ -181,7 +188,10 @@ void Chassis::set_series()
 ///< 开启自动模式
 void Chassis::start_auto_run(void)
 {
-    start_detach();
+    if(!auto_run_is_finished)
+    {
+        start_detach();
+    }
 }
 ///< 退出自动模式
 void Chassis::exit_auto_run()
@@ -210,7 +220,7 @@ void Chassis::motor_init(int id)
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
         motor[i]->ConfigNeutralDeadband(0,10);
 
-        motor_pid[i] = new PIDControl(0.05,0.05,0,0.001,0,0,MANUAL,DIRECT,20000);
+        motor_pid[i] = new PIDControl(0.3,8,0,0.001,-max_enc_100ms,max_enc_100ms,MANUAL,DIRECT,20000);
     }
 }
 //TODO: 待测试
@@ -238,6 +248,8 @@ void Chassis::run()
                (y_v_error < is_arrived_vel_error[y])
                )
             {
+                chassis_dis();
+                rc_run(0,0,0);
                 interrupt();
                 auto_run_is_finished = true;
             }
@@ -247,9 +259,9 @@ void Chassis::run()
                 auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[1][1]);
                 auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
                 //TODO: 调试好之后打开限制速度
-                // auto_output[0] = limit(auto_output[x],-map[1][2],map[1][2]);
-                // auto_output[1] = limit(auto_output[y],-map[1][2],map[1][2]);
-                // rc_run(auto_output[x],auto_output[y],auto_output[z]);
+                auto_output[0] = limit(auto_output[x],-map[1][2],map[1][2]);
+                auto_output[1] = limit(auto_output[y],-map[1][2],map[1][2]);
+                rc_run(auto_output[x],auto_output[y],auto_output[z]);
             }
         }
         catch(const std::exception& e)
@@ -273,30 +285,53 @@ void Chassis::run()
 //待测试
 void Chassis::pid_loop()
 {
-    float output[M_ALL];
-    while (!is_interript_pid)
+    is_interript_pid = false;
+    std::cout<<"pid"<<std::endl;
+    while (true)
     {
         for(int i = 0;i<M_ALL;i++)
         {
-            output[i] = motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
-            output[i] = limit(output[i],-1.0,1.0);
-            motor[i]->Set(ControlMode::PercentOutput,output[i]);
+            speed_output_per[i] = motor_pid[i]->PIDCompute(motor[i]->GetSelectedSensorVelocity());
+            speed_output_per[i] = enc100ms_to_per(speed_output_per[i]);
+            speed_output_per[i] = limit(speed_output_per[i],-1.0,1.0);
+            motor[i]->Set(ControlMode::PercentOutput,speed_output_per[i]);
         }
         usleep(1000);
     }
     
 }
 
+void Chassis::chassis_dis()
+{
+    target_vel[0] = 0;
+    target_vel[1] = 0;
+    target_vel[2] = 0;
+    speed[0] = 0;
+    speed[1] = 0;
+    speed[2] = 0;
+    speed[2] = 0;
+    speed_output_per[0] = 0;
+    speed_output_per[1] = 0;
+    speed_output_per[2] = 0;
+    speed_output_per[3] = 0;
+    for(int i = 0;i<M_ALL;i++)
+    {
+        motor_pid[i]->clear_output();
+    }
+}
+
 #ifdef CHASSIS_DEBUG
+//TODO: 不能只显示一次，不然初始化之后就不能显示了
+//TODO: 添加自动模式的pid调试显示
 void Chassis::display()
 { 
     // frc::Shuffleboard::GetTab("Example tab").Add(gyro);
     frc::SmartDashboard::PutNumber("速度环Kp",speed_loop_kp); 
     frc::SmartDashboard::PutNumber("速度环Ki",speed_loop_ki); 
 
-    frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp); 
-    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki); 
-    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd);
+    frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp[1]); 
+    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki[1]); 
+    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd[1]);
 
     
 }
@@ -304,33 +339,43 @@ void Chassis::debug()
 {
 
     float Get1 = frc::SmartDashboard::GetNumber("速度环Kp",speed_loop_kp);
-    if(Get1 != speed_loop_kp) {speed_loop_kp = Get1;};
+    if(Get1 != speed_loop_kp)
+    {
+        speed_loop_kp = Get1;
+        for(int i = 0;i<M_ALL;i++)
+            motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
+    };
 
     float Get2 = frc::SmartDashboard::GetNumber("速度环Ki",speed_loop_ki);
-    if(Get2 != speed_loop_ki) {speed_loop_ki = Get2;};
-
-    float Get3 = frc::SmartDashboard::GetNumber("位置环Kp",pos_loop_kp);
-    if(Get3 != pos_loop_kp)
+    if(Get2 != speed_loop_ki) 
     {
-        pos_loop_kp = Get3;
-        for(int i = 0;i<3;i++)
-            auto_run_map_pid[i]->SetP(pos_loop_kp);
+        speed_loop_ki = Get2;
+        for(int i = 0;i<M_ALL;i++)
+            motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
     }
 
-    float Get4 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_ki);
-    if(Get4 != pos_loop_ki)
+    float Get3 = frc::SmartDashboard::GetNumber("位置环Kp",pos_loop_kp[1]);
+    if(Get3 != pos_loop_kp[1])
     {
-        pos_loop_ki = Get4;
+        pos_loop_kp[1] = Get3;
         for(int i = 0;i<3;i++)
-            auto_run_map_pid[i]->SetI(pos_loop_ki);
+            auto_run_map_pid[i]->SetP(pos_loop_kp[1]);
     }
 
-    float Get5 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_kd);
-    if(Get5 != pos_loop_kd)
+    float Get4 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_ki[1]);
+    if(Get4 != pos_loop_ki[1])
     {
-        pos_loop_kd = Get5;
+        pos_loop_ki[1] = Get4;
         for(int i = 0;i<3;i++)
-            auto_run_map_pid[i]->SetD(pos_loop_kd);
+            auto_run_map_pid[i]->SetI(pos_loop_ki[1]);
+    }
+
+    float Get5 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_kd[1]);
+    if(Get5 != pos_loop_kd[1])
+    {
+        pos_loop_kd[1] = Get5;
+        for(int i = 0;i<3;i++)
+            auto_run_map_pid[i]->SetD(pos_loop_kd[1]);
     }
 
     map[1][0] = get_number("目标点x mm",map[1][0],0.0,10000.0);
@@ -350,13 +395,6 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("减速比",reduction_ratiop); 
 
 
-    frc::SmartDashboard::PutNumber("test速度环Kp",speed_loop_kp); 
-    frc::SmartDashboard::PutNumber("test速度环Ki",speed_loop_ki); 
-
-    frc::SmartDashboard::PutNumber("test位置环Kp",pos_loop_kp); 
-    frc::SmartDashboard::PutNumber("test位置环Ki",pos_loop_ki); 
-    frc::SmartDashboard::PutNumber("test位置环Ki",pos_loop_kd);
-
     frc::SmartDashboard::PutNumber("位置X ms",milemeter[x]);
     frc::SmartDashboard::PutNumber("位置Y ms",milemeter[y]);
     frc::SmartDashboard::PutNumber("角度 ms",milemeter[z]);
@@ -366,6 +404,14 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("X速度误差",x_v_error);
     frc::SmartDashboard::PutNumber("y速度误差",y_v_error);
 
+
+    frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_pos_error[y]);
+    frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_pos_error[x]);
+    frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_vel_error[x]);
+    frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_vel_error[y]);
+
+
+
     frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
     frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
     frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
@@ -373,10 +419,22 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
     frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
     frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
+
+    
+    frc::SmartDashboard::PutNumber("电机1速度环输出",motor_pid[0]->PIDOutputGet());
+    frc::SmartDashboard::PutNumber("电机2速度环输出",motor_pid[1]->PIDOutputGet());
+    frc::SmartDashboard::PutNumber("电机3速度环输出",motor_pid[2]->PIDOutputGet());
+    frc::SmartDashboard::PutNumber("电机4速度环输出",motor_pid[3]->PIDOutputGet());
+
+    
+    frc::SmartDashboard::PutNumber("电机1速度环百分比输出",speed_output_per[0]);
+    frc::SmartDashboard::PutNumber("电机2速度环百分比输出",speed_output_per[1]);
+    frc::SmartDashboard::PutNumber("电机3速度环百分比输出",speed_output_per[2]);
+    frc::SmartDashboard::PutNumber("电机4速度环百分比输出",speed_output_per[3]);
 
     thread_debug();
 
-
+    display();
     
 }
 #endif
