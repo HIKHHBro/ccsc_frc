@@ -20,6 +20,7 @@ typedef enum
 class PIDControl
 {
 public:
+double test_output = 0;
     // 
     // Constructor
     // Description:

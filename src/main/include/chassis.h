@@ -38,13 +38,14 @@ class Chassis :public Falcon,public MyThread
     void motion_model(float vx,float vy,float vz);
     float theta_m;//TODO: 
     bool check_gyro();
-    void get_gyro();
+    float get_gyro();
+    float init_angle = 0;
     void get_run_target(float* target);
     void update_rc_data();
     void rc_run(float vx,float vy,float vz);
     bool milemter();
     float series_to_mm (int16_t  wheel);
-    bool to_position(float x,float y,float w);
+    bool to_position(int point);
     float wheel_theta = 45;
     float chassis_r = 382.835;//mm//382.835
     TalonFX* motor[4];
@@ -63,6 +64,18 @@ class Chassis :public Falcon,public MyThread
     bool get_auto_run_is_finished();
     void chassis_pid_loop();
     void chassis_dis();
+    void angle_control(float angle);
+
+
+   //调试变量，方便查看
+   float y_pos_error= 0;
+   float x_pos_error= 0;
+   float x_v_error= 0;
+   float y_v_error= 0;
+   float auto_output[3];
+   float speed_output_per[M_ALL];
+   float cahssis_acc[all_dir] = {10,10,0.04};
+   float test_angle = 0;
 #ifdef CHASSIS_DEBUG
     void debug() override;
     void display() override;
@@ -85,28 +98,23 @@ class Chassis :public Falcon,public MyThread
     float speed_loop_kp = 0.3;
     float speed_loop_ki = 8;
 
-    float pos_loop_kp[all_dir] = {0.3,0.3,0.05};
+    float pos_loop_kp[all_dir] = {0.45,0.45,0.025};
     float pos_loop_ki[all_dir] = {0,0,0};
-    float pos_loop_kd[all_dir] = {0,0,0};
-    float is_arrived_pos_error[2] = {100,100};
-    float is_arrived_vel_error[2] = {30,30};
+    float pos_loop_kd[all_dir] = {0,0,0.0006};
+    float is_arrived_pos_error[2] = {20,20};
+    float is_arrived_vel_error[2] = {10,10}; 
 
-   //调试变量，方便查看
-   float y_pos_error= 0;
-   float x_pos_error= 0;
-   float x_v_error= 0;
-   float y_v_error= 0;
-   float auto_output[3];
-   float speed_output_per[M_ALL];
-   float cahssis_acc[all_dir] = {40,40,0.04};
+
 public:
-    const int map_len = 2;
+    const int map_len = 3;
     
-    float map[2][4] = 
+    float map[3][4] = 
     {
       /* {x(mm),y(mm),speed(mm/s),acc(mm/s^2)}*/
         {0,0,1000,10},
-        {0,2000,1000,10}
+        {-500,0,1000,10},
+        {-400,3500,1000,10}
+
     };
 
 };

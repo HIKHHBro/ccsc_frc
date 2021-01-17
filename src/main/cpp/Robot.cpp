@@ -172,7 +172,7 @@ void Robot::TestInit()
 }
 void Robot::TestPeriodic() 
 {
-
+  chassis->angle_control(chassis->test_angle);
 }
 
 #ifndef RUNNING_FRC_TESTS
