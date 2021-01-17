@@ -116,6 +116,7 @@ void Chassis::get_run_target(float* target)
 //待测试
 void Chassis::rc_run(float vx,float vy,float vz)
 {
+    //TODO: 最终放到自动阶段中
     vx = rampf[0]->cal_speed(vx);
     vy = rampf[1]->cal_speed(vy);
     vz = rampf[2]->cal_speed(vz);
