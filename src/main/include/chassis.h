@@ -98,6 +98,7 @@ class Chassis :public Falcon,public MyThread
    float y_v_error= 0;
    float auto_output[3];
    float speed_output_per[M_ALL];
+   float cahssis_acc[all_dir] = {40,40,0.04};
 public:
     const int map_len = 2;
     

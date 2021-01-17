@@ -26,9 +26,11 @@ Chassis::Chassis(int can_id):MyThread(20000)
         this->pid_thread.detach();
         for(int i = 0;i<3;i++)
         {
-            rampf[i] = new RampFunction(100);
             auto_run_map_pid[i] = new frc2::PIDController(pos_loop_kp[i],pos_loop_ki[i],pos_loop_kd[i]);
         }
+        rampf[0] = new RampFunction(cahssis_acc[0]);//2000mm/s^2 * 0.02 = 40
+        rampf[1] = new RampFunction(cahssis_acc[1]);//2000mm/s^2 * 0.02 = 40
+        rampf[2] = new RampFunction(cahssis_acc[2]);//2rad/s^2 *0.02 = 0.04
     }
     catch(const std::exception& e)
     {
@@ -114,6 +116,9 @@ void Chassis::get_run_target(float* target)
 //待测试
 void Chassis::rc_run(float vx,float vy,float vz)
 {
+    vx = rampf[0]->cal_speed(vx);
+    vy = rampf[1]->cal_speed(vy);
+    vz = rampf[2]->cal_speed(vz);
     target_vel[0] = mms_to_enc100ms(vx);
     target_vel[1] = mms_to_enc100ms(vy);
     target_vel[2] = mms_to_enc100ms(vz);
@@ -333,6 +338,10 @@ void Chassis::display()
     frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki[1]); 
     frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd[1]);
 
+    frc::SmartDashboard::PutNumber("cahssis_acc[0]",cahssis_acc[0]);
+    frc::SmartDashboard::PutNumber("cahssis_acc[1]",cahssis_acc[1]);
+    frc::SmartDashboard::PutNumber("cahssis_acc[2]",cahssis_acc[2]);
+
     
 }
 void Chassis::debug()
@@ -381,6 +390,11 @@ void Chassis::debug()
     map[1][0] = get_number("目标点x mm",map[1][0],0.0,10000.0);
     map[1][1] = get_number("目标点y mm",map[1][1],0.0,10000.0);
     map[1][2] = get_number("目标速度mm/s",map[1][2],0.0,10000.0);
+
+    cahssis_acc[0] = get_number("cahssis_acc[0]",cahssis_acc[0],0.0,1000.0);
+    cahssis_acc[1] = get_number("cahssis_acc[1]",cahssis_acc[1],0.0,1000.0);
+    cahssis_acc[2] = get_number("cahssis_acc[2]",cahssis_acc[2],0.0,2.0);
+
 
     frc::SmartDashboard::PutNumber("X 速度enc/100ms",target_vel[x]); //速度范围-6380~6380
     frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
@@ -432,9 +446,13 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("电机3速度环百分比输出",speed_output_per[2]);
     frc::SmartDashboard::PutNumber("电机4速度环百分比输出",speed_output_per[3]);
 
+    frc::SmartDashboard::PutNumber("rampf[0]",rampf[0]->get_last_data());
+    frc::SmartDashboard::PutNumber("rampf[1]",rampf[1]->get_last_data());
+    frc::SmartDashboard::PutNumber("rampf[2]",rampf[2]->get_last_data());
+
     thread_debug();
 
-    display();
+    // display();
     
 }
 #endif

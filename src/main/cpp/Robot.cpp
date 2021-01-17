@@ -28,11 +28,6 @@ void Robot::RobotInit()
   // lifting = new Lifting(5);
   chassis->display();
   rc->display();
-    // frc::SmartDashboard::PutNumber("sepp[0]",sepp[0]);
-    // frc::SmartDashboard::PutNumber("sepp[1]",sepp[1]);
-    // frc::SmartDashboard::PutNumber("sepp[2]",sepp[2]);
-  sleep(2);
-
 }
 
 /**
@@ -99,7 +94,7 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Schedule();
   }
-  sleep(2);
+  
 }
 
 void Robot::AutonomousPeriodic() {   
@@ -116,7 +111,7 @@ void Robot::TeleopInit() {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
-sleep(2);
+
 
   // lifting->display();
 #ifdef GRAB_DEBUG
@@ -172,7 +167,7 @@ void Robot::TeleopPeriodic()
 void Robot::TestInit()
 {
 
-sleep(2);
+
 
 }
 void Robot::TestPeriodic() 
