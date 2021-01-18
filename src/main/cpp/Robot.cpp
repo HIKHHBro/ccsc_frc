@@ -28,6 +28,8 @@ void Robot::RobotInit()
   // lifting = new Lifting(5);
   chassis->display();
   rc->display();
+    
+    
 }
 
 /**
