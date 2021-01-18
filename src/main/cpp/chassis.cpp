@@ -71,7 +71,6 @@ void Chassis::motion_model(float vx,float vy,float vz)
         else 
         {
             std::cout<<"陀螺仪掉线"<<std::endl;
-            LOG(WARNING)<<"陀螺仪掉线";
             reference = CAR;
         }
     }
@@ -458,10 +457,10 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
     frc::SmartDashboard::PutNumber("Z 速度enc/100ms",target_vel[z]); 
 
-    frc::SmartDashboard::PutNumber("右前轮enc/100ms",speed[0]); 
-    frc::SmartDashboard::PutNumber("左前轮enc/100ms",speed[1]); 
-    frc::SmartDashboard::PutNumber("左后轮enc/100ms",speed[2]); 
-    frc::SmartDashboard::PutNumber("右后轮enc/100ms",speed[3]); 
+    frc::SmartDashboard::PutNumber("speed[0]",speed[0]); 
+    frc::SmartDashboard::PutNumber("speed[1]",speed[1]); 
+    frc::SmartDashboard::PutNumber("speed[2]",speed[2]); 
+    frc::SmartDashboard::PutNumber("speed[3]",speed[3]); 
 
     frc::SmartDashboard::PutNumber("坐标系",reference); 
     frc::SmartDashboard::PutNumber("减速比",reduction_ratiop); 
@@ -483,10 +482,6 @@ void Chassis::debug()
     frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_vel_error[y]);
 
 
-
-    frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
-    frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
-    frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
 
     frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
     frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);

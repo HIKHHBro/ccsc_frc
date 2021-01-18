@@ -18,11 +18,9 @@
 #include "my_thread.h"
 
 
-float sepp[3];
-log_rank_t test;
 void Robot::RobotInit() 
 {
-  initLogger("/home/log/info.txt","/home/log/warnning.txt","/home/log/error.txt");
+
   chassis = new Chassis(1);
   // dials = new Dials(3);
   // grab = new Grab(0,20,0,0.02,0.01);
@@ -59,8 +57,8 @@ void Robot::RobotPeriodic()
 
 #endif
 
-chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
-LOG(ERROR)<<"test";
+ chassis->angle_control(chassis->test_angle);
+
 #ifdef CHASSIS_DEBUG
   chassis->debug();
 #endif
@@ -82,9 +80,9 @@ void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
 
-  chassis->interrupt();
-  chassis->chassis_dis();
-  chassis->set_series();
+  // chassis->interrupt();
+  // chassis->chassis_dis();
+  // chassis->set_series();
 }
 
 /**

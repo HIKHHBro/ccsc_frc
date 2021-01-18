@@ -100,11 +100,11 @@ float Falcon::enc_100ms_to_rpm(float enc)
 {
     return enc / float(encoder_l) * 600.0; 
 }
-int Falcon::rpm_to_enc_100ms(float rpm)
+float Falcon::rpm_to_enc_100ms(float rpm)
 {
-    return int( rpm / 600.0 * encoder_l);
+    return ( rpm / 600.0 * encoder_l);
 }
-int Falcon::mm_to_enc(float len)
+float Falcon::mm_to_enc(float len)
 {
     return len *  (((float)encoder_l * reduction_ratiop) / (d * 3.1416));
 }
@@ -117,9 +117,9 @@ void Falcon::set_dia(float len)
     d = len;
 }
 ///< mm/s 转 enc/100ms
-int Falcon::mms_to_enc100ms(float mms)
+float Falcon::mms_to_enc100ms(float mms)
 {
-    return int( (mms * reduction_ratiop * 0.1 * (float)encoder_l ) / (3.14 * d));
+    return ( (mms * reduction_ratiop * 0.1 * (float)encoder_l ) / (3.14 * d));
 }
 ///<  enc/100ms 转 mm/s
 float Falcon::enc100ms_to_mms(int enc)
