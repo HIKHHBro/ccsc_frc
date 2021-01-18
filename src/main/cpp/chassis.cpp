@@ -7,7 +7,6 @@
 #include "chassis.h"
 #include "Math.h"
 #include "frc/shuffleboard/Shuffleboard.h"
-//TODO: 查看误差在哪里出现
 Chassis::Chassis(int can_id):MyThread(20000)
 {
     try
@@ -54,7 +53,6 @@ Chassis::~Chassis()
     }
 }
 
-//TODO: 待测试  1、机体坐标系 2、世界坐标系
 ///< 底盘运动模型正解 单位 每100ms所转的编码器线数
 void Chassis::motion_model(float vx,float vy,float vz)
 {
@@ -106,14 +104,9 @@ bool Chassis::check_gyro()
 {
     return ahrs->IsConnected();
 }
-///< 获取运动目标值
-void Chassis::get_run_target(float* target)
-{
 
-}
 
 ///< 手动模式 vx:mm/s  vy:mm/s   vz:rad/s
-//待测试
 void Chassis::rc_run(float vx,float vy,float vz)
 {
 
@@ -128,8 +121,6 @@ void Chassis::rc_run(float vx,float vy,float vz)
     milemter();
 }
 
-
-//TODO:待测试
 ///<< 里程计计算
 //TODO: 世界坐标系没有成功
 bool Chassis::milemter()
@@ -226,7 +217,6 @@ void Chassis::updata_series(void)
         wheel_s[i] = motor[i]->GetSelectedSensorPosition();
     }
 }
-//TODO: 编写底盘清除
 ///<重设编码器值
 void Chassis::set_series()
 {
@@ -274,7 +264,6 @@ void Chassis::motor_init(int id)
         motor_pid[i] = new PIDControl(0.35,10,0,0.001,-max_enc_100ms,max_enc_100ms,MANUAL,DIRECT,20000);
     }
 }
-//TODO: 待测试
 ///< 获取自动模式是否完成
 bool Chassis::get_auto_run_is_finished()
 {
@@ -375,9 +364,14 @@ void Chassis::angle_control(float angle)
     auto_output[2] =limit(auto_output[2],-2.0,2.0);
     rc_run(0,0,auto_output[2]);
 }
+///< 底盘进入使能模式后清除所有
+void Chassis::clear()
+{
+  interrupt();
+  chassis_dis();
+  set_series();
+}
 #ifdef CHASSIS_DEBUG
-//TODO: 不能只显示一次，不然初始化之后就不能显示了
-//TODO: 添加自动模式的pid调试显示
 void Chassis::display()
 { 
     // frc::Shuffleboard::GetTab("Example tab").Add(gyro);

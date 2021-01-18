@@ -80,9 +80,8 @@ void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
 
-  // chassis->interrupt();
-  // chassis->chassis_dis();
-  // chassis->set_series();
+  /* 底盘清零 */
+  chassis->clear();
 }
 
 /**
