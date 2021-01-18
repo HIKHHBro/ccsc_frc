@@ -8,7 +8,7 @@
 #include <iostream>
 #include "rev/SparkMax.h"
 #include "ctre/Phoenix.h"
-
+#include "logger.h"
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
 #define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
 

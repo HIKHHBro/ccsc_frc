@@ -71,6 +71,7 @@ void Chassis::motion_model(float vx,float vy,float vz)
         else 
         {
             std::cout<<"陀螺仪掉线"<<std::endl;
+            LOG(WARNING)<<"陀螺仪掉线";
             reference = CAR;
         }
     }

@@ -1,5 +1,6 @@
 #include "BaseModule.h"
 #include <frc/smartdashboard/smartdashboard.h>
+
 // Base::Base(){}
 
 // Base::~Base(){}
