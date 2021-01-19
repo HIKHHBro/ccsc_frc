@@ -8,7 +8,6 @@
 #include <iostream>
 #include "rev/SparkMax.h"
 #include "ctre/Phoenix.h"
-
 #define IS_SECTION(data_,min,max) (  ((data_) > (min) && (data_) < (max)) ?true:false) 
 #define IS_X_SECTION(data_,x)   (((data_) > (-abs(x)) && (data_) < (abs(x))) ?true:false) 
 
@@ -90,13 +89,13 @@ public:
     Falcon();
     ~Falcon();
     float enc_100ms_to_rpm(float);
-    int rpm_to_enc_100ms(float);
-    int mm_to_enc(float);
+    float rpm_to_enc_100ms(float);
+    float mm_to_enc(float);
     double enc_to_mm(int);
     void set_dia(float);
     float d = 100;//mm
     int get_position_error(int target,int real);
-    int mms_to_enc100ms(float mms);
+    float mms_to_enc100ms(float mms);
     float enc100ms_to_mms(int enc);
     int max_enc_100ms = 20000;
     float enc100ms_to_per(float enc){return enc/(float)max_enc_100ms;};

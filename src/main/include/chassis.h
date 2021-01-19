@@ -65,7 +65,7 @@ class Chassis :public Falcon,public MyThread
     void chassis_pid_loop();
     void chassis_dis();
     void angle_control(float angle);
-
+    void clear();
 
    //调试变量，方便查看
    float y_pos_error= 0;

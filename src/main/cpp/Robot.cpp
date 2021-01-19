@@ -18,9 +18,9 @@
 #include "my_thread.h"
 
 
-float sepp[3];
 void Robot::RobotInit() 
 {
+
   chassis = new Chassis(1);
   // dials = new Dials(3);
   // grab = new Grab(0,20,0,0.02,0.01);
@@ -28,6 +28,8 @@ void Robot::RobotInit()
   // lifting = new Lifting(5);
   chassis->display();
   rc->display();
+    
+    
 }
 
 /**
@@ -57,6 +59,7 @@ void Robot::RobotPeriodic()
 
 #endif
 
+ chassis->angle_control(chassis->test_angle);
 
 #ifdef CHASSIS_DEBUG
   chassis->debug();
@@ -79,9 +82,8 @@ void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {
 
-  chassis->interrupt();
-  chassis->chassis_dis();
-  chassis->set_series();
+  /* 底盘清零 */
+  chassis->clear();
 }
 
 /**
