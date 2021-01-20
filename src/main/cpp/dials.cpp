@@ -25,10 +25,10 @@ Dials::~Dials()
 ///< 设置颜色对应的rgb值
 void Dials::set_color_rgb(void)
 {
-    color_target[B] = frc::Color(0.143, 0.427, 0.429);
-    color_target[G] = frc::Color(0.197, 0.561, 0.240);
-    color_target[R] = frc::Color(0.561, 0.232, 0.114);
-    color_target[Y] = frc::Color(0.361, 0.524, 0.113);
+    color_target[B] = frc::Color(0.19128, 0.47399, 0.33459);
+    color_target[G] = frc::Color(0.20178, 0.57946, 0.21887);
+    color_target[R] = frc::Color(0.50109, 0.34729, 0.15173);
+    color_target[Y] = frc::Color(0.29577, 0.54797, 0.15637);
     for(int i = 0;i<ALL_COLOR;i++)
         m_colorMatcher.AddColorMatch(color_target[i]);
 }
@@ -38,7 +38,7 @@ Dials::COLOR Dials::get_color(void)
     frc::Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
     for(int i = 0;i<ALL_COLOR;i++)
     {
-        if(matchedColor == color_target[i])
+        if((matchedColor == color_target[i]) && (confidence > 0.98))
         {
             curr_color = COLOR(i);
             return curr_color;
@@ -246,7 +246,7 @@ void Dials::fx_motor_magic(float kf,float kp,float kd)
 
     /* Set acceleration and vcruise velocity - see documentation */
     motor->ConfigMotionCruiseVelocity(1500, 10);
-    motor->ConfigMotionAcceleration(1500, 10);
+    motor->ConfigMotionAcceleration(500, 10);
 
     /* Zero the sensor */
     motor->SetSelectedSensorPosition(0, 0, 10);
@@ -283,7 +283,17 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("frictiongear_d", frictiongear_d);
     frc::SmartDashboard::PutNumber("frictiongear_d", c_numb_serson_return);
     frc::SmartDashboard::PutNumber("is_finished_spin_control", is_finished_spin_control);
-    frc::SmartDashboard::PutNumber("spin_control_thread_status", spin_control_thread_status);
+    frc::SmartDashboard::PutNumber("Red", detectedColor.red);
+    frc::SmartDashboard::PutNumber("Green", detectedColor.green);
+    frc::SmartDashboard::PutNumber("Blue", detectedColor.blue);
+    frc::SmartDashboard::PutNumber("Confidence", confidence);
+    COLOR cur_color = get_color();
+    frc::SmartDashboard::PutNumber("color",cur_color);
+    if(color_sequence_check(cur_color));
+      frc::SmartDashboard::PutNumber("filer_color", cur_color);
+
+
+    // frc::SmartDashboard::PutNumber("spin_control_thread_status", spin_control_thread_status);
 }
 // ///< 调试时设置参数
 void Dials::set_para()

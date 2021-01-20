@@ -44,6 +44,10 @@ public:
     void start_pos_control(COLOR);
     float optimal_path(COLOR target,COLOR curr);
 
+#ifdef DIALS_DEBUG
+    void display(void);
+    void set_para();
+
 private:
     frc::I2C::Port i2cPort;
     rev::ColorSensorV3 *m_colorSensor;
@@ -58,7 +62,7 @@ private:
     float dials_perimeter = dials_d * 3.1415; //圆周长mm
     float frictiongear_d = 76.2; //摩擦轮直径 mm
     float arc_length = dials_perimeter / (360.0/color_angle); //每个颜色对应的弧长 单位mm
-    float spin_control_vel;
+    float spin_control_vel = 1000;
     double reduction = reduction_ratio(frictiongear_d,dials_d);
     int color_tran_count = 0;
     /* 显示调试的变量 */
@@ -81,9 +85,6 @@ private:
     void pos_control_thread();
     void run() override;
     
-#ifdef DIALS_DEBUG
-    void display(void);
-    void set_para();
     
 
 #endif

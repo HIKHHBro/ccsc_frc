@@ -29,6 +29,7 @@ public:
   bool is_reset();
   bool is_lift();
   float filter(float data,float section);
+  bool is_spin();
 };
 
 

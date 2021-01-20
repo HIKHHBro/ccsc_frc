@@ -64,7 +64,7 @@ _motorcontroller.set(ControlMode.MotionMagic, targetPos, DemandType.ArbitraryFee
 
 # 物资和文档    
 ## 物资网站
-1. 猎鹰电机:https://www.vexrobotics.com/ 
+1. 猎鹰电机:https://www.vexrobotics.com/   https://github.com/CrossTheRoadElec/Phoenix-Releases/releases
 2. neo电机:https://www.revrobotics.com/
 3. 摄像头:https://limelightvision.io/pages/downloads    
 4. 颜色传感器:  http://revrobotics.com/

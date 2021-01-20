@@ -21,12 +21,12 @@
 void Robot::RobotInit() 
 {
 
-  chassis = new Chassis(1);
-  // dials = new Dials(3);
+  // chassis = new Chassis(1);
+  dials = new Dials(9);
   // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   // lifting = new Lifting(5);
-  chassis->display();
+  // chassis->display();
   rc->display();
     
     
@@ -59,8 +59,6 @@ void Robot::RobotPeriodic()
 
 #endif
 
- chassis->angle_control(chassis->test_angle);
-
 #ifdef CHASSIS_DEBUG
   chassis->debug();
 #endif
@@ -83,7 +81,7 @@ void Robot::DisabledInit() {}
 void Robot::DisabledPeriodic() {
 
   /* 底盘清零 */
-  chassis->clear();
+  // chassis->clear();
 }
 
 /**
@@ -101,7 +99,7 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {   
 
-  chassis->start_auto_run();
+  // chassis->start_auto_run();
 }
 
 void Robot::TeleopInit() {
@@ -169,12 +167,20 @@ void Robot::TeleopPeriodic()
 void Robot::TestInit()
 {
 
-
+  std::cout<<"按键"<<rc->is_spin()<<std::endl;
+  
 
 }
 void Robot::TestPeriodic() 
 {
-  chassis->angle_control(chassis->test_angle);
+  // std::cout<<"按键"<<rc->is_spin()<<std::endl;
+  // dials->get_color();
+  dials->display();
+  if(rc->is_spin())
+  {
+    dials->start_spin_control(1);
+  }
+  // chassis->angle_control(chassis->test_angle);
 }
 
 #ifndef RUNNING_FRC_TESTS

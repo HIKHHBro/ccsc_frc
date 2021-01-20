@@ -88,7 +88,10 @@ bool RC::is_lift()
 // {
 //   return ;
 // }
-
+bool RC::is_spin()
+{
+  return joystick->GetRawButton(11);
+}
 #endif
 
 #ifdef XBON_RC
