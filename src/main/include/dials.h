@@ -67,7 +67,7 @@ private:
     int color_tran_count = 0;
     /* 显示调试的变量 */
     int c_numb_serson_return;
-    int spin_pos_error;
+    int spin_pos_error = 0;
     int is_finished_spin_pos_err = (float)(angle_to_enc((1/float(ALL_COLOR))))/4.0;
     float spin_numb = 0;
     COLOR target_color; //需要旋转到的指定颜色

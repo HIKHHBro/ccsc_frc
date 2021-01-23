@@ -180,6 +180,9 @@ void Robot::TestPeriodic()
   {
     dials->start_spin_control(1);
   }
+  else{
+    dials->interrupt();
+  }
   // chassis->angle_control(chassis->test_angle);
 }
 

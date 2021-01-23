@@ -67,16 +67,21 @@ void Dials::start_pos_control(COLOR color)
 ///< 旋转控制
 //TODO: 待测试整个流程  
 //TODO: 线程函数待写
+float ddd = 0;
+float creddd = 0;
 void Dials::spin_control_thread()
 {
     color_sequence_pre = get_color();
     color_tran_count = 0;
     motor->SetSelectedSensorPosition(0, 0, 10);
     motor->ConfigMotionCruiseVelocity(spin_control_vel, 10);
-    c_numb_serson_return = angle_to_enc((spin_numb + spin_numb_comp)*360);
+    creddd = c_numb_serson_return = angle_to_enc((spin_numb + spin_numb_comp)*360);
     motor->Set(ControlMode::MotionMagic,c_numb_serson_return);   
     time_count[Spin] = 0; 
     is_finished_spin_control = false;
+    spin_pos_error = 0;
+    
+    ddd = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
     while (!isInterrupted())
     {
       /* code */
@@ -85,7 +90,7 @@ void Dials::spin_control_thread()
       spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
       if(color_sequence_check(color))
         color_tran_count++;
-      if(color_tran_count >= ALL_COLOR * 2 * spin_numb - 1)
+      if(color_tran_count >= ALL_COLOR * 2 * spin_numb)
       {
             if(time_count[Spin] < time_thre[Spin])
                 time_count[Spin]++;
@@ -160,6 +165,7 @@ void Dials::pos_control_thread()
     motor->Set(ControlMode::MotionMagic,angle_to_enc(target_angle));   
     time_count[Pos] = 0; 
     int color_numb = target_angle/color_angle;
+    spin_pos_error = 0;
     while (!isInterrupted())
     {
       /* code */
@@ -246,7 +252,7 @@ void Dials::fx_motor_magic(float kf,float kp,float kd)
 
     /* Set acceleration and vcruise velocity - see documentation */
     motor->ConfigMotionCruiseVelocity(1500, 10);
-    motor->ConfigMotionAcceleration(500, 10);
+    motor->ConfigMotionAcceleration(100, 10);
 
     /* Zero the sensor */
     motor->SetSelectedSensorPosition(0, 0, 10);
@@ -281,18 +287,26 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("arc_length", arc_length);
     frc::SmartDashboard::PutNumber("spin_numb_comp", spin_numb_comp);
     frc::SmartDashboard::PutNumber("frictiongear_d", frictiongear_d);
-    frc::SmartDashboard::PutNumber("frictiongear_d", c_numb_serson_return);
+    frc::SmartDashboard::PutNumber("c_numb_serson_return", c_numb_serson_return);
     frc::SmartDashboard::PutNumber("is_finished_spin_control", is_finished_spin_control);
     frc::SmartDashboard::PutNumber("Red", detectedColor.red);
     frc::SmartDashboard::PutNumber("Green", detectedColor.green);
     frc::SmartDashboard::PutNumber("Blue", detectedColor.blue);
     frc::SmartDashboard::PutNumber("Confidence", confidence);
+    frc::SmartDashboard::PutNumber("spin_pos_error", spin_pos_error);
+    frc::SmartDashboard::PutNumber("is_finished_spin_pos_err", is_finished_spin_pos_err);
+    frc::SmartDashboard::PutNumber("reduction_ratiop", reduction_ratiop);
+
+    frc::SmartDashboard::PutNumber("ddd", ddd);
+    frc::SmartDashboard::PutNumber("creddd", creddd);
+    frc::SmartDashboard::PutNumber("color_tran_count", color_tran_count);
+
     COLOR cur_color = get_color();
     frc::SmartDashboard::PutNumber("color",cur_color);
     if(color_sequence_check(cur_color));
       frc::SmartDashboard::PutNumber("filer_color", cur_color);
 
-
+thread_debug();
     // frc::SmartDashboard::PutNumber("spin_control_thread_status", spin_control_thread_status);
 }
 // ///< 调试时设置参数
