@@ -1,5 +1,5 @@
 #include "dials.h"
-Dials::Dials(int deviceNumber)
+Dials::Dials(int deviceNumber ,int can_id,int pcm_chnl)
 {
     i2cPort = frc::I2C::Port::kOnboard;
     m_colorSensor = new rev::ColorSensorV3(i2cPort);
@@ -14,12 +14,15 @@ Dials::Dials(int deviceNumber)
     motor = new TalonFX(can_id);
     //TODO: 设置位置模式
     fx_motor_magic(0.3,0.1,0);
+    solenoid = new frc::Solenoid(can_id,pcm_chnl);
 }
 
 Dials::~Dials()
 {
   delete m_colorSensor;
   delete motor;
+  delete solenoid;
+
 }
 
 ///< 设置颜色对应的rgb值
@@ -71,6 +74,9 @@ float ddd = 0;
 float creddd = 0;
 void Dials::spin_control_thread()
 {
+    int color_count = 0;
+    float error = 0;
+    int delay_count = 0;
     color_sequence_pre = get_color();
     color_tran_count = 0;
     motor->SetSelectedSensorPosition(0, 0, 10);
@@ -80,20 +86,31 @@ void Dials::spin_control_thread()
     time_count[Spin] = 0; 
     is_finished_spin_control = false;
     spin_pos_error = 0;
-    
     ddd = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
+    lift();
+    while (color_sequence_pre == ALL_COLOR)
+    {
+      color_sequence_pre = get_color();
+      motor->Set(ControlMode::MotionMagic,c_numb_serson_return);
+    }
     while (!isInterrupted())
     {
       /* code */
       //TODO: 写颜色累计
       COLOR color = get_color();
-      spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
+      spin_pos_error = error= get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
       if(color_sequence_check(color))
-        color_tran_count++;
-      if(color_tran_count >= ALL_COLOR * 2 * spin_numb)
       {
-            if(time_count[Spin] < time_thre[Spin])
-                time_count[Spin]++;
+        color_count++;
+        color_tran_count = color_count;
+      }
+      if(color_count >= ALL_COLOR * 2 * spin_numb)
+      {
+            if(delay_count < time_thre[Spin])
+            {
+              delay_count++;
+              time_count[Spin] = delay_count;
+            }
             else
             {
                 is_finished_spin_control = true;
@@ -101,7 +118,7 @@ void Dials::spin_control_thread()
             }
 
       }
-      else if(abs(spin_pos_error) < is_finished_spin_pos_err)
+      else if(abs(error) < is_finished_spin_pos_err)
       {
         curr_position = motor->GetSelectedSensorPosition();
         c_numb_serson_return = angle_to_enc(((1/float(ALL_COLOR)) + spin_numb_comp)*360);
@@ -151,6 +168,10 @@ float Dials::optimal_path(COLOR target,COLOR curr)
 //TODO: 待测试
 void Dials::pos_control_thread()
 {
+    int color_count = 0;
+    float error = 0;
+    int delay_count = 0;
+    lift();
     color_sequence_pre = get_color();
     if(color_sequence_pre == ALL_COLOR)
     {
@@ -166,36 +187,44 @@ void Dials::pos_control_thread()
     time_count[Pos] = 0; 
     int color_numb = target_angle/color_angle;
     spin_pos_error = 0;
+    while (color_sequence_pre == ALL_COLOR)
+    {
+      color_sequence_pre = get_color();
+      motor->Set(ControlMode::MotionMagic,c_numb_serson_return);
+    }
     while (!isInterrupted())
     {
       /* code */
       //TODO: 写颜色累计
       COLOR color = get_color();
-      spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
+      spin_pos_error = error= get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
       if(color_sequence_check(color))
       {
           if(color_numb > 0)
           {
-              color_tran_count++;
+              color_count++;
+              color_tran_count = color_count;
           }
           else 
           {
-              color_tran_count--;
+              color_count--;
+              color_tran_count = color_count;
           }
       }
-      if(abs(spin_pos_error) < is_finished_spin_pos_err)
+      if(abs(error) < is_finished_spin_pos_err)
       {
-        if(abs(color_tran_count) < abs(color_numb))
+        if(abs(color_count) < abs(color_numb))
         {
             curr_position = motor->GetSelectedSensorPosition();
-            c_numb_serson_return = angle_to_enc((color_numb - color_tran_count)*360);
+            c_numb_serson_return = angle_to_enc((color_numb - color_count)*360);
             motor->Set(ControlMode::MotionMagic,c_numb_serson_return + curr_position);  
         }
         else
         {
-            if(time_count[Pos] < time_thre[Pos])
+            if(delay_count < time_thre[Pos])
             {
-                time_count[Pos]++;
+                delay_count++;
+                time_count[Pos] = delay_count;
             } 
             else
             {
@@ -276,7 +305,25 @@ void Dials::run()
   }
   
 }
-
+///< 升起
+void  Dials::lift()
+{
+  solenoid->Set(true);
+}
+///< 升起
+void  Dials::shrink()
+{
+  solenoid->Set(false);
+}
+///< 使能
+void Dials::disabled()
+{
+  interrupt();
+  shrink();
+  is_finished_spin_control = false;
+  is_finished_pos_control = false;
+  target_angle = 0;
+}
 #ifdef DIALS_DEBUG
 void Dials::display()
 {

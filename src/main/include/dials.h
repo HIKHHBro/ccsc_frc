@@ -7,6 +7,7 @@
 #include "ctre/Phoenix.h"
 #include <atomic>
 #include "my_thread.h"
+#include <frc/Solenoid.h>
 #ifdef DIALS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -16,7 +17,7 @@ class Dials:public MyThread,public Falcon
 
 public:
   Dials();
-  Dials(int deviceNumber);
+  Dials(int deviceNumber,int can_id,int pcm_chnl);
   ~Dials();
 
 
@@ -43,6 +44,9 @@ public:
     bool start_spin_control(float numb);
     void start_pos_control(COLOR);
     float optimal_path(COLOR target,COLOR curr);
+    void lift();
+    void shrink();
+    void disabled();
 
 #ifdef DIALS_DEBUG
     void display(void);
@@ -56,6 +60,7 @@ private:
     frc::Color detectedColor;
     double confidence = 0.0;
     TalonFX* motor;
+    frc::Solenoid *solenoid;
     float dials_d = 810;          //转盘直径 mm
     float color_angle = 45;      //每个颜色对应的角度 单位度
     float curr_position;

@@ -22,7 +22,7 @@ void Robot::RobotInit()
 {
 
   // chassis = new Chassis(1);
-  dials = new Dials(9);
+  dials = new Dials(9,20,2);
   // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
   // lifting = new Lifting(5);
