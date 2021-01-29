@@ -22,13 +22,18 @@ void Robot::RobotInit()
 {
 
   // chassis = new Chassis(1);
-  dials = new Dials(9);
+  // dials = new Dials(9);
   // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
-  // lifting = new Lifting(5);
+  lifting = new Lifting(4);
   // chassis->display();
   rc->display();
-    
+#ifdef GRAB_DEBUG
+    grab->display();
+#endif
+#ifdef LIFT_DEBUG
+  lifting->display();
+#endif    
     
 }
 
@@ -114,12 +119,7 @@ void Robot::TeleopInit() {
 
 
   // lifting->display();
-#ifdef GRAB_DEBUG
-    grab->display();
-#endif
-#ifdef LIFT_DEBUG
-  lifting->display();
-#endif
+
 
 }
 
@@ -156,7 +156,7 @@ void Robot::TeleopPeriodic()
     //   lifting->disable_motor();
     // }
     
-  chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+  // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
 
 }
 
@@ -167,7 +167,7 @@ void Robot::TeleopPeriodic()
 void Robot::TestInit()
 {
 
-  std::cout<<"按键"<<rc->is_spin()<<std::endl;
+  // std::cout<<"按键"<<rc->is_spin()<<std::endl;
   
 
 }
@@ -175,15 +175,23 @@ void Robot::TestPeriodic()
 {
   // std::cout<<"按键"<<rc->is_spin()<<std::endl;
   // dials->get_color();
-  dials->display();
-  if(rc->is_spin())
-  {
-    dials->start_spin_control(1);
-  }
-  else{
-    dials->interrupt();
-  }
+  // dials->display();
+  // if(rc->is_spin())
+  // {
+  //   dials->start_spin_control(1);
+  // }
+  // else{
+  //   dials->interrupt();
+  // }
   // chassis->angle_control(chassis->test_angle);
+  if(rc->is_lift())
+  {
+    lifting->lift();
+  }
+  else
+  {
+    lifting->disable_motor();
+  }
 }
 
 #ifndef RUNNING_FRC_TESTS

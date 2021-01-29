@@ -47,7 +47,7 @@ public:
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();
-
+#endif
 private:
     frc::I2C::Port i2cPort;
     rev::ColorSensorV3 *m_colorSensor;
@@ -84,12 +84,5 @@ private:
     void spin_control_thread();
     void pos_control_thread();
     void run() override;
-    
-    
-
-#endif
-
 };
-
-
 #endif

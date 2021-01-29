@@ -144,6 +144,11 @@ bool RC::is_lift()
 // {
 //   return ;
 // }
+bool RC::is_spin()
+{
+  return true;
+  // return joystick->GetRawButton(11);
+}
 #endif
 #ifdef RC_DEBGU
 
