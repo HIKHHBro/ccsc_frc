@@ -30,6 +30,7 @@ public:
   bool is_lift();
   float filter(float data,float section);
   bool is_spin();
+  bool is_shoot();
 };
 
 

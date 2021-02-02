@@ -16,6 +16,7 @@
 #include "grab.h"
 #include  "rc.h"
 #include "lifting.h"
+#include "shoot.h"
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
@@ -39,4 +40,5 @@ class Robot : public frc::TimedRobot {
   RC* rc;
   Lifting * lifting;
   RobotContainer m_container;
+  Shoot* shoot;
 };

@@ -149,6 +149,10 @@ bool RC::is_spin()
   return true;
   // return joystick->GetRawButton(11);
 }
+bool RC::is_shoot()
+{
+  return xbox->GetBButton();
+}
 #endif
 #ifdef RC_DEBGU
 

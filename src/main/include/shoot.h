@@ -9,7 +9,7 @@
 class Shoot : public Falcon, public MyThread
 {
 public:
-    enum MOTOR{Hor_tr,Ver_tr,Sh1,Sh2,ALL};
+    enum MOTOR{Hor_tr,Hor_tr_u,Ver_tr,Sh1,Sh2,ALL};
     Shoot(int pwm_c,int can_id);
     ~Shoot();
     bool open_vertical_transfer();
@@ -20,7 +20,9 @@ public:
     void set_gimbal_angle(float angle);
     void set_gimbal_percent(float percent);
     bool reset();
-
+    void start_shoot();
+    void stop_shoot();
+    bool stop_vertical_transfer();
     TalonFX* gimbal_motor;
 
 #ifdef SHOOT_DEBUG
@@ -53,7 +55,7 @@ private:
  *    Sh1: 逆时针
  *    Sh2: 逆时针
  */
-    float neo_speed[ALL] = {0,0,0,0};//RPM 最大5700
+    float neo_speed[ALL] = {0.20,0.20,-0.25,-0.3,-0.3*(5.0/3.0)};//RPM 最大5700
 };
 
 

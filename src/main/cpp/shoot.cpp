@@ -1,5 +1,5 @@
 #include "shoot.h"
-Shoot::Shoot(int pwm_c,int can_id)
+Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
   for(int i = 0;i<ALL;i++)
   {
@@ -60,10 +60,22 @@ bool Shoot::open_vertical_transfer()
     return true;
   else return false;
 }
+
+///< 停止竖直传送
+//TODO: 待测试
+bool Shoot::stop_vertical_transfer()
+{
+  carry_out(Ver_tr,-neo_speed[Ver_tr]);
+  if(motor[Ver_tr]->is_complete_acc(-neo_speed[Ver_tr]))
+    return true;
+  else return false;
+}
+
 ///< 开启水平传送
 void Shoot::open_horizontal_transfer()
 {
-   carry_out(Hor_tr,neo_speed[Hor_tr]);
+  //  carry_out(Hor_tr,0.30);
+   carry_out(Hor_tr_u,0.10);
 }
 ///< 关闭竖直传送
 void Shoot::close_vertical_transfer()
@@ -74,12 +86,14 @@ void Shoot::close_vertical_transfer()
 void Shoot::close_horizontal_transfer()
 {
   carry_out(Hor_tr,0);
+  carry_out(Hor_tr_u,0);
+
 }
 ///< neo电机动作执行
 //TODO: 待测试rpm_to_per转换是否有误
 void Shoot::carry_out(MOTOR M,float rpm)
 {
-  motor[M]->Set(motor[M]->rpm_to_per(motor[M]->cal_speed(rpm)));
+  motor[M]->Set(rpm);
 }
 ///< 设置云台转动角度 下限位为0度,向上转angle度,
 //TODO: 待测四
@@ -134,8 +148,22 @@ bool Shoot::reset()
 //TODO: 摄像头待写
 
 
-
-
+///< 开启发射
+void Shoot::start_shoot()
+{
+  
+  open_vertical_transfer();
+  carry_out(Sh1,neo_speed[Sh1]);
+  carry_out(Sh2,neo_speed[Sh2]);
+}
+///< 停止发射
+///< 开启发射
+void Shoot::stop_shoot()
+{
+  stop_vertical_transfer();
+  carry_out(Sh1,0);
+  carry_out(Sh2,0);
+}
 #ifdef SHOOT_DEBUG
 void Shoot::display()
 {

@@ -25,7 +25,8 @@ void Robot::RobotInit()
   // dials = new Dials(9);
   // grab = new Grab(0,20,0,0.02,0.01);
   rc = new RC(0);
-  lifting = new Lifting(4);
+  // lifting = new Lifting(4);
+  shoot = new Shoot(0,5);
   // chassis->display();
   rc->display();
 #ifdef GRAB_DEBUG
@@ -33,7 +34,11 @@ void Robot::RobotInit()
 #endif
 #ifdef LIFT_DEBUG
   lifting->display();
-#endif    
+#endif  
+
+#ifdef SHOOT_DEBUG
+  shoot->display();
+#endif
     
 }
 
@@ -73,6 +78,11 @@ void Robot::RobotPeriodic()
 #ifdef LIFT_DEBUG
   lifting->debug();
 #endif
+
+#ifdef SHOOT_DEBUG
+  shoot->debug();
+#endif
+
  rc->debug();
 }
 
@@ -184,13 +194,14 @@ void Robot::TestPeriodic()
   //   dials->interrupt();
   // }
   // chassis->angle_control(chassis->test_angle);
-  if(rc->is_lift())
+  shoot->open_horizontal_transfer();
+  if(rc->is_shoot())
   {
-    lifting->lift();
+    shoot->start_shoot();
   }
   else
   {
-    lifting->disable_motor();
+    shoot->stop_shoot();
   }
 }
 
