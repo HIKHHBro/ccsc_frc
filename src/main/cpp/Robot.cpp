@@ -23,10 +23,11 @@ void Robot::RobotInit()
 
   // chassis = new Chassis(1);
   // dials = new Dials(9);
-  // grab = new Grab(0,20,0,0.02,0.01);
+    // lifting = new Lifting(4);
   rc = new RC(0);
-  // lifting = new Lifting(4);
   shoot = new Shoot(0,5);
+  grab = new Grab(0,20,0,0.02,0.01);
+
   // chassis->display();
   rc->display();
 #ifdef GRAB_DEBUG
@@ -83,7 +84,7 @@ void Robot::RobotPeriodic()
   shoot->debug();
 #endif
 
- rc->debug();
+  rc->debug();
 }
 
 /**
@@ -126,47 +127,40 @@ void Robot::TeleopInit() {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
-
-
-  // lifting->display();
-
-
 }
 
 /**
  * This function is called periodically during operator control.
  */
-float target[3];
+
 void Robot::TeleopPeriodic() 
 {
-    //   if(rc->is_grab())
-    //   grab->put_down();
-    // else
-    // {
-    //   grab->put_up();
-    // }
-    // if (rc->is_reset())
-    // {
-    //   if(!lifting->reset_once)
-    //   {
-    //     lifting->reset_once = true;//防止复位失败后一直从进复位线程
-    //     lifting->reset();
-    //   }
-    // }
-    // else
-    // {
-    //   lifting->reset_once = false;
-    //   lifting->interrupt();
-    //   // lifting->disable_motor();
-    // }
-    // if(rc->is_lift())
-    //   lifting->lift();
-    // else
-    // {
-    //   lifting->disable_motor();
-    // }
-    
-  // chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+  /* 抓取*/
+  if(rc->is_grab())
+  {
+    shoot->open_horizontal_transfer();
+    shoot->stop_vertical_transfer();
+    grab->put_down();
+  }
+  else
+  {
+    grab->put_up();
+  }
+  /* 发射 */
+  if(rc->is_shoot())
+  {
+    shoot->start_shoot();
+  }
+  else
+  {
+    shoot->stop_shoot();
+  }
+  /* 如果没有发射或者抓球，关闭传送 */
+  if((!rc->is_grab()) && (!rc->is_shoot()))
+  {
+    shoot->close_horizontal_transfer();
+    shoot->close_vertical_transfer();
+  }
 
 }
 

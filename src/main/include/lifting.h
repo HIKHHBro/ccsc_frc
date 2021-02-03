@@ -22,8 +22,8 @@ private:
     float lift_high = 400;//mm 车抬升不能大于最大行程
     float pos_thres = 200;//TODO:待测试
     float speed_thres = 10;//TODO:待测试
-    float stretch_speed = 0;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
-    float shrink_speed = 0;//rpm 0~6000
+    float stretch_speed = 3000;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
+    float shrink_speed = 2000;//rpm 0~6000
     float acc = 1500;
     float reset_speed = 100;//rpm 0~6000
     float reset_acc = 0;

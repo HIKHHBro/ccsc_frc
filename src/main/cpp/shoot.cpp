@@ -55,7 +55,7 @@ Shoot::~Shoot()
 //TODO: 待测试
 bool Shoot::open_vertical_transfer()
 {
-  carry_out(Ver_tr,neo_speed[Ver_tr]);
+  carry_out(Ver_tr, motor[Ver_tr]->cal_speed(neo_speed[Ver_tr]));
   if(motor[Ver_tr]->is_complete_acc(neo_speed[Ver_tr]))
     return true;
   else return false;
@@ -65,12 +65,12 @@ bool Shoot::open_vertical_transfer()
 //TODO: 待测试
 bool Shoot::stop_vertical_transfer()
 {
-  carry_out(Ver_tr,-neo_speed[Ver_tr]);
+  carry_out(Ver_tr, motor[Ver_tr]->cal_speed(-neo_speed[Ver_tr]));
   if(motor[Ver_tr]->is_complete_acc(-neo_speed[Ver_tr]))
     return true;
   else return false;
 }
-
+//TODO: 测试为什么下面传送回跑飞
 ///< 开启水平传送
 void Shoot::open_horizontal_transfer()
 {
@@ -80,14 +80,14 @@ void Shoot::open_horizontal_transfer()
 ///< 关闭竖直传送
 void Shoot::close_vertical_transfer()
 {
-  carry_out(Ver_tr,0);
+  carry_out(Ver_tr,motor[Ver_tr]->cal_speed(0));
 }
+//TODO: 测试为什么下面传送回跑飞
 ///< 关闭水平传送
 void Shoot::close_horizontal_transfer()
 {
-  carry_out(Hor_tr,0);
+  // carry_out(Hor_tr,0);
   carry_out(Hor_tr_u,0);
-
 }
 ///< neo电机动作执行
 //TODO: 待测试rpm_to_per转换是否有误
@@ -146,23 +146,32 @@ bool Shoot::reset()
     return is_reseted;
 }
 //TODO: 摄像头待写
-
-
+//TODO: 测试加速度
 ///< 开启发射
+int test_d;
 void Shoot::start_shoot()
 {
-  
-  open_vertical_transfer();
-  carry_out(Sh1,neo_speed[Sh1]);
-  carry_out(Sh2,neo_speed[Sh2]);
+
+  carry_out(Sh1,motor[Sh1]->cal_speed(neo_speed[Sh1]));
+  carry_out(Sh2,motor[Sh2]->cal_speed(neo_speed[Sh2]));
+  if(motor[Sh1]->is_complete_acc(neo_speed[Sh1]) &&\
+     motor[Sh1]->is_complete_acc(neo_speed[Sh2]))
+     {
+        open_vertical_transfer();
+        test_d = 0;
+     }
+     else
+     {
+       test_d++;
+     }
 }
 ///< 停止发射
 ///< 开启发射
 void Shoot::stop_shoot()
 {
   stop_vertical_transfer();
-  carry_out(Sh1,0);
-  carry_out(Sh2,0);
+  carry_out(Sh1,motor[Sh1]->cal_speed(0));
+  carry_out(Sh2,motor[Sh2]->cal_speed(0));
 }
 #ifdef SHOOT_DEBUG
 void Shoot::display()
@@ -210,6 +219,11 @@ void Shoot::debug()
 
     frc::SmartDashboard::PutNumber("gimbal angle",enc_to_angle(gimbal_motor->GetSelectedSensorPosition()));
     frc::SmartDashboard::PutNumber("gimbal encoder",gimbal_motor->GetSelectedSensorPosition());
+    frc::SmartDashboard::PutNumber("motor[Sh1] lastspeed",motor[Sh1]->get_last_data());
+    frc::SmartDashboard::PutNumber("motor[Sh2] lastspeed",motor[Sh2]->get_last_data());
+    frc::SmartDashboard::PutNumber("test_d",test_d);
+    
+    
 
 
 }

@@ -34,7 +34,7 @@ private:
 
 
     Neo* motor[ALL];
-    float acc[ALL] = {0.01,0.01,0.01,0.01};
+    float acc[ALL] = {0.01,0.01,0.05,0.05,0.05};
     float smoothing = 0;
     float kp = 0.1;
     float kf = 0.2;
