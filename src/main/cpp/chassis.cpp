@@ -19,7 +19,7 @@ Chassis::Chassis(int can_id):MyThread(20000)
             world_angle = ahrs->GetYaw();
         }
         set_dia(76.2);
-        set_reduction_ratiop(22,42,14,50);
+        set_reduction_ratiop(14,50,16,48);
         std::thread thr(std::bind(&Chassis::pid_loop,this));
         this->pid_thread = std::move(thr);
         this->pid_thread.detach();

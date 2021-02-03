@@ -26,7 +26,7 @@ void Robot::RobotInit()
     // lifting = new Lifting(4);
   rc = new RC(0);
   shoot = new Shoot(0,5);
-  grab = new Grab(0,20,0,0.02,0.01);
+  grab = new Grab(5,20,0,0.02,0.01);
 
   // chassis->display();
   rc->display();
@@ -188,15 +188,6 @@ void Robot::TestPeriodic()
   //   dials->interrupt();
   // }
   // chassis->angle_control(chassis->test_angle);
-  shoot->open_horizontal_transfer();
-  if(rc->is_shoot())
-  {
-    shoot->start_shoot();
-  }
-  else
-  {
-    shoot->stop_shoot();
-  }
 }
 
 #ifndef RUNNING_FRC_TESTS

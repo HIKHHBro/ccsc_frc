@@ -155,7 +155,7 @@ void Shoot::start_shoot()
   carry_out(Sh1,motor[Sh1]->cal_speed(neo_speed[Sh1]));
   carry_out(Sh2,motor[Sh2]->cal_speed(neo_speed[Sh2]));
   if(motor[Sh1]->is_complete_acc(neo_speed[Sh1]) &&\
-     motor[Sh1]->is_complete_acc(neo_speed[Sh2]))
+     motor[Sh2]->is_complete_acc(neo_speed[Sh2]))
      {
         open_vertical_transfer();
         test_d = 0;

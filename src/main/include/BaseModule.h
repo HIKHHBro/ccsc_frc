@@ -56,7 +56,20 @@ public:
     inline float get_last_data(){return last_value;};
     void set_k(float k){this->k = k;};
     float get_k(){return this->k;};
-    float is_complete_acc(float speed){return IS_X_SECTION((speed - last_value),k); }//TODO: 待测试
+    //TODO: 区间宏可能有问题
+    float is_complete_acc(float speed)
+    {
+        float temp = speed - last_value;
+        if(temp > (-abs(k)) && temp < abs(k))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+        
+    }//TODO: 待测试
 private:
     float k;
     float last_value;
