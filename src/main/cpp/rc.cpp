@@ -104,7 +104,7 @@ float RC::getX()
 ///< y方向速度 0 ~ 5000 mm/s 
 float RC::getY()
 {
-  return (filter(xbox->GetRawAxis(1),0.2)* chassis_speed[1]);
+  return (filter(xbox->GetRawAxis(1),0.2)* chassis_speed[1] * -1);
 }
 ///< 角速度方向速度 0 ~ 4 rad/s  
 float RC::getZ()

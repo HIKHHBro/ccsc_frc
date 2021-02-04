@@ -21,7 +21,7 @@
 void Robot::RobotInit() 
 {
 
-  // chassis = new Chassis(1);
+  chassis = new Chassis(1);
   // dials = new Dials(9);
     // lifting = new Lifting(4);
   rc = new RC(0);
@@ -97,7 +97,7 @@ void Robot::DisabledInit() {}
 void Robot::DisabledPeriodic() {
 
   /* 底盘清零 */
-  // chassis->clear();
+  chassis->clear();
 }
 
 /**
@@ -161,6 +161,8 @@ void Robot::TeleopPeriodic()
     shoot->close_horizontal_transfer();
     shoot->close_vertical_transfer();
   }
+  /* 底盘 */
+  chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
 
 }
 

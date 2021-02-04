@@ -19,7 +19,7 @@ private:
     int runned_count = 0; 
     float runned_time = 0.5;  //一秒动作执行完毕
     float simpe_time =0.02;
-    float speed = 0.1; //-1 ~ 1
+    float speed = -0.3; //-1 ~ 1
     // float acc = 0.01;// 每simpe_time时间增加0.01个单位速度 simpe_time = 0.02s
 public:
     Grab(int pwm_c, int id, int pcm_c,float simpe_time ,float acc);
