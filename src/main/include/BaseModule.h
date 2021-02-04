@@ -42,6 +42,7 @@ public:
     ~RampFunction();
     float cal_speed(float value)
     {
+        float temp = value;
         if(value - last_value >k)
         {
             value = k + last_value;
@@ -49,6 +50,10 @@ public:
         if(value - last_value <-k)
         {
             value = last_value - k;
+        }
+        if(abs(value) > abs(temp))
+        {
+            value = temp;
         }
         last_value = value;
         return value;

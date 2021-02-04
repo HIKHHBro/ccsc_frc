@@ -34,7 +34,7 @@ private:
 
 
     Neo* motor[ALL];
-    float acc[ALL] = {0.01,0.01,0.05,0.05,0.05};
+    float acc[ALL] = {0.01,0.01,0.05,0.1,0.1};
     float smoothing = 0;
     float kp = 0.1;
     float kf = 0.2;
@@ -55,7 +55,7 @@ private:
  *    Sh1: 逆时针
  *    Sh2: 逆时针
  */
-    float neo_speed[ALL] = {0.20,0.20,-0.25,-0.3,-0.3*(5.0/3.0)};//RPM 最大5700
+    float neo_speed[ALL] = {0.20,0.20,-0.25,-0.7,-0.7};//RPM 最大5700
 };
 
 
