@@ -3,6 +3,7 @@
 #include "BaseModule.h"
 #include "ctre/Phoenix.h"
 #include "my_thread.h"
+#include <frc/DigitalInput.h>
 #ifdef SHOOT_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -32,20 +33,20 @@ public:
 private:
     void run()   override;
 
-
+    frc::DigitalInput* reset_sw;
     Neo* motor[ALL];
     float acc[ALL] = {0.01,0.01,0.05,0.1,0.1};
     float smoothing = 0;
     float kp = 0.1;
     float kf = 0.2;
-    float max_angle = 40;//云台最大转动角度
+    float max_angle = 30;//云台最大转动角度
     float reset_speed = 100;//rpm 0~6000
     float reset_acc = 0;//rpm
     float reset_output = 0.1;//0~1
     float reset_current_thres = 10;//amps
     float reset_speed_thres = 30;//100ms转的刻度
     float reset_period = 10000;//us
-    bool is_reseted;
+    bool is_reseted = false;
     int reset_error_count = 0;
     int reset_error_thre =  (int)(1000000.0/reset_period * 0.3);
 /*

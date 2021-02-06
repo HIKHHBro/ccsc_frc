@@ -25,7 +25,7 @@ void Robot::RobotInit()
   // dials = new Dials(9);
     // lifting = new Lifting(4);
   rc = new RC(0);
-  shoot = new Shoot(0,5);
+  shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
 
   // chassis->display();
@@ -163,7 +163,19 @@ void Robot::TeleopPeriodic()
   }
   /* 底盘 */
   chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+  /* 云台pitch */
+  shoot->set_gimbal_angle(rc->getPitch());
 
+
+  /* 复位 */
+  if(rc->is_reset())
+  {
+    shoot->start_join();
+  }
+  else
+  {
+    shoot->interrupt();
+  }
 }
 
 /**
@@ -179,6 +191,7 @@ void Robot::TestInit()
 }
 void Robot::TestPeriodic() 
 {
+
   // std::cout<<"按键"<<rc->is_spin()<<std::endl;
   // dials->get_color();
   // dials->display();

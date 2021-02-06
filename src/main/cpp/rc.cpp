@@ -111,6 +111,14 @@ float RC::getZ()
 {
     return filter(xbox->GetRawAxis(4),0.1) * chassis_speed[2];
 }
+///< 云台角度
+float RC::getPitch()
+{
+  pitch_angle -= xbox->GetRawAxis(5);
+  pitch_angle = (pitch_angle) > (23) ? (23) : (pitch_angle);
+  pitch_angle = (pitch_angle) < (0) ? (0) : (pitch_angle);
+  return pitch_angle;
+}
 bool RC::is_grab()
 {
     return xbox->GetBumper(frc::GenericHID::kLeftHand);

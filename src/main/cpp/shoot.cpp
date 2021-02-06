@@ -1,13 +1,15 @@
 #include "shoot.h"
+#include <frc/DigitalInput.h>
 Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
+  reset_sw = new frc::DigitalInput(2);//2通道
   for(int i = 0;i<ALL;i++)
   {
     motor[i] = new Neo(pwm_c+i,acc[i]);
   }
 
     gimbal_motor = new TalonFX(can_id);  
-    set_reduction_ratiop(126,1);
+    set_reduction_ratiop(1,200);
 
     /* Factory default hardware to prevent unexpected behavior */
     gimbal_motor->ConfigFactoryDefault();
@@ -35,8 +37,8 @@ Shoot::Shoot(int pwm_c,int can_id)//0,12
     gimbal_motor->Config_kD(0, 0.0, 10);
 
     /* Set acceleration and vcruise velocity - see documentation */
-    gimbal_motor->ConfigMotionCruiseVelocity(1500, 10);
-    gimbal_motor->ConfigMotionAcceleration(1500, 10);
+    gimbal_motor->ConfigMotionCruiseVelocity(5000, 10);
+    gimbal_motor->ConfigMotionAcceleration(5000, 10);
 
     /* Zero the sensor */
     gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
@@ -55,38 +57,34 @@ Shoot::~Shoot()
 //TODO: 待测试
 bool Shoot::open_vertical_transfer()
 {
-  carry_out(Ver_tr, motor[Ver_tr]->cal_speed(neo_speed[Ver_tr]));
-  if(motor[Ver_tr]->is_complete_acc(neo_speed[Ver_tr]))
+  carry_out(Ver_tr, neo_speed[Ver_tr]);
     return true;
-  else return false;
 }
 
 ///< 停止竖直传送
 //TODO: 待测试
 bool Shoot::stop_vertical_transfer()
 {
-  carry_out(Ver_tr, motor[Ver_tr]->cal_speed(-neo_speed[Ver_tr]));
-  if(motor[Ver_tr]->is_complete_acc(-neo_speed[Ver_tr]))
+  carry_out(Ver_tr,-neo_speed[Ver_tr]);
     return true;
-  else return false;
 }
 //TODO: 测试为什么下面传送回跑飞
 ///< 开启水平传送
 void Shoot::open_horizontal_transfer()
 {
-  //  carry_out(Hor_tr,0.30);
-   carry_out(Hor_tr_u,0.10);
+   carry_out(Hor_tr,0.3);
+   carry_out(Hor_tr_u,0.30);
 }
 ///< 关闭竖直传送
 void Shoot::close_vertical_transfer()
 {
-  carry_out(Ver_tr,motor[Ver_tr]->cal_speed(0));
+  carry_out(Ver_tr,0);
 }
 //TODO: 测试为什么下面传送回跑飞
 ///< 关闭水平传送
 void Shoot::close_horizontal_transfer()
 {
-  // carry_out(Hor_tr,0);
+  carry_out(Hor_tr,0);
   carry_out(Hor_tr_u,0);
 }
 ///< neo电机动作执行
@@ -97,9 +95,20 @@ void Shoot::carry_out(MOTOR M,float rpm)
 }
 ///< 设置云台转动角度 下限位为0度,向上转angle度,
 //TODO: 待测四
+float tesss = 0;
+float fdfd = 0;
 void Shoot::set_gimbal_angle(float angle)
 {
-  gimbal_motor->Set(ControlMode::MotionMagic,angle_to_enc(limit(angle,0.0,max_angle)));
+  if(is_reseted)
+  {
+
+    tesss = angle_to_enc(limit(angle,0.0,max_angle));
+    gimbal_motor->Set(ControlMode::MotionMagic,tesss);
+  }
+  else{
+    std::cout<<"no reset"<<std::endl;
+  }
+
 }
 ///< 
 ///< 云台初始化校准线程函数
@@ -112,25 +121,37 @@ void Shoot::run()
     is_reseted = false;
     while (!isInterrupted())
     {
-        if(gimbal_motor->GetOutputCurrent() > reset_current_thres &&\
-           IS_X_SECTION(gimbal_motor->GetSelectedSensorVelocity(),reset_speed_thres))
-        {
-            if(reset_error_count < reset_error_thre)
-            {
-                gimbal_motor->Set(ControlMode::Velocity,reset_speed/10);
-                reset_error_count++;
-            }
-            else
-            {
-                gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
-                is_reseted = true;
-                interrupt();
-            }
-        }
-        else
-        {
-            gimbal_motor->Set(ControlMode::Velocity,reset_speed);
-        }
+      if(reset_sw->Get())
+      {
+        gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
+        gimbal_motor->Set(ControlMode::PercentOutput,0);
+        is_reseted = true;
+        interrupt();
+      }
+      else
+      {
+        gimbal_motor->Set(ControlMode::PercentOutput,-0.05);
+      }
+        // if(gimbal_motor->GetOutputCurrent() > reset_current_thres &&\
+        //    IS_X_SECTION(gimbal_motor->GetSelectedSensorVelocity(),reset_speed_thres))
+        // {
+        //     if(reset_error_count < reset_error_thre)
+        //     {
+        //         gimbal_motor->Set(ControlMode::PercentOutput,-0.1);
+        //         reset_error_count++;
+        //     }
+        //     else
+        //     {
+        //         gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
+        //         gimbal_motor->Set(ControlMode::PercentOutput,0);
+        //         is_reseted = true;
+        //         interrupt();
+        //     }
+        // }
+        // else
+        // {
+        //     gimbal_motor->Set(ControlMode::PercentOutput,-0.1);
+        // }
         usleep(reset_period);
     }
     interrupt();
@@ -154,24 +175,24 @@ void Shoot::start_shoot()
 
   carry_out(Sh1,motor[Sh1]->cal_speed(neo_speed[Sh1]));
   carry_out(Sh2,motor[Sh2]->cal_speed(neo_speed[Sh2]));
-  if(motor[Sh1]->is_complete_acc(neo_speed[Sh1]) &&\
-     motor[Sh2]->is_complete_acc(neo_speed[Sh2]))
-     {
+  // if(motor[Sh1]->is_complete_acc(neo_speed[Sh1]) &&\
+  //    motor[Sh2]->is_complete_acc(neo_speed[Sh2]))
+  //    {
         open_vertical_transfer();
-        test_d = 0;
-     }
-     else
-     {
-       test_d++;
-     }
+    //     test_d = 0;
+    //  }
+    //  else
+    //  {
+    //    test_d++;
+    //  }
 }
 ///< 停止发射
 ///< 开启发射
 void Shoot::stop_shoot()
 {
   stop_vertical_transfer();
-  carry_out(Sh1,motor[Sh1]->cal_speed(0));
-  carry_out(Sh2,motor[Sh2]->cal_speed(0));
+  carry_out(Sh1,0);
+  carry_out(Sh2,0);
 }
 #ifdef SHOOT_DEBUG
 void Shoot::display()
@@ -216,15 +237,21 @@ void Shoot::debug()
 
     double Get9  = frc::SmartDashboard::GetNumber("get_reset_speed_thres",reset_speed_thres);
     if((Get9 != reset_speed_thres)) { reset_speed_thres = Get9;}
+// float tesss = 0;
+// float fdfd = 0;
+    fdfd = get_number("fdfd",fdfd,0.0,40.0);
 
     frc::SmartDashboard::PutNumber("gimbal angle",enc_to_angle(gimbal_motor->GetSelectedSensorPosition()));
     frc::SmartDashboard::PutNumber("gimbal encoder",gimbal_motor->GetSelectedSensorPosition());
     frc::SmartDashboard::PutNumber("motor[Sh1] lastspeed",motor[Sh1]->get_last_data());
     frc::SmartDashboard::PutNumber("motor[Sh2] lastspeed",motor[Sh2]->get_last_data());
     frc::SmartDashboard::PutNumber("test_d",test_d);
+    frc::SmartDashboard::PutNumber("tesss",tesss);
+    frc::SmartDashboard::PutNumber("reset_sw->Get()",reset_sw->Get());
+    frc::SmartDashboard::PutNumber("is_reseted",is_reseted);
     
     
-
+  thread_debug();
 
 }
 #endif

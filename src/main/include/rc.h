@@ -17,12 +17,14 @@ private:
    int reset_count = 0;
    float unit_time = 50;
    float chassis_speed[3] = {1000,1000,2};
+   float pitch_angle = 0;
 public:
   RC(int id);
   ~RC();
   float getX();
   float getY();
   float getZ();
+  float getPitch();
   bool is_grab();
   void display();
   void debug();
@@ -31,6 +33,7 @@ public:
   float filter(float data,float section);
   bool is_spin();
   bool is_shoot();
+
 };
 
 

@@ -22,25 +22,25 @@ bool Grab::put_down()
 {
     if(is_put_down == false && !cal_run_count())
     {
-        solenoid[0]->Set(true);
-        solenoid[1]->Set(true);
+        // solenoid[0]->Set(true);
+        // solenoid[1]->Set(true);
         std::cout<<"dow"<<std::endl;
     }
     else
     {
         is_put_down = true;
-        loosen_gas();
+        // loosen_gas();
         std::cout<<"loss"<<std::endl;
     }    
-    Set(cal_speed(speed));
+    Set(-0.3);
     return is_put_down;
 }
 ///< 抬起
 bool Grab::put_up()
 {
-    solenoid[0]->Set(true);
-    solenoid[1]->Set(false);
-    Set(cal_speed(0));
+    // solenoid[0]->Set(true);
+    // solenoid[1]->Set(false);
+    Set(0);
     is_put_down = false;
     runned_count = 0;
     return is_put_down;
