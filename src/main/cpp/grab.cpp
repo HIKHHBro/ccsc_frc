@@ -4,11 +4,16 @@
 #endif
 Grab::Grab(int pwm_c,int id,int pcm_c,float simpe_time,float acc):Neo(pwm_c,acc)
 {
-    can_id = id;
+    can_id = 20;
     pcm_channel = pcm_c;
     simpe_time = simpe_time;
+    compressor = new frc::Compressor(can_id);
     solenoid[0] = new frc::Solenoid(can_id,pcm_channel);
     solenoid[1] = new frc::Solenoid(can_id,pcm_channel+1);
+
+    
+    compressor->SetClosedLoopControl(true);
+    // compressor->SetClosedLoopControl(false);
 }
 
 Grab::~Grab()
@@ -20,26 +25,27 @@ Grab::~Grab()
 ///< 放下抓取
 bool Grab::put_down()
 {
-    if(is_put_down == false && !cal_run_count())
-    {
-        // solenoid[0]->Set(true);
-        // solenoid[1]->Set(true);
-        std::cout<<"dow"<<std::endl;
-    }
-    else
-    {
-        is_put_down = true;
-        // loosen_gas();
-        std::cout<<"loss"<<std::endl;
-    }    
-    Set(-0.3);
+    solenoid[0]->Set(false);
+    solenoid[1]->Set(true);
+    std::cout<<"dow"<<std::endl;  
+    is_put_down = true; 
+    Set(-0.4);
     return is_put_down;
+}
+//TODO:
+///<测试
+int cc = 0;
+
+void Grab::set_qi()
+{
+    // solenoid[0]->Set(sww1);
+    // solenoid[1]->Set(sww2);
 }
 ///< 抬起
 bool Grab::put_up()
 {
-    // solenoid[0]->Set(true);
-    // solenoid[1]->Set(false);
+    solenoid[0]->Set(true);
+    solenoid[1]->Set(false);
     Set(0);
     is_put_down = false;
     runned_count = 0;
@@ -66,6 +72,14 @@ bool Grab::cal_run_count()
     runned_count =0;
     return true;
 }
+///< 启动充气
+void Grab::enable_compressor()
+{
+    // compressor->SetClosedLoopControl(true);
+    compressor->Start();
+    std::cout<<compressor->Enabled()<<std::endl;
+
+}
 
 ///< 设置抓取传送速度  -1 ~1;
 void Grab::set_speed(float s)
@@ -77,6 +91,7 @@ void Grab::set_acc(float a)
 {
     set_k(limit(a,0.0,1.0));
 }
+
 #ifdef GRAB_DEBUG
 void Grab::display()
 {
@@ -102,6 +117,7 @@ void Grab::debug()
     frc::SmartDashboard::PutNumber("runned_count",runned_count);
     frc::SmartDashboard::PutNumber("runned_count_max",runned_time*(1.0/simpe_time));
     frc::SmartDashboard::PutNumber("max_rpm",max_rpm);
+
 
 }
 #endif

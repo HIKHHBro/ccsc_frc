@@ -68,19 +68,17 @@ bool Shoot::stop_vertical_transfer()
   carry_out(Ver_tr,-neo_speed[Ver_tr]);
     return true;
 }
-//TODO: 测试为什么下面传送回跑飞
 ///< 开启水平传送
 void Shoot::open_horizontal_transfer()
 {
-   carry_out(Hor_tr,0.3);
-   carry_out(Hor_tr_u,0.30);
+   carry_out(Hor_tr,0.6);
+   carry_out(Hor_tr_u,0.60);
 }
 ///< 关闭竖直传送
 void Shoot::close_vertical_transfer()
 {
   carry_out(Ver_tr,0);
 }
-//TODO: 测试为什么下面传送回跑飞
 ///< 关闭水平传送
 void Shoot::close_horizontal_transfer()
 {
@@ -132,35 +130,11 @@ void Shoot::run()
       {
         gimbal_motor->Set(ControlMode::PercentOutput,-0.05);
       }
-        // if(gimbal_motor->GetOutputCurrent() > reset_current_thres &&\
-        //    IS_X_SECTION(gimbal_motor->GetSelectedSensorVelocity(),reset_speed_thres))
-        // {
-        //     if(reset_error_count < reset_error_thre)
-        //     {
-        //         gimbal_motor->Set(ControlMode::PercentOutput,-0.1);
-        //         reset_error_count++;
-        //     }
-        //     else
-        //     {
-        //         gimbal_motor->SetSelectedSensorPosition(0, 0, 10);
-        //         gimbal_motor->Set(ControlMode::PercentOutput,0);
-        //         is_reseted = true;
-        //         interrupt();
-        //     }
-        // }
-        // else
-        // {
-        //     gimbal_motor->Set(ControlMode::PercentOutput,-0.1);
-        // }
+
         usleep(reset_period);
     }
     interrupt();
 }
-
-
-
-
-
 bool Shoot::reset()
 {
     start_join();
@@ -175,16 +149,8 @@ void Shoot::start_shoot()
 
   carry_out(Sh1,motor[Sh1]->cal_speed(neo_speed[Sh1]));
   carry_out(Sh2,motor[Sh2]->cal_speed(neo_speed[Sh2]));
-  // if(motor[Sh1]->is_complete_acc(neo_speed[Sh1]) &&\
-  //    motor[Sh2]->is_complete_acc(neo_speed[Sh2]))
-  //    {
-        open_vertical_transfer();
-    //     test_d = 0;
-    //  }
-    //  else
-    //  {
-    //    test_d++;
-    //  }
+  open_vertical_transfer();
+  open_horizontal_transfer();
 }
 ///< 停止发射
 ///< 开启发射
@@ -194,61 +160,77 @@ void Shoot::stop_shoot()
   carry_out(Sh1,0);
   carry_out(Sh2,0);
 }
+//< 自动发射
+bool Shoot::auto_shoot()
+{
+  start_shoot();
+  if(auto_shoot_wait_time < auto_shoot_wait_conster)
+  {
+    auto_shoot_wait_time++;
+    return false;
+  }
+  else{
+    auto_shoot_wait_time = 0;
+    return true;
+  }
+}
 #ifdef SHOOT_DEBUG
 void Shoot::display()
 {
-frc::SmartDashboard::PutNumber("set_neo_speed Hor_tr",neo_speed[Hor_tr]);
-frc::SmartDashboard::PutNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
-frc::SmartDashboard::PutNumber("set_neo_speed Sh1",neo_speed[Sh1]);
-frc::SmartDashboard::PutNumber("set_neo_speed Sh2",neo_speed[Sh2]);
-frc::SmartDashboard::PutNumber("set_gimbal_kp",kp);
-frc::SmartDashboard::PutNumber("set_gimbal_kf",kf);
-frc::SmartDashboard::PutNumber("set_gimbal_smoothing",smoothing);
-frc::SmartDashboard::PutNumber("gimbal max angle",max_angle);
-frc::SmartDashboard::PutNumber("get_reset_output",reset_output);
-frc::SmartDashboard::PutNumber("get_reset_speed_thres",reset_speed_thres);
+// frc::SmartDashboard::PutNumber("set_neo_speed Hor_tr",neo_speed[Hor_tr]);
+// frc::SmartDashboard::PutNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
+// frc::SmartDashboard::PutNumber("set_neo_speed Sh1",neo_speed[Sh1]);
+// frc::SmartDashboard::PutNumber("set_neo_speed Sh2",neo_speed[Sh2]);
+// frc::SmartDashboard::PutNumber("set_gimbal_kp",kp);
+// frc::SmartDashboard::PutNumber("set_gimbal_kf",kf);
+// frc::SmartDashboard::PutNumber("set_gimbal_smoothing",smoothing);
+// frc::SmartDashboard::PutNumber("gimbal max angle",max_angle);
+// frc::SmartDashboard::PutNumber("get_reset_output",reset_output);
+// frc::SmartDashboard::PutNumber("get_reset_speed_thres",reset_speed_thres);
 
 }
 void Shoot::debug() 
 {
-    double Get1  = frc::SmartDashboard::GetNumber("set_neo_speed Hor_tr",neo_speed[Hor_tr]);
-    if((Get1 != neo_speed[Hor_tr])) { neo_speed[Hor_tr] = Get1;}
+//     double Get1  = frc::SmartDashboard::GetNumber("set_neo_speed Hor_tr",neo_speed[Hor_tr]);
+//     if((Get1 != neo_speed[Hor_tr])) { neo_speed[Hor_tr] = Get1;}
 
-    double Get2  = frc::SmartDashboard::GetNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
-    if((Get2 != neo_speed[Ver_tr])) { neo_speed[Ver_tr] = Get2;}
+//     double Get2  = frc::SmartDashboard::GetNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
+//     if((Get2 != neo_speed[Ver_tr])) { neo_speed[Ver_tr] = Get2;}
 
-    double Get3  = frc::SmartDashboard::GetNumber("set_neo_speed Sh1",neo_speed[Sh1]);
-    if((Get3 != neo_speed[Sh1])) { neo_speed[Sh1] = Get3;}
+//     double Get3  = frc::SmartDashboard::GetNumber("set_neo_speed Sh1",neo_speed[Sh1]);
+//     if((Get3 != neo_speed[Sh1])) { neo_speed[Sh1] = Get3;}
 
-    double Get4  = frc::SmartDashboard::GetNumber("set_neo_speed Sh2",neo_speed[Sh2]);
-    if((Get4 != neo_speed[Sh2])) { neo_speed[Sh2] = Get4;}
+//     double Get4  = frc::SmartDashboard::GetNumber("set_neo_speed Sh2",neo_speed[Sh2]);
+//     if((Get4 != neo_speed[Sh2])) { neo_speed[Sh2] = Get4;}
 
-    double Get5  = frc::SmartDashboard::GetNumber("set_gimbal_kp",kp);
-    if((Get5 != kp)) { kp = Get5; gimbal_motor->Config_kP(0,kp,10);}
+//     double Get5  = frc::SmartDashboard::GetNumber("set_gimbal_kp",kp);
+//     if((Get5 != kp)) { kp = Get5; gimbal_motor->Config_kP(0,kp,10);}
 
-    double Get6  = frc::SmartDashboard::GetNumber("set_gimbal_kf",kf);
-    if((Get6 != kf)) { kf = Get6; gimbal_motor->Config_kP(0,kf,10);}
+//     double Get6  = frc::SmartDashboard::GetNumber("set_gimbal_kf",kf);
+//     if((Get6 != kf)) { kf = Get6; gimbal_motor->Config_kP(0,kf,10);}
 
-    double Get7  = frc::SmartDashboard::GetNumber("set_gimbal_smoothing",smoothing);
-    if((Get7 != smoothing)) { smoothing = Get7; gimbal_motor->ConfigMotionSCurveStrength(smoothing, 0);}
+//     double Get7  = frc::SmartDashboard::GetNumber("set_gimbal_smoothing",smoothing);
+//     if((Get7 != smoothing)) { smoothing = Get7; gimbal_motor->ConfigMotionSCurveStrength(smoothing, 0);}
 
-    double Get8  = frc::SmartDashboard::GetNumber("get_reset_output",reset_output);
-    if((Get8 != reset_output)) { reset_output = Get8;}
+//     double Get8  = frc::SmartDashboard::GetNumber("get_reset_output",reset_output);
+//     if((Get8 != reset_output)) { reset_output = Get8;}
 
-    double Get9  = frc::SmartDashboard::GetNumber("get_reset_speed_thres",reset_speed_thres);
-    if((Get9 != reset_speed_thres)) { reset_speed_thres = Get9;}
-// float tesss = 0;
-// float fdfd = 0;
-    fdfd = get_number("fdfd",fdfd,0.0,40.0);
+//     double Get9  = frc::SmartDashboard::GetNumber("get_reset_speed_thres",reset_speed_thres);
+//     if((Get9 != reset_speed_thres)) { reset_speed_thres = Get9;}
+// // float tesss = 0;
+// // float fdfd = 0;
+//     fdfd = get_number("fdfd",fdfd,0.0,40.0);
+//     auto_shoot_wait_conster = get_number("auto_shoot_wait_conster",auto_shoot_wait_conster,0,1000);
 
-    frc::SmartDashboard::PutNumber("gimbal angle",enc_to_angle(gimbal_motor->GetSelectedSensorPosition()));
-    frc::SmartDashboard::PutNumber("gimbal encoder",gimbal_motor->GetSelectedSensorPosition());
-    frc::SmartDashboard::PutNumber("motor[Sh1] lastspeed",motor[Sh1]->get_last_data());
-    frc::SmartDashboard::PutNumber("motor[Sh2] lastspeed",motor[Sh2]->get_last_data());
-    frc::SmartDashboard::PutNumber("test_d",test_d);
-    frc::SmartDashboard::PutNumber("tesss",tesss);
-    frc::SmartDashboard::PutNumber("reset_sw->Get()",reset_sw->Get());
-    frc::SmartDashboard::PutNumber("is_reseted",is_reseted);
+//     frc::SmartDashboard::PutNumber("gimbal angle",enc_to_angle(gimbal_motor->GetSelectedSensorPosition()));
+//     frc::SmartDashboard::PutNumber("gimbal encoder",gimbal_motor->GetSelectedSensorPosition());
+//     frc::SmartDashboard::PutNumber("motor[Sh1] lastspeed",motor[Sh1]->get_last_data());
+//     frc::SmartDashboard::PutNumber("motor[Sh2] lastspeed",motor[Sh2]->get_last_data());
+//     frc::SmartDashboard::PutNumber("test_d",test_d);
+//     frc::SmartDashboard::PutNumber("tesss",tesss);
+//     frc::SmartDashboard::PutNumber("reset_sw->Get()",reset_sw->Get());
+//     frc::SmartDashboard::PutNumber("is_reseted",is_reseted);
+    frc::SmartDashboard::PutNumber("auto_shoot_wait_time",auto_shoot_wait_time);
     
     
   thread_debug();

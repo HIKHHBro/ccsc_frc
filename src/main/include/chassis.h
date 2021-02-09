@@ -66,7 +66,9 @@ class Chassis :public Falcon,public MyThread
     void chassis_dis();
     void angle_control(float angle);
     void clear();
-
+    void set_auto_point(int);
+    bool is_arrived_point();
+    int get_auto_point(); 
    //调试变量，方便查看
    float y_pos_error= 0;
    float x_pos_error= 0;
@@ -103,17 +105,19 @@ class Chassis :public Falcon,public MyThread
     float pos_loop_kd[all_dir] = {0,0,0.0006};
     float is_arrived_pos_error[2] = {20,20};
     float is_arrived_vel_error[2] = {10,10}; 
-
+    int auto_point = 0;
+    bool arrived_point = false;
 
 public:
-    const int map_len = 3;
+    const static int map_len = 4;
     
-    float map[3][4] = 
+    float map[map_len][4] = 
     {
       /* {x(mm),y(mm),speed(mm/s),acc(mm/s^2)}*/
         {0,0,1000,10},
         {-500,0,1000,10},
-        {-400,3500,1000,10}
+        {100,3500,1000,10},
+        {-500,0,1000,10}
 
     };
 

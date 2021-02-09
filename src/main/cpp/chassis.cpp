@@ -274,36 +274,26 @@ void Chassis::run()
 {
     auto_run_is_finished =false;
     chassis_dis();
-    int point = 1;
     while (!isInterrupted())
     {
         milemter();
-        switch (point)
+        if(auto_point != 0)
         {
-        case 1:
-            if(to_position(point))
-            {
-                point++;
-            }
-            break;
-        case 2:
-            if(to_position(point))
-            {
-                point++;
-            }
-            break;
-        default:
+            arrived_point = to_position(auto_point);
+        }
+        else
+        {
             chassis_dis();
             interrupt();
             auto_run_is_finished = true;
-            break;
         }
+
         thread_sleep();
     }
     //线程结束，数据清除
     interrupt();
     chassis_dis();
-    point = 0;
+    auto_point = 0;
 }
 ///< 底盘pid计算线程
 //待测试
@@ -371,134 +361,153 @@ void Chassis::clear()
   chassis_dis();
   set_series();
 }
+///< 设置底盘自动阶段运行的点
+void Chassis::set_auto_point(int point)
+{
+    if(point < map_len)
+    {
+       auto_point = point;
+    }
+}
+///< 获取底盘自动阶段运行当前的点
+int Chassis::get_auto_point() 
+{
+    return auto_point;
+}
+///< 是否到达指定点
+bool Chassis::is_arrived_point()
+{
+    return arrived_point;
+}
 #ifdef CHASSIS_DEBUG
 void Chassis::display()
 { 
-    // frc::Shuffleboard::GetTab("Example tab").Add(gyro);
-    frc::SmartDashboard::PutNumber("速度环Kp",speed_loop_kp); 
-    frc::SmartDashboard::PutNumber("速度环Ki",speed_loop_ki); 
+    // // frc::Shuffleboard::GetTab("Example tab").Add(gyro);
+    // frc::SmartDashboard::PutNumber("速度环Kp",speed_loop_kp); 
+    // frc::SmartDashboard::PutNumber("速度环Ki",speed_loop_ki); 
 
-    frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp[1]); 
-    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki[1]); 
-    frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd[1]);
+    // frc::SmartDashboard::PutNumber("位置环Kp",pos_loop_kp[1]); 
+    // frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_ki[1]); 
+    // frc::SmartDashboard::PutNumber("位置环Ki",pos_loop_kd[1]);
 
-    frc::SmartDashboard::PutNumber("cahssis_acc[0]",cahssis_acc[0]);
-    frc::SmartDashboard::PutNumber("cahssis_acc[1]",cahssis_acc[1]);
-    frc::SmartDashboard::PutNumber("cahssis_acc[2]",cahssis_acc[2]);
+    // frc::SmartDashboard::PutNumber("cahssis_acc[0]",cahssis_acc[0]);
+    // frc::SmartDashboard::PutNumber("cahssis_acc[1]",cahssis_acc[1]);
+    // frc::SmartDashboard::PutNumber("cahssis_acc[2]",cahssis_acc[2]);
 
     
 }
 void Chassis::debug()
 {
 
-    float Get1 = frc::SmartDashboard::GetNumber("速度环Kp",speed_loop_kp);
-    if(Get1 != speed_loop_kp)
-    {
-        speed_loop_kp = Get1;
-        for(int i = 0;i<M_ALL;i++)
-            motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
-    };
+    // float Get1 = frc::SmartDashboard::GetNumber("速度环Kp",speed_loop_kp);
+    // if(Get1 != speed_loop_kp)
+    // {
+    //     speed_loop_kp = Get1;
+    //     for(int i = 0;i<M_ALL;i++)
+    //         motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
+    // };
 
-    float Get2 = frc::SmartDashboard::GetNumber("速度环Ki",speed_loop_ki);
-    if(Get2 != speed_loop_ki) 
-    {
-        speed_loop_ki = Get2;
-        for(int i = 0;i<M_ALL;i++)
-            motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
-    }
+    // float Get2 = frc::SmartDashboard::GetNumber("速度环Ki",speed_loop_ki);
+    // if(Get2 != speed_loop_ki) 
+    // {
+    //     speed_loop_ki = Get2;
+    //     for(int i = 0;i<M_ALL;i++)
+    //         motor_pid[i]->PIDTuningsSet(speed_loop_kp,speed_loop_ki,0);
+    // }
 
-    float Get3 = frc::SmartDashboard::GetNumber("位置环Kp",pos_loop_kp[1]);
-    if(Get3 != pos_loop_kp[1])
-    {
-        pos_loop_kp[1] = Get3;
-        for(int i = 0;i<2;i++)
-            auto_run_map_pid[i]->SetP(pos_loop_kp[1]);
-    }
+    // float Get3 = frc::SmartDashboard::GetNumber("位置环Kp",pos_loop_kp[1]);
+    // if(Get3 != pos_loop_kp[1])
+    // {
+    //     pos_loop_kp[1] = Get3;
+    //     for(int i = 0;i<2;i++)
+    //         auto_run_map_pid[i]->SetP(pos_loop_kp[1]);
+    // }
 
-    float Get4 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_ki[1]);
-    if(Get4 != pos_loop_ki[1])
-    {
-        pos_loop_ki[1] = Get4;
-        for(int i = 0;i<2;i++)
-            auto_run_map_pid[i]->SetI(pos_loop_ki[1]);
-    }
+    // float Get4 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_ki[1]);
+    // if(Get4 != pos_loop_ki[1])
+    // {
+    //     pos_loop_ki[1] = Get4;
+    //     for(int i = 0;i<2;i++)
+    //         auto_run_map_pid[i]->SetI(pos_loop_ki[1]);
+    // }
 
-    float Get5 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_kd[1]);
-    if(Get5 != pos_loop_kd[1])
-    {
-        pos_loop_kd[1] = Get5;
-        for(int i = 0;i<2;i++)
-            auto_run_map_pid[i]->SetD(pos_loop_kd[1]);
-    }
+    // float Get5 = frc::SmartDashboard::GetNumber("位置环Ki",pos_loop_kd[1]);
+    // if(Get5 != pos_loop_kd[1])
+    // {
+    //     pos_loop_kd[1] = Get5;
+    //     for(int i = 0;i<2;i++)
+    //         auto_run_map_pid[i]->SetD(pos_loop_kd[1]);
+    // }
 
-    map[1][0] = get_number("目标点x mm",map[1][0],0.0,10000.0);
-    map[1][1] = get_number("目标点y mm",map[1][1],0.0,10000.0);
-    map[1][2] = get_number("目标速度mm/s",map[1][2],0.0,10000.0);
+    // map[1][0] = get_number("目标点x mm",map[1][0],0.0,10000.0);
+    // map[1][1] = get_number("目标点y mm",map[1][1],0.0,10000.0);
+    // map[1][2] = get_number("目标速度mm/s",map[1][2],0.0,10000.0);
 
-    cahssis_acc[0] = get_number("cahssis_acc[0]",cahssis_acc[0],0.0,1000.0);
-    cahssis_acc[1] = get_number("cahssis_acc[1]",cahssis_acc[1],0.0,1000.0);
-    cahssis_acc[2] = get_number("cahssis_acc[2]",cahssis_acc[2],0.0,2.0);
+    // cahssis_acc[0] = get_number("cahssis_acc[0]",cahssis_acc[0],0.0,1000.0);
+    // cahssis_acc[1] = get_number("cahssis_acc[1]",cahssis_acc[1],0.0,1000.0);
+    // cahssis_acc[2] = get_number("cahssis_acc[2]",cahssis_acc[2],0.0,2.0);
 
-    test_angle = get_number("test_angle",test_angle,-180.0,180.0);
+    // test_angle = get_number("test_angle",test_angle,-180.0,180.0);
 
-    pos_loop_kp[2] = get_number("pos_loop_kp[2]",pos_loop_kp[2],-0.05,0.05);
-    auto_run_map_pid[2]->SetP(pos_loop_kp[2]);
+    // pos_loop_kp[2] = get_number("pos_loop_kp[2]",pos_loop_kp[2],-0.05,0.05);
+    // auto_run_map_pid[2]->SetP(pos_loop_kp[2]);
 
-    pos_loop_kd[2] = get_number("pos_loop_kd[2]",pos_loop_kd[2],-0.05,0.05);
-    auto_run_map_pid[2]->SetD(pos_loop_kd[2]);
+    // pos_loop_kd[2] = get_number("pos_loop_kd[2]",pos_loop_kd[2],-0.05,0.05);
+    // auto_run_map_pid[2]->SetD(pos_loop_kd[2]);
 
-    frc::SmartDashboard::PutNumber("X 速度enc/100ms",target_vel[x]); //速度范围-6380~6380
-    frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
-    frc::SmartDashboard::PutNumber("Z 速度enc/100ms",target_vel[z]); 
+    // frc::SmartDashboard::PutNumber("X 速度enc/100ms",target_vel[x]); //速度范围-6380~6380
+    // frc::SmartDashboard::PutNumber("Y 速度enc/100ms",target_vel[y]); 
+    // frc::SmartDashboard::PutNumber("Z 速度enc/100ms",target_vel[z]); 
 
-    frc::SmartDashboard::PutNumber("speed[0]",speed[0]); 
-    frc::SmartDashboard::PutNumber("speed[1]",speed[1]); 
-    frc::SmartDashboard::PutNumber("speed[2]",speed[2]); 
-    frc::SmartDashboard::PutNumber("speed[3]",speed[3]); 
+    // frc::SmartDashboard::PutNumber("speed[0]",speed[0]); 
+    // frc::SmartDashboard::PutNumber("speed[1]",speed[1]); 
+    // frc::SmartDashboard::PutNumber("speed[2]",speed[2]); 
+    // frc::SmartDashboard::PutNumber("speed[3]",speed[3]); 
 
-    frc::SmartDashboard::PutNumber("坐标系",reference); 
-    frc::SmartDashboard::PutNumber("减速比",reduction_ratiop); 
-
-
-    frc::SmartDashboard::PutNumber("位置X ms",milemeter[x]);
-    frc::SmartDashboard::PutNumber("位置Y ms",milemeter[y]);
-    frc::SmartDashboard::PutNumber("角度 ms",milemeter[z]);
-
-    frc::SmartDashboard::PutNumber("X位置误差",x_pos_error);
-    frc::SmartDashboard::PutNumber("y位置误差",y_pos_error);
-    frc::SmartDashboard::PutNumber("X速度误差",x_v_error);
-    frc::SmartDashboard::PutNumber("y速度误差",y_v_error);
+    // frc::SmartDashboard::PutNumber("坐标系",reference); 
+    // frc::SmartDashboard::PutNumber("减速比",reduction_ratiop); 
 
 
-    frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_pos_error[y]);
-    frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_pos_error[x]);
-    frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_vel_error[x]);
-    frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_vel_error[y]);
+    // frc::SmartDashboard::PutNumber("位置X ms",milemeter[x]);
+    // frc::SmartDashboard::PutNumber("位置Y ms",milemeter[y]);
+    // frc::SmartDashboard::PutNumber("角度 ms",milemeter[z]);
+
+    // frc::SmartDashboard::PutNumber("X位置误差",x_pos_error);
+    // frc::SmartDashboard::PutNumber("y位置误差",y_pos_error);
+    // frc::SmartDashboard::PutNumber("X速度误差",x_v_error);
+    // frc::SmartDashboard::PutNumber("y速度误差",y_v_error);
+
+
+    // frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_pos_error[y]);
+    // frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_pos_error[x]);
+    // frc::SmartDashboard::PutNumber("X位置到达阈值",is_arrived_vel_error[x]);
+    // frc::SmartDashboard::PutNumber("y位置到达阈值",is_arrived_vel_error[y]);
 
 
 
-    frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
-    frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
-    frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
-
-    
-    frc::SmartDashboard::PutNumber("电机1速度环输出",motor_pid[0]->PIDOutputGet());
-    frc::SmartDashboard::PutNumber("电机2速度环输出",motor_pid[1]->PIDOutputGet());
-    frc::SmartDashboard::PutNumber("电机3速度环输出",motor_pid[2]->PIDOutputGet());
-    frc::SmartDashboard::PutNumber("电机4速度环输出",motor_pid[3]->PIDOutputGet());
+    // frc::SmartDashboard::PutNumber("y位置环输出",auto_output[y]);
+    // frc::SmartDashboard::PutNumber("X位置环输出",auto_output[x]);
+    // frc::SmartDashboard::PutNumber("角度位置环输出",auto_output[z]);
 
     
-    frc::SmartDashboard::PutNumber("电机1速度环百分比输出",speed_output_per[0]);
-    frc::SmartDashboard::PutNumber("电机2速度环百分比输出",speed_output_per[1]);
-    frc::SmartDashboard::PutNumber("电机3速度环百分比输出",speed_output_per[2]);
-    frc::SmartDashboard::PutNumber("电机4速度环百分比输出",speed_output_per[3]);
+    // frc::SmartDashboard::PutNumber("电机1速度环输出",motor_pid[0]->PIDOutputGet());
+    // frc::SmartDashboard::PutNumber("电机2速度环输出",motor_pid[1]->PIDOutputGet());
+    // frc::SmartDashboard::PutNumber("电机3速度环输出",motor_pid[2]->PIDOutputGet());
+    // frc::SmartDashboard::PutNumber("电机4速度环输出",motor_pid[3]->PIDOutputGet());
 
-    frc::SmartDashboard::PutNumber("rampf[0]",rampf[0]->get_last_data());
-    frc::SmartDashboard::PutNumber("rampf[1]",rampf[1]->get_last_data());
-    frc::SmartDashboard::PutNumber("rampf[2]",rampf[2]->get_last_data());
+    
+    // frc::SmartDashboard::PutNumber("电机1速度环百分比输出",speed_output_per[0]);
+    // frc::SmartDashboard::PutNumber("电机2速度环百分比输出",speed_output_per[1]);
+    // frc::SmartDashboard::PutNumber("电机3速度环百分比输出",speed_output_per[2]);
+    // frc::SmartDashboard::PutNumber("电机4速度环百分比输出",speed_output_per[3]);
 
-    frc::SmartDashboard::PutNumber("test_output[0]",motor_pid[0]->test_output);
-    frc::SmartDashboard::PutNumber("motor[0] vel",motor[0]->GetSelectedSensorVelocity()); 
+    // frc::SmartDashboard::PutNumber("rampf[0]",rampf[0]->get_last_data());
+    // frc::SmartDashboard::PutNumber("rampf[1]",rampf[1]->get_last_data());
+    // frc::SmartDashboard::PutNumber("rampf[2]",rampf[2]->get_last_data());
+
+    // frc::SmartDashboard::PutNumber("test_output[0]",motor_pid[0]->test_output);
+    // frc::SmartDashboard::PutNumber("motor[0] vel",motor[0]->GetSelectedSensorVelocity()); 
+    frc::SmartDashboard::PutNumber("auto_point",auto_point); 
 
     
 

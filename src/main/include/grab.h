@@ -13,6 +13,7 @@ class Grab :public Neo
 {
 private:
     frc::Solenoid *solenoid[2];
+    frc::Compressor *compressor;
     int pcm_channel = 1;
     int can_id = 20;
     bool is_put_down = false;
@@ -30,6 +31,8 @@ public:
     void set_speed(float);
     void set_acc(float a);
     bool loosen_gas();
+    void enable_compressor();
+    void set_qi();
 #ifdef GRAB_DEBUG
     void display() override;
     void debug() override;

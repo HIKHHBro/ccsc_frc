@@ -33,6 +33,7 @@ public:
   float filter(float data,float section);
   bool is_spin();
   bool is_shoot();
+  bool is_pos();
 
 };
 

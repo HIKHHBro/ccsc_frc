@@ -24,6 +24,7 @@ public:
     void start_shoot();
     void stop_shoot();
     bool stop_vertical_transfer();
+    bool auto_shoot();
     TalonFX* gimbal_motor;
 
 #ifdef SHOOT_DEBUG
@@ -49,6 +50,8 @@ private:
     bool is_reseted = false;
     int reset_error_count = 0;
     int reset_error_thre =  (int)(1000000.0/reset_period * 0.3);
+    int auto_shoot_wait_time = 0;
+    int auto_shoot_wait_conster = 200;
 /*
  * 电机方向:
  * Hor_tr: 顺时针 负
@@ -56,7 +59,7 @@ private:
  *    Sh1: 逆时针
  *    Sh2: 逆时针
  */
-    float neo_speed[ALL] = {0.20,0.20,-0.25,-0.7,-0.7};//RPM 最大5700
+    float neo_speed[ALL] = {0.40,0.60,-0.25,-0.7,-0.7};//RPM 最大5700
 };
 
 

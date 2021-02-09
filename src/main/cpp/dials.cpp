@@ -14,6 +14,10 @@ Dials::Dials(int deviceNumber)
     motor = new TalonFX(can_id);
     //TODO: 设置位置模式
     fx_motor_magic(0.3,0.1,0);
+    solenoid[0] = new frc::Solenoid(20,2);
+    solenoid[1] = new frc::Solenoid(20,3);
+    is_arrived_sw = new frc::DigitalInput(4);//4通道
+
 }
 
 Dials::~Dials()
@@ -25,10 +29,10 @@ Dials::~Dials()
 ///< 设置颜色对应的rgb值
 void Dials::set_color_rgb(void)
 {
-    color_target[B] = frc::Color(0.19128, 0.47399, 0.33459);
-    color_target[G] = frc::Color(0.20178, 0.57946, 0.21887);
-    color_target[R] = frc::Color(0.50109, 0.34729, 0.15173);
-    color_target[Y] = frc::Color(0.29577, 0.54797, 0.15637);
+    color_target[B] = frc::Color(0.19323, 0.48625, 0.32043);
+    color_target[G] = frc::Color(0.20471, 0.56872, 0.22747);
+    color_target[R] = frc::Color(0.41882, 0.39343, 0.18762);
+    color_target[Y] = frc::Color(0.28796, 0.54992, 0.16174);
     for(int i = 0;i<ALL_COLOR;i++)
         m_colorMatcher.AddColorMatch(color_target[i]);
 }
@@ -50,18 +54,26 @@ Dials::COLOR Dials::get_color(void)
 ///<开启旋转控制
 bool Dials::start_spin_control(float numb)
 {
+  if(is_arrived())
+  {
     spin_numb = numb;
     state = Spin;
     start_detach();
     return spin_control_is_finished();
+  }
 }
 
 ///<开启位置控制
 void Dials::start_pos_control(COLOR color)
 {
+  lift();
+ if(is_arrived())
+ {
     target_color = color;
     state = Pos;
     start_detach();
+ }
+
 }
 
 ///< 旋转控制
@@ -82,6 +94,12 @@ void Dials::spin_control_thread()
     spin_pos_error = 0;
     
     ddd = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
+    while (color_sequence_pre == 4)
+    {
+      color_sequence_pre = get_color();
+      motor->Set(ControlMode::MotionMagic,c_numb_serson_return);
+    }
+    
     while (!isInterrupted())
     {
       /* code */
@@ -120,9 +138,8 @@ void Dials::spin_control_thread()
 // 注意: 使用前要先清上次的颜色
 bool Dials::color_sequence_check(COLOR curr)
 {
-  if(int(curr + 1)%int(ALL_COLOR) == int(color_sequence_pre) || int(curr - 1+ ALL_COLOR)%int(ALL_COLOR) == int(color_sequence_pre))
+  if(curr <4)
   {
-    color_sequence_pre = curr;
     return true;
   }
   else return false;
@@ -152,6 +169,7 @@ float Dials::optimal_path(COLOR target,COLOR curr)
 void Dials::pos_control_thread()
 {
     color_sequence_pre = get_color();
+
     if(color_sequence_pre == ALL_COLOR)
     {
         interrupt();
@@ -276,6 +294,25 @@ void Dials::run()
   }
   
 }
+bool sww1 = false;
+bool sww2 = false;
+///< 升起
+void Dials::lift()
+{
+    solenoid[0]->Set(true);
+    solenoid[1]->Set(false); 
+}
+///< 收回
+void Dials::put_down()
+{
+    solenoid[0]->Set(false);
+    solenoid[1]->Set(true); 
+}
+///< 是否到达
+bool Dials::is_arrived()
+{
+  return is_arrived_sw->Get();
+}
 
 #ifdef DIALS_DEBUG
 void Dials::display()
@@ -303,7 +340,8 @@ void Dials::display()
 
     COLOR cur_color = get_color();
     frc::SmartDashboard::PutNumber("color",cur_color);
-    if(color_sequence_check(cur_color));
+    frc::SmartDashboard::PutNumber("color_sequence_pre",color_sequence_pre);
+    if(color_sequence_check(cur_color))
       frc::SmartDashboard::PutNumber("filer_color", cur_color);
 
 thread_debug();
@@ -315,6 +353,10 @@ void Dials::set_para()
   double comp = frc::SmartDashboard::GetNumber("spin_numb_comp", spin_numb_comp);
   if((comp != spin_numb_comp)) { spin_numb_comp = comp; }
 
+    sww1 = get_number("sww1",sww1,0,2);
+
+
+    sww2 = get_number("sww2",sww2,0,2);
 }
 
 #endif

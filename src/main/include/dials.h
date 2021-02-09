@@ -7,6 +7,8 @@
 #include "ctre/Phoenix.h"
 #include <atomic>
 #include "my_thread.h"
+#include <frc/Solenoid.h>
+#include <frc/DigitalInput.h>
 #ifdef DIALS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
@@ -43,7 +45,9 @@ public:
     bool start_spin_control(float numb);
     void start_pos_control(COLOR);
     float optimal_path(COLOR target,COLOR curr);
-
+    void lift();
+    void put_down();
+    bool is_arrived();
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();
@@ -54,13 +58,15 @@ private:
     rev::ColorMatch m_colorMatcher;
     frc::Color color_target[4];
     frc::Color detectedColor;
+    frc::Solenoid *solenoid[2];
+    frc::DigitalInput* is_arrived_sw;
     double confidence = 0.0;
     TalonFX* motor;
     float dials_d = 810;          //转盘直径 mm
     float color_angle = 45;      //每个颜色对应的角度 单位度
     float curr_position;
     float dials_perimeter = dials_d * 3.1415; //圆周长mm
-    float frictiongear_d = 76.2; //摩擦轮直径 mm
+    float frictiongear_d = 127; //摩擦轮直径 mm
     float arc_length = dials_perimeter / (360.0/color_angle); //每个颜色对应的弧长 单位mm
     float spin_control_vel = 1000;
     double reduction = reduction_ratio(frictiongear_d,dials_d);

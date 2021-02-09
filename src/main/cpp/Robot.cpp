@@ -22,14 +22,15 @@ void Robot::RobotInit()
 {
 
   chassis = new Chassis(1);
-  // dials = new Dials(9);
+  dials = new Dials(8);
     // lifting = new Lifting(4);
   rc = new RC(0);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
 
-  // chassis->display();
+#ifdef RC_DEBGU
   rc->display();
+#endif
 #ifdef GRAB_DEBUG
     grab->display();
 #endif
@@ -39,6 +40,10 @@ void Robot::RobotInit()
 
 #ifdef SHOOT_DEBUG
   shoot->display();
+#endif
+
+#ifdef DIALS_DEBUG
+  dials->display();
 #endif
     
 }
@@ -83,8 +88,13 @@ void Robot::RobotPeriodic()
 #ifdef SHOOT_DEBUG
   shoot->debug();
 #endif
-
+#ifdef RC_DEBGU
   rc->debug();
+#endif
+#ifdef DIALS_DEBUG
+  dials->display();
+  dials->set_para();
+#endif
 }
 
 /**
@@ -110,12 +120,60 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Schedule();
   }
+  shoot->start_join();
+  shoot->set_gimbal_angle(10);
+  chassis->set_auto_point(1);
+  chassis->start_auto_run();
+  shoot->start_shoot();
+  shoot->close_horizontal_transfer();
+  grab->put_down();
   
 }
 
-void Robot::AutonomousPeriodic() {   
+void Robot::AutonomousPeriodic() { 
+  if(chassis->is_arrived_point())
+  {
+    switch (chassis->get_auto_point())
+    {
+    case 1:
+      if(shoot->auto_shoot())
+      {
+        chassis->set_auto_point(2);
+      }
+      break;
+    case 2:
+      chassis->set_auto_point(3);
+      break;
+    case 3:
+      if(shoot->auto_shoot())
+      {
+        chassis->set_auto_point(0);
+      }
+      break;
+    default:
+      chassis->set_auto_point(0);
+      shoot->stop_shoot();
+      shoot->close_horizontal_transfer();
+      shoot->close_vertical_transfer();
+      grab->put_up();
 
-  // chassis->start_auto_run();
+      break;
+    }
+  }
+  else
+  {
+    if(chassis->get_auto_point() >1)
+    {
+      shoot->stop_vertical_transfer();
+      shoot->open_horizontal_transfer();
+    }
+    else
+    {
+      shoot->close_horizontal_transfer();
+      shoot->stop_vertical_transfer(); 
+    }
+
+  }
 }
 
 void Robot::TeleopInit() {
@@ -135,10 +193,11 @@ void Robot::TeleopInit() {
 
 void Robot::TeleopPeriodic() 
 {
+  grab->enable_compressor();
   /* 抓取*/
   if(rc->is_grab())
   {
-    shoot->open_horizontal_transfer();
+    // shoot->open_horizontal_transfer();
     shoot->stop_vertical_transfer();
     grab->put_down();
   }
@@ -176,6 +235,17 @@ void Robot::TeleopPeriodic()
   {
     shoot->interrupt();
   }
+  /* 转盘 */
+  if(rc->is_spin())
+  {
+    dials->start_spin_control(1);
+  }
+  else
+  {
+    if(!dials->is_arrived())
+      dials->put_down();
+  }
+  
 }
 
 /**
@@ -193,16 +263,16 @@ void Robot::TestPeriodic()
 {
 
   // std::cout<<"按键"<<rc->is_spin()<<std::endl;
-  // dials->get_color();
+  dials->get_color();
   // dials->display();
-  // if(rc->is_spin())
-  // {
-  //   dials->start_spin_control(1);
-  // }
-  // else{
-  //   dials->interrupt();
-  // }
-  // chassis->angle_control(chassis->test_angle);
+  if(rc->is_spin())
+  {
+    dials->start_spin_control(1);
+  }
+  else{
+    dials->interrupt();
+  }
+  dials->lift();
 }
 
 #ifndef RUNNING_FRC_TESTS
