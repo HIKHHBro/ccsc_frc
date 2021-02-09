@@ -13,7 +13,7 @@ Dials::Dials(int deviceNumber)
     can_id = deviceNumber;
     motor = new TalonFX(can_id);
     //TODO: 设置位置模式
-    fx_motor_magic(0.3,0.1,0);
+    fx_motor_magic(0.4,0.3,0);
     solenoid[0] = new frc::Solenoid(20,2);
     solenoid[1] = new frc::Solenoid(20,3);
     is_arrived_sw = new frc::DigitalInput(4);//4通道
@@ -99,16 +99,16 @@ void Dials::spin_control_thread()
       color_sequence_pre = get_color();
       motor->Set(ControlMode::MotionMagic,c_numb_serson_return);
     }
-    
+    color_temp_last = color_sequence_pre;
     while (!isInterrupted())
     {
       /* code */
       //TODO: 写颜色累计
       COLOR color = get_color();
       spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
-      if(color_sequence_check(color))
+      if(color_is_changed(color))
         color_tran_count++;
-      if(color_tran_count >= ALL_COLOR * 2 * spin_numb)
+      if(color_tran_count >= 4 * 2 * spin_numb)
       {
             if(time_count[Spin] < time_thre[Spin])
                 time_count[Spin]++;
@@ -121,9 +121,9 @@ void Dials::spin_control_thread()
       }
       else if(abs(spin_pos_error) < is_finished_spin_pos_err)
       {
-        curr_position = motor->GetSelectedSensorPosition();
-        c_numb_serson_return = angle_to_enc(((1/float(ALL_COLOR)) + spin_numb_comp)*360);
-        motor->Set(ControlMode::MotionMagic,c_numb_serson_return + curr_position);    
+        // curr_position = motor->GetSelectedSensorPosition();
+        c_numb_serson_return = (angle_to_enc(45) + spin_numb_comp +c_numb_serson_return);
+        motor->Set(ControlMode::MotionMagic,c_numb_serson_return);    
       }
       else
       {
@@ -132,18 +132,29 @@ void Dials::spin_control_thread()
       usleep(reset_period);
     }
     interrupt();
+    motor->Set(ControlMode::PercentOutput,0); 
+    color_tran_count = 0;
 }
 ///< 颜色传感器联系校验
 //TODO: 待验证 连续颜色突然插入不连续颜色
 // 注意: 使用前要先清上次的颜色
 bool Dials::color_sequence_check(COLOR curr)
 {
+  return false;
+
+}
+///< 检测颜色是否变化
+bool Dials::color_is_changed(COLOR curr)
+{
   if(curr <4)
   {
-    return true;
+    if(color_temp_last != curr)
+    {
+      color_temp_last = curr;
+      return true;
+    }
   }
-  else return false;
-
+  return false;
 }
 ///< 选择旋转最优路径 返回角度值//顺时针 对应电机逆时针
 float Dials::optimal_path(COLOR target,COLOR curr)
@@ -269,7 +280,7 @@ void Dials::fx_motor_magic(float kf,float kp,float kd)
     motor->Config_kD(0, kd, 10);
 
     /* Set acceleration and vcruise velocity - see documentation */
-    motor->ConfigMotionCruiseVelocity(1500, 10);
+    motor->ConfigMotionCruiseVelocity(300, 10);
     motor->ConfigMotionAcceleration(100, 10);
 
     /* Zero the sensor */
@@ -315,6 +326,7 @@ bool Dials::is_arrived()
 }
 
 #ifdef DIALS_DEBUG
+int temp_debug = 0;
 void Dials::display()
 {
     frc::SmartDashboard::PutNumber("dials_d:", dials_d);
@@ -341,8 +353,11 @@ void Dials::display()
     COLOR cur_color = get_color();
     frc::SmartDashboard::PutNumber("color",cur_color);
     frc::SmartDashboard::PutNumber("color_sequence_pre",color_sequence_pre);
-    if(color_sequence_check(cur_color))
-      frc::SmartDashboard::PutNumber("filer_color", cur_color);
+    frc::SmartDashboard::PutNumber("abs(spin_pos_error)",abs(spin_pos_error));
+    // frc::SmartDashboard::PutNumber("is_finished_spin_pos_err",is_finished_spin_pos_err);
+  
+    if(color_is_changed(cur_color))
+      frc::SmartDashboard::PutNumber("filer_color", temp_debug++);
 
 thread_debug();
     // frc::SmartDashboard::PutNumber("spin_control_thread_status", spin_control_thread_status);

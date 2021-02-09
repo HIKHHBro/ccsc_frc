@@ -259,6 +259,7 @@ void Robot::TestInit()
   
 
 }
+bool changed_spin = true;
 void Robot::TestPeriodic() 
 {
 
@@ -267,10 +268,14 @@ void Robot::TestPeriodic()
   // dials->display();
   if(rc->is_spin())
   {
-    dials->start_spin_control(1);
+    if(changed_spin)
+      dials->start_spin_control(3);
+    changed_spin = false;
   }
   else{
     dials->interrupt();
+    changed_spin = true;
+
   }
   dials->lift();
 }

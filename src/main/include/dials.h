@@ -29,7 +29,7 @@ public:
     COLOR curr_color;//当前颜色
     int can_id;
     float spin_numb_comp = 0;
-    COLOR color_sequence_pre;
+    COLOR color_sequence_pre = B;
     
     /* 方法 */
     
@@ -45,6 +45,7 @@ public:
     bool start_spin_control(float numb);
     void start_pos_control(COLOR);
     float optimal_path(COLOR target,COLOR curr);
+    bool color_is_changed(COLOR curr);
     void lift();
     void put_down();
     bool is_arrived();
@@ -66,15 +67,15 @@ private:
     float color_angle = 45;      //每个颜色对应的角度 单位度
     float curr_position;
     float dials_perimeter = dials_d * 3.1415; //圆周长mm
-    float frictiongear_d = 127; //摩擦轮直径 mm
+    float frictiongear_d = 100; //摩擦轮直径 mm
     float arc_length = dials_perimeter / (360.0/color_angle); //每个颜色对应的弧长 单位mm
     float spin_control_vel = 1000;
     double reduction = reduction_ratio(frictiongear_d,dials_d);
     int color_tran_count = 0;
     /* 显示调试的变量 */
-    int c_numb_serson_return;
+    int c_numb_serson_return = 0;
     int spin_pos_error = 0;
-    int is_finished_spin_pos_err = (float)(angle_to_enc((1/float(ALL_COLOR))))/4.0;
+    float is_finished_spin_pos_err = (float)(angle_to_enc(45.0))/1.5;
     float spin_numb = 0;
     COLOR target_color; //需要旋转到的指定颜色
     bool is_finished_spin_control = false;
@@ -85,6 +86,7 @@ private:
     int time_thre[2];
     int direction = -1;//和电机方向相反
     float target_angle;
+    COLOR color_temp_last;
 
     /* 私有方法 */
     void spin_control_thread();
