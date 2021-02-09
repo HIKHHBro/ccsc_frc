@@ -190,7 +190,8 @@ void Robot::TeleopInit() {
 /**
  * This function is called periodically during operator control.
  */
-
+bool changed_spin = true;
+bool changed_lid = false;
 void Robot::TeleopPeriodic() 
 {
   grab->enable_compressor();
@@ -236,9 +237,39 @@ void Robot::TeleopPeriodic()
     shoot->interrupt();
   }
   /* 转盘 */
+  // dials->get_color();
+  // dials->display();
+  // if(rc->is_spin())
+  // {
+  //   if(changed_spin)
+  //     dials->start_spin_control(3);
+  //   changed_spin = false;
+  // }
+  // else{
+  //   dials->interrupt();
+  //   changed_spin = true;
+
+  // }
+  // if(rc->is_pos())
+  // {
+  //   if(changed_lid ==false)
+  //     changed_lid = true;
+  //   else
+  //     changed_lid = false;
+  // }
+  // if(changed_lid)
+  // {
+  //   dials->lift();
+  // }
+  // else{
+  //   dials->put_down();
+  // }
+  
+    
+  
   if(rc->is_spin())
   {
-    dials->start_spin_control(1);
+    dials->start_spin_control(3);
   }
   else
   {
@@ -259,25 +290,25 @@ void Robot::TestInit()
   
 
 }
-bool changed_spin = true;
+
 void Robot::TestPeriodic() 
 {
 
   // std::cout<<"按键"<<rc->is_spin()<<std::endl;
-  dials->get_color();
-  // dials->display();
-  if(rc->is_spin())
-  {
-    if(changed_spin)
-      dials->start_spin_control(3);
-    changed_spin = false;
-  }
-  else{
-    dials->interrupt();
-    changed_spin = true;
+  // dials->get_color();
+  // // dials->display();
+  // if(rc->is_spin())
+  // {
+  //   if(changed_spin)
+  //     dials->start_spin_control(3);
+  //   changed_spin = false;
+  // }
+  // else{
+  //   dials->interrupt();
+  //   changed_spin = true;
 
-  }
-  dials->lift();
+  // }
+  // dials->lift();
 }
 
 #ifndef RUNNING_FRC_TESTS
