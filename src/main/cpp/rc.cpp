@@ -121,7 +121,7 @@ float RC::getPitch()
 }
 bool RC::is_grab()
 {
-    return xbox->GetBumper(frc::GenericHID::kLeftHand);
+    return xbox->GetBumper(frc::GenericHID::kRightHand);
 }
 
 bool RC::is_reset()
@@ -152,6 +152,10 @@ bool RC::is_lift()
 // {
 //   return ;
 // }
+bool RC::is_dials_lift()
+{
+  return xbox->GetBumper(frc::GenericHID::kLeftHand);
+}
 bool RC::is_spin()
 {
   return xbox->GetAButton();
@@ -162,8 +166,14 @@ bool RC::is_pos()
 }
 bool RC::is_shoot()
 {
-  return xbox->GetBButton();
+  if(abs(xbox->GetRawAxis(3)) ==1)
+  {
+    return true;
+  }
+  else
+    return false;
 }
+
 
 #endif
 #ifdef RC_DEBGU

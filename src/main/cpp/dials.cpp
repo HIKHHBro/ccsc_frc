@@ -66,7 +66,6 @@ bool Dials::start_spin_control(float numb)
 ///<开启位置控制
 void Dials::start_pos_control(COLOR color)
 {
-  lift();
  if(is_arrived())
  {
     target_color = color;
@@ -167,11 +166,11 @@ float Dials::optimal_path(COLOR target,COLOR curr)
     }
     if(abs(error) ==3)
     {
-        return direction *(abs(error)/error)*color_angle;
+        return (abs(error)/(error))*color_angle;
     } 
     else
     {
-        return error * color_angle;
+        return error * color_angle * -1;
     }
     
 }
@@ -180,12 +179,12 @@ float Dials::optimal_path(COLOR target,COLOR curr)
 void Dials::pos_control_thread()
 {
     color_sequence_pre = get_color();
-
-    if(color_sequence_pre == ALL_COLOR)
+    motor->SetSelectedSensorPosition(0, 0, 10);
+    while (color_sequence_pre == 4)
     {
-        interrupt();
-        is_finished_pos_control = false;
-    }    
+      color_sequence_pre = get_color();
+      motor->Set(ControlMode::MotionMagic,angle_to_enc(20));
+    }   
     color_tran_count = 0;
     is_finished_pos_control = false;
     motor->SetSelectedSensorPosition(0, 0, 10);
@@ -200,8 +199,8 @@ void Dials::pos_control_thread()
       /* code */
       //TODO: 写颜色累计
       COLOR color = get_color();
-      spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
-      if(color_sequence_check(color))
+      spin_pos_error = get_position_error(angle_to_enc(target_angle),motor->GetSelectedSensorPosition());
+      if(color_is_changed(color))
       {
           if(color_numb > 0)
           {
@@ -228,8 +227,12 @@ void Dials::pos_control_thread()
             } 
             else
             {
+              if(get_color() == target_color)
+              {
                 is_finished_pos_control = true;
                 interrupt();
+              }
+
             }
         }
       }
@@ -322,7 +325,19 @@ void Dials::put_down()
 ///< 是否到达
 bool Dials::is_arrived()
 {
-  return is_arrived_sw->Get();
+  return !(is_arrived_sw->Get());
+}
+///< 失能
+void Dials::disable()
+{
+  interrupt();
+  is_finished_spin_control = false;
+  is_finished_pos_control = false;
+  state = ALL_CTROL;
+  if(!is_arrived())
+  {
+    put_down();
+  }
 }
 
 #ifdef DIALS_DEBUG
@@ -354,6 +369,8 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("color",cur_color);
     frc::SmartDashboard::PutNumber("color_sequence_pre",color_sequence_pre);
     frc::SmartDashboard::PutNumber("abs(spin_pos_error)",abs(spin_pos_error));
+    frc::SmartDashboard::PutNumber("target_angle",target_angle);
+    frc::SmartDashboard::PutNumber("is_arrived",is_arrived());
     // frc::SmartDashboard::PutNumber("is_finished_spin_pos_err",is_finished_spin_pos_err);
   
     if(color_is_changed(cur_color))

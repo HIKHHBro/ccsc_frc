@@ -34,6 +34,9 @@ public:
   bool is_spin();
   bool is_shoot();
   bool is_pos();
+  bool changed_spin = true;
+  bool changed_pos = true;
+  bool is_dials_lift();
 
 };
 

@@ -24,8 +24,8 @@ public:
 
     /* 属性 */
     enum COLOR{B,G,R,Y,ALL_COLOR};
-    enum MODE{Spin,Pos};
-    MODE state = Spin;
+    enum MODE{Spin,Pos,ALL_CTROL};
+    MODE state = ALL_CTROL;
     COLOR curr_color;//当前颜色
     int can_id;
     float spin_numb_comp = 0;
@@ -49,6 +49,7 @@ public:
     void lift();
     void put_down();
     bool is_arrived();
+    void disable();
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();
