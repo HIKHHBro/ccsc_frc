@@ -41,92 +41,129 @@ float RC::filter(float data,float section)
 }
 
 #ifdef JOY_RC
-float RC::getX()
-{
-  return (filter(joystick->GetRawAxis(0),0.2) * chassis_speed[0]);
-}
-float RC::getY()
-{
-  return -(filter(joystick->GetRawAxis(1),0.2)* chassis_speed[1]);
-}
-float RC::getZ()
-{
-  return filter(joystick->GetRawAxis(2),0.1) * chassis_speed[2];
-}
-
-
-bool RC::is_grab()
-{
-    // return xbox->GetBumper(frc::GenericHID::kLeftHand);
-}
-
-bool RC::is_reset()
-{
-  //  if(xbox->GetBackButton() && xbox->GetStartButton())
-  //  {
-  //   if(reset_count > unit_time)
-  //   {
-  //     return true;
-  //   }
-  //   else 
-  //   {
-  //      reset_count++;
-  //      return false;
-  //   }
-  //  }
-  //  else
-  //  {
-  //    reset_count = 0;
-  //     return false;
-  //  } 
-}
-bool RC::is_lift()
-{
-  // return xbox->GetBumper(frc::GenericHID::kRightHand);
-}
-// float get_angle()
-// {
-//   return ;
-// }
-bool RC::is_spin()
-{
-  return joystick->GetRawButton(11);
-}
 #endif
+// float RC::getX()
+// {
+//   return (filter(joystick->GetRawAxis(0),0.2) * chassis_speed[0]);
+// }
+// float RC::getY()
+// {
+//   return -(filter(joystick->GetRawAxis(1),0.2)* chassis_speed[1]);
+// }
+// float RC::getZ()
+// {
+//   return filter(joystick->GetRawAxis(2),0.1) * chassis_speed[2];
+// }
 
-#ifdef XBON_RC
+
+// bool RC::is_grab()
+// {
+//     // return xbox->GetBumper(frc::GenericHID::kLeftHand);
+// }
+
+// bool RC::is_reset()
+// {
+//   //  if(xbox->GetBackButton() && xbox->GetStartButton())
+//   //  {
+//   //   if(reset_count > unit_time)
+//   //   {
+//   //     return true;
+//   //   }
+//   //   else 
+//   //   {
+//   //      reset_count++;
+//   //      return false;
+//   //   }
+//   //  }
+//   //  else
+//   //  {
+//   //    reset_count = 0;
+//   //     return false;
+//   //  } 
+// }
+// bool RC::is_lift()
+// {
+//   // return xbox->GetBumper(frc::GenericHID::kRightHand);
+// }
+// // float get_angle()
+// // {
+// //   return ;
+// // }
+// bool RC::is_spin()
+// {
+//   return joystick->GetRawButton(11);
+// }
+// #endif
+
+// #ifdef XBON_RC
 ///< x方向速度 0 ~ 5000 mm/s 
 float RC::getX()
 {
+#ifdef XBON_RC
   return (filter(xbox->GetRawAxis(0),0.2) * chassis_speed[0]);
+#endif
+
+#ifdef JOY_RC
+  return (filter(joystick->GetRawAxis(0),0.2) * chassis_speed[0]);
+#endif
 
 }
 ///< y方向速度 0 ~ 5000 mm/s 
 float RC::getY()
 {
+#ifdef XBON_RC
   return (filter(xbox->GetRawAxis(1),0.2)* chassis_speed[1] * -1);
+#endif
+
+#ifdef JOY_RC
+  return (filter(joystick->GetRawAxis(1),0.2) * chassis_speed[1] * -1);
+#endif
 }
 ///< 角速度方向速度 0 ~ 4 rad/s  
 float RC::getZ()
 {
+#ifdef XBON_RC
     return filter(xbox->GetRawAxis(4),0.1) * chassis_speed[2];
+#endif
+
+#ifdef JOY_RC
+  return filter(joystick->GetRawAxis(2),0.1) * chassis_speed[2];
+#endif
 }
 ///< 云台角度
+//TODO: 待测试值
 float RC::getPitch()
 {
+#ifdef XBON_RC
   pitch_angle -= xbox->GetRawAxis(5);
   pitch_angle = (pitch_angle) > (23) ? (23) : (pitch_angle);
   pitch_angle = (pitch_angle) < (0) ? (0) : (pitch_angle);
   return pitch_angle;
+#endif
+
+#ifdef JOY_RC
+  return (joystick->GetRawAxis(3)-1) * -11.5;
+#endif
 }
 bool RC::is_grab()
 {
+#ifdef XBON_RC
     return xbox->GetBumper(frc::GenericHID::kRightHand);
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(2);  
+#endif
 }
 
 bool RC::is_reset()
 {
+#ifdef XBON_RC
    if(xbox->GetBackButton() && xbox->GetStartButton())
+#endif
+#ifdef JOY_RC
+  if(joystick->GetRawButton(5) && joystick->GetRawButton(6))
+#endif
    {
     if(reset_count > unit_time)
     {
@@ -143,39 +180,94 @@ bool RC::is_reset()
      reset_count = 0;
       return false;
    } 
+
+
 }
 bool RC::is_lift()
 {
+#ifdef XBON_RC
   return xbox->GetBumper(frc::GenericHID::kRightHand);
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(7);
+#endif
 }
-// float get_angle()
-// {
-//   return ;
-// }
+
 bool RC::is_dials_lift()
 {
+#ifdef XBON_RC
   return xbox->GetBumper(frc::GenericHID::kLeftHand);
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(3);
+#endif
 }
 bool RC::is_spin()
 {
+#ifdef XBON_RC
   return xbox->GetAButton();
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(9);
+#endif
 }
 bool RC::is_pos()
 {
+#ifdef XBON_RC
   return xbox->GetXButton();
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(10);
+#endif
 }
 bool RC::is_shoot()
 {
+#ifdef XBON_RC
   if(abs(xbox->GetRawAxis(3)) ==1)
   {
     return true;
   }
   else
     return false;
+#endif
+
+#ifdef JOY_RC
+  return joystick->GetRawButton(1);
+#endif
+}
+bool RC::is_used_auto_aim()
+{
+#ifdef XBON_RC
+  if(xbox->GetYButtonPressed())
+  {
+    used_auto_aim_flag = true;
+  }
+  if(xbox->GetYButtonReleased() && used_auto_aim_flag)
+  {
+    used_auto_aim_flag = false;
+    return true;
+  }
+  return false;
+#endif
+
+#ifdef JOY_RC
+  if(joystick->GetRawButtonPressed(11))
+  {
+    used_auto_aim_flag = true;
+  }
+  if(joystick->GetRawButtonReleased(11) && used_auto_aim_flag)
+  {
+    used_auto_aim_flag = false;
+    return true;
+  }
+  return false;
+#endif
 }
 
-
-#endif
 #ifdef RC_DEBGU
 
 void RC::display()
@@ -202,6 +294,7 @@ void RC::debug()
     // frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
     // frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
     frc::SmartDashboard::PutNumber("reset",is_reset());
+    frc::SmartDashboard::PutNumber("getPitch",getPitch());
 #ifdef LIFT_DEBUG
     frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
 #endif

@@ -8,6 +8,7 @@
 #include "Robot.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include "networktables/NetworkTableInstance.h"
 #include <frc2/command/CommandScheduler.h>
 #include <frc/BuiltInAccelerometer.h>
 #include <frc/LinearFilter.h>
@@ -259,6 +260,7 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
+  nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("<variablename>",0.0);
 
 //  test_color = dials->get_number("test_color",test_color,0,3);
   

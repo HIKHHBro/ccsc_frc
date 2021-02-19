@@ -18,6 +18,7 @@ private:
    float unit_time = 50;
    float chassis_speed[3] = {1000,1000,2};
    float pitch_angle = 0;
+   bool used_auto_aim_flag = false;
 public:
   RC(int id);
   ~RC();
@@ -37,6 +38,7 @@ public:
   bool changed_spin = true;
   bool changed_pos = true;
   bool is_dials_lift();
+  bool is_used_auto_aim();
 
 };
 
