@@ -174,6 +174,17 @@ bool Shoot::auto_shoot()
     return true;
   }
 }
+//TODO:自动发射
+///< 自动计算发射的pitch角度
+float Shoot::auto_cal_shoot_pitch_angle(float pixel)
+{
+  float angle = pixel * 1;
+  if(abs(angle) < 2)
+  {
+
+  }
+  
+}
 #ifdef SHOOT_DEBUG
 void Shoot::display()
 {

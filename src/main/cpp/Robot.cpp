@@ -28,6 +28,7 @@ void Robot::RobotInit()
   rc = new RC(0);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
+  limelight = new Limelight();
 
 #ifdef RC_DEBGU
   rc->display();
@@ -61,21 +62,6 @@ void Robot::RobotInit()
 void Robot::RobotPeriodic() 
 {
   
-#ifdef COM_DEBUG
-    float Get1 = frc::SmartDashboard::GetNumber("sepp[0]",sepp[0]);
-    if(sepp[0] != Get1){sepp[0] = Get1;}
-
-    float Get2 = frc::SmartDashboard::GetNumber("sepp[1]",sepp[1]);
-    if(sepp[1] != Get2){sepp[1] = Get2;}
-
-    float Get3 = frc::SmartDashboard::GetNumber("sepp[2]",sepp[2]);
-    if(sepp[2] != Get3){sepp[2] = Get3;}
-    chassis->rc_run(sepp[0],sepp[1],sepp[2]);
-    chassis->debug();
-    rc->debug();
-
-#endif
-
 #ifdef CHASSIS_DEBUG
   chassis->debug();
 #endif
@@ -225,13 +211,22 @@ void Robot::TeleopPeriodic()
   /* 底盘 */
   chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
   /* 云台pitch */
-  shoot->set_gimbal_angle(rc->getPitch());
+  //TODO: 编写自瞄
+  if(rc->is_used_auto_aim())
+  {
+
+  }
+  else
+  {
+    shoot->set_gimbal_angle(rc->getPitch());
+  }
 
 
   /* 复位 */
   if(rc->is_reset())
   {
     shoot->start_join();
+    rc->clear_pitch();
   }
   else
   {
@@ -260,10 +255,6 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
-  nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumber("<variablename>",0.0);
-
-//  test_color = dials->get_number("test_color",test_color,0,3);
-  
 }
 
 /**
@@ -272,8 +263,6 @@ void Robot::TeleopPeriodic()
 // RC rc(0);
 void Robot::TestInit()
 {
-
-  // std::cout<<"按键"<<rc->is_spin()<<std::endl;
   
 
 }
@@ -296,6 +285,7 @@ void Robot::TestPeriodic()
 
   // }
   // dials->lift();
+
   
 }
 

@@ -1,8 +1,9 @@
 #include "rc.h"
 #include "iostream"
 #include <frc/smartdashboard/smartdashboard.h>
-RC::RC(int id)
+RC::RC(int id,float max_angle = 23)
 {
+  pitch_max_angle = max_angle;
 #ifdef JOY_RC
    joystick = new Joystick(id);
 #endif
@@ -136,13 +137,13 @@ float RC::getPitch()
 {
 #ifdef XBON_RC
   pitch_angle -= xbox->GetRawAxis(5);
-  pitch_angle = (pitch_angle) > (23) ? (23) : (pitch_angle);
+  pitch_angle = (pitch_angle) > (pitch_max_angle) ? (pitch_max_angle) : (pitch_angle);
   pitch_angle = (pitch_angle) < (0) ? (0) : (pitch_angle);
   return pitch_angle;
 #endif
 
 #ifdef JOY_RC
-  return (joystick->GetRawAxis(3)-1) * -11.5;
+  return (joystick->GetRawAxis(3)-1) * -(pitch_max_angle/2.0);
 #endif
 }
 bool RC::is_grab()
@@ -262,10 +263,17 @@ bool RC::is_used_auto_aim()
   if(joystick->GetRawButtonReleased(11) && used_auto_aim_flag)
   {
     used_auto_aim_flag = false;
-    return true;
+    used_auto_aim_flag_debug = !used_auto_aim_flag_debug;
+    return used_auto_aim_flag_debug;
   }
   return false;
 #endif
+}
+
+
+void RC::clear_pitch()
+{
+  pitch_angle = 0;
 }
 
 #ifdef RC_DEBGU
@@ -280,21 +288,11 @@ void RC::display()
 }
 void RC::debug()
 {
-    // frc::SmartDashboard::PutNumber("1:", xbox->GetAButton());
-    // frc::SmartDashboard::PutNumber("2:", xbox->GetBackButton());
-    // frc::SmartDashboard::PutNumber("3", xbox->GetBButton());
-    // frc::SmartDashboard::PutNumber("4", xbox->GetBumper(frc::GenericHID::kLeftHand ));
-    // frc::SmartDashboard::PutNumber("6",xbox->GetRawButton(0));
-    // frc::SmartDashboard::PutNumber("7",xbox->GetPOV(0));
-    // frc::SmartDashboard::PutNumber("8",xbox->GetRawAxis(0));
-    // frc::SmartDashboard::PutNumber("9",xbox->GetStartButton());
-    // frc::SmartDashboard::PutNumber("10",xbox->GetStickButton(frc::GenericHID::kLeftHand));
-    // frc::SmartDashboard::PutNumber("11",xbox->GetTriggerAxis(frc::GenericHID::kLeftHand));
-    // frc::SmartDashboard::PutNumber("12",xbox->GetX(frc::GenericHID::kLeftHand));
-    // frc::SmartDashboard::PutNumber("13",xbox->GetY(frc::GenericHID::kLeftHand));
-    // frc::SmartDashboard::PutNumber("14",xbox->GetYButton());
     frc::SmartDashboard::PutNumber("reset",is_reset());
-    frc::SmartDashboard::PutNumber("getPitch",getPitch());
+    if(used_auto_aim_flag_debug)
+      frc::SmartDashboard::PutString("自瞄","开");
+    else frc::SmartDashboard::PutString("自瞄","关");
+    // frc::SmartDashboard::PutNumber("getPitch",getPitch());
 #ifdef LIFT_DEBUG
     frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
 #endif

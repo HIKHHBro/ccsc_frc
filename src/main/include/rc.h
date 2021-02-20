@@ -19,8 +19,10 @@ private:
    float chassis_speed[3] = {1000,1000,2};
    float pitch_angle = 0;
    bool used_auto_aim_flag = false;
+   bool used_auto_aim_flag_debug = false;
+   float pitch_max_angle = 23;
 public:
-  RC(int id);
+  RC(int id,float max_angle = 23);
   ~RC();
   float getX();
   float getY();
@@ -39,6 +41,7 @@ public:
   bool changed_pos = true;
   bool is_dials_lift();
   bool is_used_auto_aim();
+  void clear_pitch();
 
 };
 

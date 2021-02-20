@@ -16,7 +16,6 @@
 #include <atomic>
 #include <thread>
 #include <unistd.h>
-#include "limelight.h"
 #ifdef CHASSIS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif

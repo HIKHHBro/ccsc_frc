@@ -25,6 +25,7 @@ public:
     void stop_shoot();
     bool stop_vertical_transfer();
     bool auto_shoot();
+    float auto_cal_shoot_pitch_angle(float);
     TalonFX* gimbal_motor;
 
 #ifdef SHOOT_DEBUG

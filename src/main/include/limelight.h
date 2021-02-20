@@ -28,13 +28,16 @@ enum CamMode {
 class Limelight {
 private:
     std::shared_ptr<NetworkTable> limelight;
+    float pitch_max_angle = 23;
+    float camtran[6] = {0};
 public:
     /**
      * Construct the class in the robot's init phase
      * @param tableName The Limelight's NetworkTables name (defaults to "limelight")
      */
-    Limelight(std::string tableName = "limelight") {
+    Limelight(std::string tableName = "limelight",float angle = 23) {
         limelight = NetworkTableInstance::GetDefault().GetTable(tableName);
+        pitch_max_angle = angle;
     }
 
     /**
@@ -92,6 +95,16 @@ public:
     double getPipelineLatency() {
         return limelight->GetNumber("tl", 0.0);
     }
+    float* get_camtran(){
+        camtran = limelight->GetNumberArray("camtran", camtran);
+        return camtran;
+    }
+    ///< 获取发射补偿角度
+    float get_pitch_angle(){
+        return 0.5*camtran[2]+0;
+    }
+      
+
 
     /**
      * Sets the mode for the LEDs on the Limelight
@@ -116,4 +129,5 @@ public:
     void setPipeline(int ID) {
         limelight->PutNumber("pipeline", ID);
     }
+
 };
