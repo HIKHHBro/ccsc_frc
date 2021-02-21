@@ -22,7 +22,7 @@ private:
    bool used_auto_aim_flag_debug = false;
    float pitch_max_angle = 23;
 public:
-  RC(int id,float max_angle = 23);
+  RC(int id,float max_angle);
   ~RC();
   float getX();
   float getY();

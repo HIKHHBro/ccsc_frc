@@ -96,7 +96,7 @@ public:
         return limelight->GetNumber("tl", 0.0);
     }
     float* get_camtran(){
-        camtran = limelight->GetNumberArray("camtran", camtran);
+        // camtran = limelight->GetNumberArray("camtran", camtran);
         return camtran;
     }
     ///< 获取发射补偿角度

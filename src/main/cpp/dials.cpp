@@ -16,7 +16,7 @@ Dials::Dials(int deviceNumber)
     fx_motor_magic(0.4,0.3,0);
     solenoid[0] = new frc::Solenoid(20,2);
     solenoid[1] = new frc::Solenoid(20,3);
-    is_arrived_sw = new frc::DigitalInput(4);//4通道
+    is_arrived_sw = new frc::DigitalInput(0);//4通道
 
 }
 

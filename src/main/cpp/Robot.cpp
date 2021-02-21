@@ -25,7 +25,7 @@ void Robot::RobotInit()
   chassis = new Chassis(1);
   dials = new Dials(8);
     // lifting = new Lifting(4);
-  rc = new RC(0);
+  rc = new RC(0,23);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
   limelight = new Limelight();
