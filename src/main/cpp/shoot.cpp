@@ -178,11 +178,8 @@ bool Shoot::auto_shoot()
 ///< 自动计算发射的pitch角度
 float Shoot::auto_cal_shoot_pitch_angle(float pixel)
 {
-  float angle = pixel * 1;
-  if(abs(angle) < 2)
-  {
-
-  }
+  frc::SmartDashboard::PutNumber("pixel",pixel);
+  return 0.0;
   
 }
 #ifdef SHOOT_DEBUG
@@ -241,7 +238,7 @@ void Shoot::debug()
 //     frc::SmartDashboard::PutNumber("tesss",tesss);
 //     frc::SmartDashboard::PutNumber("reset_sw->Get()",reset_sw->Get());
 //     frc::SmartDashboard::PutNumber("is_reseted",is_reseted);
-    frc::SmartDashboard::PutNumber("auto_shoot_wait_time",auto_shoot_wait_time);
+    // frc::SmartDashboard::PutNumber("auto_shoot_wait_time",auto_shoot_wait_time);
     
     
   thread_debug();

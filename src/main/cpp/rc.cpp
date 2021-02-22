@@ -143,7 +143,8 @@ float RC::getPitch()
 #endif
 
 #ifdef JOY_RC
-  return (joystick->GetRawAxis(3)-1) * -(pitch_max_angle/2.0);
+  pitch_angle = (joystick->GetRawAxis(3)-1) * -(pitch_max_angle/2.0);
+  return pitch_angle;
 #endif
 }
 bool RC::is_grab()
@@ -292,7 +293,7 @@ void RC::debug()
     if(used_auto_aim_flag_debug)
       frc::SmartDashboard::PutString("自瞄","开");
     else frc::SmartDashboard::PutString("自瞄","关");
-    // frc::SmartDashboard::PutNumber("getPitch",getPitch());
+    frc::SmartDashboard::PutNumber("pitch_angle",pitch_angle);
 #ifdef LIFT_DEBUG
     frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
 #endif

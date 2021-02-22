@@ -82,6 +82,9 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
+frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
+frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
+frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
 }
 
 /**
@@ -255,6 +258,10 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
+
+  limelight->get_camtran();
+  shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
+  
 }
 
 /**
@@ -285,6 +292,7 @@ void Robot::TestPeriodic()
 
   // }
   // dials->lift();
+
 
   
 }

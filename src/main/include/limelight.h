@@ -100,8 +100,19 @@ public:
         return camtran;
     }
     ///< 获取发射补偿角度
+    float aa = 0;
     float get_pitch_angle(){
-        return 0.5*camtran[2]+0;
+        float angle = getTargetY();
+        int tmp_angle = angle*10;
+        aa -= (float)tmp_angle /100.0;
+        aa = (aa) > (23) ? (23) : (aa);
+        aa = (aa) < (0) ? (0) : (aa);
+        return aa;
+    }
+    float get_x()
+    {
+        float x = -getTargetX();
+        return x * 50;
     }
       
 
