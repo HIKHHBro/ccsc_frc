@@ -4,9 +4,10 @@
 
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
-
+#include <frc/SerialPort.h>
+#include <frc/smartdashboard/smartdashboard.h>
 using namespace nt;
-
+using namespace frc;
 
 /// Modes for the LEDs on the Limelight
 enum LEDmode {
@@ -30,6 +31,9 @@ private:
     std::shared_ptr<NetworkTable> limelight;
     float pitch_max_angle = 23;
     float camtran[6] = {0};
+    SerialPort *ultrasonic;
+    char buffer[4] = {0};
+    int distance = 0;
 public:
     /**
      * Construct the class in the robot's init phase
@@ -38,6 +42,11 @@ public:
     Limelight(std::string tableName = "limelight",float angle = 23) {
         limelight = NetworkTableInstance::GetDefault().GetTable(tableName);
         pitch_max_angle = angle;
+        ultrasonic = new SerialPort(9600,SerialPort::kMXP,8,SerialPort::kParity_None,SerialPort::kStopBits_One);
+        ultrasonic->DisableTermination();
+        ultrasonic->SetFlowControl(SerialPort::kFlowControl_None);
+    
+        // ultrasonic->SetReadBufferSize(4);
     }
 
     /**
@@ -140,5 +149,35 @@ public:
     void setPipeline(int ID) {
         limelight->PutNumber("pipeline", ID);
     }
+
+    ///< 计算校验和
+    int cal_check_sum()
+    {
+        return ((buffer[0] + buffer[1] + buffer[2])&0x00FF);
+    }
+    ///< 更新超声波测距的距离
+    void updata_distance()
+    {
+        memset(buffer,'\0',sizeof(buffer));
+        ultrasonic->Read(buffer,sizeof(buffer));
+        if(buffer[0] == 0xFF && buffer[3] == cal_check_sum())
+        {
+            distance = (buffer[1]<<8) | (buffer[2]);
+        }
+    }
+    ///< 测试超声波
+    void test_ultrasonic()
+    {
+        memset(buffer,'\0',sizeof(buffer)); 
+        ultrasonic->Read(buffer,sizeof(buffer));
+        frc::SmartDashboard::PutNumber("ultr buffer[0]",buffer[0]);
+        frc::SmartDashboard::PutNumber("ultr buffer[1]",buffer[1]);
+        frc::SmartDashboard::PutNumber("ultr buffer[2]",buffer[2]);
+        frc::SmartDashboard::PutNumber("ultr buffer[3]",buffer[3]);
+        updata_distance();
+        frc::SmartDashboard::PutNumber("ultr distance",distance);
+    }
+
+
 
 };

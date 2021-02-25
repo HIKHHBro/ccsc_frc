@@ -292,6 +292,7 @@ void Robot::TestPeriodic()
 
   // }
   // dials->lift();
+  limelight->test_ultrasonic();
 
 
   
