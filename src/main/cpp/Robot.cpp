@@ -24,7 +24,7 @@ void Robot::RobotInit()
 
   chassis = new Chassis(1);
   dials = new Dials(8);
-    // lifting = new Lifting(4);
+  lifting = new Lifting(5);
   rc = new RC(0,23);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
@@ -235,6 +235,7 @@ void Robot::TeleopPeriodic()
     shoot->interrupt();
   }
 /* 转盘 */
+  dials->get_color();
   if(rc->is_dials_lift())
   {
     dials->lift();
@@ -275,22 +276,34 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
-  if(rc->is_reach_out())
+
+/* 复位 */
+  if(rc->is_reset())
   {
-    lifting->stretch_out();
+    lifting->start_join();
+    // rc->clear_pitch();
   }
   else
   {
-    lifting->shrink();
+    lifting->interrupt();
   }
-  if(rc->is_lift())
-  {
-    dials->lift();
-  }
-  else
-  {
-    lifting->stretch_out();
-  }
+
+  // if(rc->is_reach_out())
+  // {
+  //   lifting->stretch_out();
+  // }
+  // else
+  // {
+  //   lifting->shrink();
+  // }
+  // if(rc->is_lift())
+  // {
+  //   dials->lift();
+  // }
+  // else
+  // {
+  //   lifting->stretch_out();
+  // }
   // limelight->test_ultrasonic();
 
 

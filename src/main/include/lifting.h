@@ -5,9 +5,9 @@
 #include "my_thread.h"
 #include <string>
 #include <frc/DigitalInput.h>
-#ifdef LIFT_DEBUG
+// #ifdef LIFT_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
-#endif
+// #endif
 
 class Lifting : public Falcon, public MyThread
 {

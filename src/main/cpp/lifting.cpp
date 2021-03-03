@@ -58,7 +58,7 @@ Lifting::~Lifting()
 ///< 设置电机执行
 void Lifting::set_point(float len)
 {
-    if(get_reset_key(M1) && get_reset_key(M1))
+    if(get_reset_key(M1) && get_reset_key(M2))
     {
         motor[0]->Set(ControlMode::MotionMagic, mm_to_enc(len) + len_comp);
         motor[1]->Set(ControlMode::MotionMagic, mm_to_enc(len) + len_comp);
@@ -179,6 +179,7 @@ void Lifting::run()
         thread_sleep();
     }
     interrupt();
+    disable_motor();
 }
 ///< 失能电机
 //TODO: 当前位置赋值模式不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
