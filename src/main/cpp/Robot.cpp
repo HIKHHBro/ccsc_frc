@@ -70,6 +70,7 @@ void Robot::RobotPeriodic()
 #endif
 #ifdef LIFT_DEBUG
   lifting->debug();
+  // lifting->display();
 #endif
 
 #ifdef SHOOT_DEBUG
@@ -228,10 +229,12 @@ void Robot::TeleopPeriodic()
   if(rc->is_reset())
   {
     shoot->start_join();
+    lifting->start_join();
     rc->clear_pitch();
   }
   else
   {
+    lifting->interrupt();
     shoot->interrupt();
   }
 /* 转盘 */
@@ -258,7 +261,20 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
-/* 抬升 */
+  if(rc->is_lift())
+  {
+    lifting->lift();
+    rc->lift_flag = true;
+  }
+  else if(rc->is_reach_out() && !rc->lift_flag)
+  {
+    lifting->stretch_out();
+  }
+  else if(!rc->lift_flag)
+  {
+    lifting->shrink();
+  }
+
 limelight->get_camtran();
 shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
   
@@ -277,29 +293,7 @@ void Robot::TestInit()
 void Robot::TestPeriodic() 
 {
 
-/* 复位 */
-  if(rc->is_reset())
-  {
-    lifting->start_join();
-    // rc->clear_pitch();
-  }
-  else
-  {
-    lifting->interrupt();
-  }
 
-  // if(rc->is_reach_out())
-  // {
-  //   lifting->stretch_out();
-  // }
-  // else
-  // {
-  //   lifting->shrink();
-  // }
-  // if(rc->is_lift())
-  // {
-  //   dials->lift();
-  // }
   // else
   // {
   //   lifting->stretch_out();

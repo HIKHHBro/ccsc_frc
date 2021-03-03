@@ -3,7 +3,7 @@
 Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
-    set_dia(50);//直径50mm
+    set_dia(45.3);//直径50mm
     set_loop_time(10000);
     reset_sw[0] = new frc::DigitalInput(4);//0通道
     reset_sw[1] = new frc::DigitalInput(5);//0通道
@@ -31,14 +31,14 @@ Lifting::Lifting(int id)
 
         /* Set Motion Magic gains in slot0 - see documentation */
         motor[i]->SelectProfileSlot(0, 0);
-        motor[i]->Config_kF(0, 0.2, 10);
-        motor[i]->Config_kP(0, 0.1, 10);
+        motor[i]->Config_kF(0, reset_kf, 10);
+        motor[i]->Config_kP(0, reset_kp, 10);
         motor[i]->Config_kI(0, 0.0, 10);
         motor[i]->Config_kD(0, 0.0, 10);
 
         /* Set acceleration and vcruise velocity - see documentation */
-        motor[i]->ConfigMotionCruiseVelocity(1500, 10);
-        motor[i]->ConfigMotionAcceleration(1500, 10);
+        motor[i]->ConfigMotionCruiseVelocity(5600, 10);
+        motor[i]->ConfigMotionAcceleration(9000, 10);
 
         /* Zero the sensor */
         motor[i]->SetSelectedSensorPosition(0, 0, 10);
@@ -58,9 +58,9 @@ Lifting::~Lifting()
 ///< 设置电机执行
 void Lifting::set_point(float len)
 {
-    if(get_reset_key(M1) && get_reset_key(M2))
+    if(is_reseted == true)
     {
-        motor[0]->Set(ControlMode::MotionMagic, mm_to_enc(len) + len_comp);
+        motor[0]->Set(ControlMode::MotionMagic, (mm_to_enc(len) + len_comp) * -1);
         motor[1]->Set(ControlMode::MotionMagic, mm_to_enc(len) + len_comp);
     }
     else
@@ -81,6 +81,7 @@ bool Lifting::stretch_out()
     return carry_out(route,stretch_speed);
 }
 ///< 动作执行 s 位移 v 速度
+float vvv1[2],accc1,accc2;
 bool Lifting::carry_out(float s,float v)
 {
     float error[2],v_temp[2];
@@ -89,7 +90,7 @@ bool Lifting::carry_out(float s,float v)
     for(int i = 0;i<M_ALL;i++)
     {
         error[i] = get_position_error(mm_to_enc(s),motor[i]->GetSelectedSensorPosition());
-        v_temp[i] = motor[i]->GetSelectedSensorVelocity();
+        vvv1[i] = v_temp[i] = motor[i]->GetSelectedSensorVelocity();
     }
     if(IS_X_SECTION(error[0],pos_thres) && \
         IS_X_SECTION(error[1],pos_thres) &&\
@@ -145,14 +146,13 @@ Lifting::STATUS Lifting::get_status()
 //TODO: 添加失败是报详细左右的错误log
 //TODO: 增加log信息
 //TODO: 复位的单位仍然是原始单位 待转换
+int aa = 1;
 void Lifting::run()
 {
     for(int i = 0;i<M_ALL;i++)
     {
         reset_flag[i] = -1;
         reset_flag[i] = -1;
-        motor[i]->ConfigClosedLoopPeakOutput(0,reset_output,0);
-        motor[i]->ConfigClosedLoopPeakOutput(0,reset_output,0);
         reset_error_count[i] = 0;
     }
     is_reseted = false;
@@ -160,6 +160,14 @@ void Lifting::run()
     {
         for(int i = 0;i<M_ALL;i++)
         {
+            if(i == 0)
+            {
+                aa = -1;
+            }
+            else
+            {
+                aa = 1;
+            }
             if(get_reset_key(MOTOR(i)))
             {
                 motor[i]->SetSelectedSensorPosition(0, 0, 10);
@@ -168,7 +176,7 @@ void Lifting::run()
             }
             else
             {
-                motor[i]->Set(ControlMode::PercentOutput,reset_speed);
+                motor[i]->Set(ControlMode::PercentOutput,reset_speed * aa);
             }
         }
         if(reset_flag[0] == 1 && reset_flag[1] == 1)
@@ -233,19 +241,19 @@ void Lifting::debug()
     // if(get5 != pos_thres) {pos_thres = get5;}
     // float get6 = frc::SmartDashboard::GetNumber("speed_thres",speed_thres);
     // if(get6 != speed_thres) {speed_thres = get6;}
-    float get7 = frc::SmartDashboard::GetNumber("get_stretch_speed",stretch_speed);
-    if(get7 != stretch_speed) {stretch_speed = get7;}
+    // float get7 = frc::SmartDashboard::GetNumber("get_stretch_speed",stretch_speed);
+    // if(get7 != stretch_speed) {stretch_speed = get7;}
     // int get8 = frc::SmartDashboard::GetNumber("is_stretched",is_stretched);
     // if(get8 != is_stretched) {is_stretched = get8;}
-    float get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
-    if(get9 != reset_speed) {reset_speed = get9;}
+    // float get9 = frc::SmartDashboard::GetNumber("reset_speed",reset_speed);
+    // if(get9 != reset_speed) {reset_speed = get9;}
     // float get10 = frc::SmartDashboard::GetNumber("reset_output",reset_output);
     // if(get10 != reset_output) {reset_output = get10;}
     // float get11 = frc::SmartDashboard::GetNumber("reset_current_thres",reset_current_thres);
     // if(get11 != reset_current_thres) {reset_current_thres = get11;}
 
-    float get12 = frc::SmartDashboard::GetNumber("get_lift_speed",lift_speed);
-    if(get12 != lift_speed) {lift_speed = get12;}
+    // float get12 = frc::SmartDashboard::GetNumber("get_lift_speed",lift_speed);
+    // if(get12 != lift_speed) {lift_speed = get12;}
 
     // float get13 = frc::SmartDashboard::GetNumber("get_acc",acc);
     // if(get13 != acc)
@@ -320,6 +328,8 @@ void Lifting::debug()
     // frc::SmartDashboard::PutNumber("rpm_to_enc_100ms(v)", rpm_to_enc_100ms(stretch_speed));
     frc::SmartDashboard::PutNumber("motor_L vel 100ms", motor[0]->GetSelectedSensorVelocity());
     frc::SmartDashboard::PutNumber("motor_R vel 100ms", motor[1]->GetSelectedSensorVelocity());
+
+
     frc::SmartDashboard::PutNumber("get_reset_keyL", get_reset_key(M1));
     frc::SmartDashboard::PutNumber("get_reset_keyR", get_reset_key(M2));
     // frc::SmartDashboard::PutNumber("reset_acc enc", reset_acc);

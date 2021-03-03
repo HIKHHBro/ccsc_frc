@@ -58,7 +58,7 @@ private:
  *    Sh1: 逆时针
  *    Sh2: 逆时针
  */
-    float neo_speed[ALL] = {0.40,0.60,-0.25,-0.7,-0.7};//RPM 最大5700
+    float neo_speed[ALL] = {0.40,0.60,-0.25,-1,-0.5};//RPM 最大5700
 };
 
 

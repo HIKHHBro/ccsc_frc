@@ -16,16 +16,16 @@ private:
     enum STATUS {Stretched,Mid,Shrinked};
     TalonFX* motor[2];
     frc::DigitalInput* reset_sw[M_ALL];
-    float smoothing = 0;
+    float smoothing = 2;
     float len_comp = 0;//长度补偿值
     float route = 1100;//mm  伸缩最大行程
-    float lift_high = 400;//mm 车抬升不能大于最大行程
+    float lift_high = 800;//mm 车抬升不能大于最大行程
     float pos_thres = 200;//TODO:待测试
     float speed_thres = 10;//TODO:待测试
-    float stretch_speed = 3000;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
-    float lift_speed = 2000;//rpm 0~6000
+    float stretch_speed = 5000;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
+    float lift_speed = 3000;//rpm 0~6000
     float acc = 1500;
-    float reset_speed = -0.05;//rpm 0~6000
+    float reset_speed = -0.3;//rpm 0~6000
     float reset_acc = 0;
     float reset_output = 0.1;//0~1
     float reset_current_thres = 2;//amps
@@ -39,8 +39,8 @@ private:
     int reset_flag[2] = {-1,-1};
     float kp = 0.1;
     float kf = 0.2;
-    float reset_kp = 0.01;
-    float reset_kf = 0.1;
+    float reset_kp = 0.2;
+    float reset_kf = 0.5;
     
 public:
     Lifting(int id);

@@ -29,10 +29,10 @@ Dials::~Dials()
 ///< 设置颜色对应的rgb值
 void Dials::set_color_rgb(void)
 {
-    color_target[B] = frc::Color(0.19323, 0.48625, 0.32043);
-    color_target[G] = frc::Color(0.20471, 0.56872, 0.22747);
-    color_target[R] = frc::Color(0.41882, 0.39343, 0.18762);
-    color_target[Y] = frc::Color(0.28796, 0.54992, 0.16174);
+    color_target[B] = frc::Color(0.185669, 0.488647, 0.32605);
+    color_target[G] = frc::Color(0.198364, 0.580444, 0.221313);
+    color_target[R] = frc::Color(0.442261, 0.38269, 0.175171);
+    color_target[Y] = frc::Color(0.287231, 0.557495, 0.154907);
     for(int i = 0;i<ALL_COLOR;i++)
         m_colorMatcher.AddColorMatch(color_target[i]);
 }

@@ -187,8 +187,8 @@ void Shoot::display()
 {
 // frc::SmartDashboard::PutNumber("set_neo_speed Hor_tr",neo_speed[Hor_tr]);
 // frc::SmartDashboard::PutNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
-// frc::SmartDashboard::PutNumber("set_neo_speed Sh1",neo_speed[Sh1]);
-// frc::SmartDashboard::PutNumber("set_neo_speed Sh2",neo_speed[Sh2]);
+frc::SmartDashboard::PutNumber("set_neo_speed Sh1",neo_speed[Sh1]);
+frc::SmartDashboard::PutNumber("set_neo_speed Sh2",neo_speed[Sh2]);
 // frc::SmartDashboard::PutNumber("set_gimbal_kp",kp);
 // frc::SmartDashboard::PutNumber("set_gimbal_kf",kf);
 // frc::SmartDashboard::PutNumber("set_gimbal_smoothing",smoothing);
@@ -205,11 +205,11 @@ void Shoot::debug()
 //     double Get2  = frc::SmartDashboard::GetNumber("set_neo_speed Ver_tr",neo_speed[Ver_tr]);
 //     if((Get2 != neo_speed[Ver_tr])) { neo_speed[Ver_tr] = Get2;}
 
-//     double Get3  = frc::SmartDashboard::GetNumber("set_neo_speed Sh1",neo_speed[Sh1]);
-//     if((Get3 != neo_speed[Sh1])) { neo_speed[Sh1] = Get3;}
+    double Get3  = frc::SmartDashboard::GetNumber("set_neo_speed Sh1",neo_speed[Sh1]);
+    if((Get3 != neo_speed[Sh1])) { neo_speed[Sh1] = Get3;}
 
-//     double Get4  = frc::SmartDashboard::GetNumber("set_neo_speed Sh2",neo_speed[Sh2]);
-//     if((Get4 != neo_speed[Sh2])) { neo_speed[Sh2] = Get4;}
+    double Get4  = frc::SmartDashboard::GetNumber("set_neo_speed Sh2",neo_speed[Sh2]);
+    if((Get4 != neo_speed[Sh2])) { neo_speed[Sh2] = Get4;}
 
 //     double Get5  = frc::SmartDashboard::GetNumber("set_gimbal_kp",kp);
 //     if((Get5 != kp)) { kp = Get5; gimbal_motor->Config_kP(0,kp,10);}

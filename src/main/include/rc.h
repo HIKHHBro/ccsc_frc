@@ -22,6 +22,10 @@ private:
    bool used_auto_aim_flag_debug = false;
    bool reach_out_flag = false;
    bool reach_out_flag_debug = false;
+
+   
+   bool lift_flag_debug = false;
+
    float pitch_max_angle = 23;
 public:
   RC(int id,float max_angle);
@@ -45,6 +49,7 @@ public:
   bool is_dials_lift();
   bool is_used_auto_aim();
   void clear_pitch();
+  bool lift_flag = false;
 
 };
 

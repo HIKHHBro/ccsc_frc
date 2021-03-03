@@ -138,6 +138,7 @@ bool RC::is_lift()
 #endif
 
 #ifdef JOY_RC
+  
   return joystick->GetRawButton(8);
 #endif
 }
@@ -152,11 +153,14 @@ bool RC::is_reach_out()
   if(joystick->GetRawButtonPressed(7))
   {
     reach_out_flag = true;
+    if(!reach_out_flag_debug)
+      lift_flag = false;
   }
   if(joystick->GetRawButtonReleased(7) && reach_out_flag)
   {
     reach_out_flag = false;
     reach_out_flag_debug = !reach_out_flag_debug;
+    // return reach_out_flag_debug;
   }
   return reach_out_flag_debug;
 #endif
@@ -259,8 +263,8 @@ void RC::debug()
     else frc::SmartDashboard::PutString("自瞄","关");
     frc::SmartDashboard::PutNumber("pitch_angle",pitch_angle);
 #ifdef LIFT_DEBUG
-  frc::SmartDashboard::PutNumber("高挂伸出",is_reach_out());
-  frc::SmartDashboard::PutNumber("高挂抬升",is_lift());
+  frc::SmartDashboard::PutNumber("lift_flag",lift_flag);
+  frc::SmartDashboard::PutNumber("reach_out_flag_debug",reach_out_flag_debug);
 
 #endif
 
