@@ -20,6 +20,8 @@ private:
    float pitch_angle = 0;
    bool used_auto_aim_flag = false;
    bool used_auto_aim_flag_debug = false;
+   bool reach_out_flag = false;
+   bool reach_out_flag_debug = false;
    float pitch_max_angle = 23;
 public:
   RC(int id,float max_angle);
@@ -33,6 +35,7 @@ public:
   void debug();
   bool is_reset();
   bool is_lift();
+  bool is_reach_out();
   float filter(float data,float section);
   bool is_spin();
   bool is_shoot();

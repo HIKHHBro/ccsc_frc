@@ -185,7 +185,7 @@ bool changed_lid = false;
 void Robot::TeleopPeriodic() 
 {
   grab->enable_compressor();
-  /* 抓取*/
+/* 抓取*/
   if(rc->is_grab())
   {
     // shoot->open_horizontal_transfer();
@@ -196,7 +196,7 @@ void Robot::TeleopPeriodic()
   {
     grab->put_up();
   }
-  /* 发射 */
+/* 发射 */
   if(rc->is_shoot())
   {
     shoot->start_shoot();
@@ -205,15 +205,15 @@ void Robot::TeleopPeriodic()
   {
     shoot->stop_shoot();
   }
-  /* 如果没有发射或者抓球，关闭传送 */
+/* 如果没有发射或者抓球，关闭传送 */
   if((!rc->is_grab()) && (!rc->is_shoot()))
   {
     shoot->close_horizontal_transfer();
     shoot->close_vertical_transfer();
   }
-  /* 底盘 */
+/* 底盘 */
   chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
-  /* 云台pitch */
+/* 云台pitch */
   //TODO: 编写自瞄
   if(rc->is_used_auto_aim())
   {
@@ -224,8 +224,7 @@ void Robot::TeleopPeriodic()
     shoot->set_gimbal_angle(rc->getPitch());
   }
 
-
-  /* 复位 */
+/* 复位 */
   if(rc->is_reset())
   {
     shoot->start_join();
@@ -235,7 +234,7 @@ void Robot::TeleopPeriodic()
   {
     shoot->interrupt();
   }
-  /* 转盘 */
+/* 转盘 */
   if(rc->is_dials_lift())
   {
     dials->lift();
@@ -258,9 +257,9 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
-
-  limelight->get_camtran();
-  shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
+/* 抬升 */
+limelight->get_camtran();
+shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
   
 }
 
@@ -276,23 +275,23 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
-
-  // std::cout<<"按键"<<rc->is_spin()<<std::endl;
-  // dials->get_color();
-  // // dials->display();
-  // if(rc->is_pos())
-  // {
-  //   if(changed_spin)
-  //     dials->start_pos_control((Dials::COLOR)test_color);
-  //   changed_spin = false;
-  // }
-  // else{
-  //   dials->interrupt();
-  //   changed_spin = true;
-
-  // }
-  // dials->lift();
-  limelight->test_ultrasonic();
+  if(rc->is_reach_out())
+  {
+    lifting->stretch_out();
+  }
+  else
+  {
+    lifting->shrink();
+  }
+  if(rc->is_lift())
+  {
+    dials->lift();
+  }
+  else
+  {
+    lifting->stretch_out();
+  }
+  // limelight->test_ultrasonic();
 
 
   

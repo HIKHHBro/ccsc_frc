@@ -43,60 +43,6 @@ float RC::filter(float data,float section)
 
 #ifdef JOY_RC
 #endif
-// float RC::getX()
-// {
-//   return (filter(joystick->GetRawAxis(0),0.2) * chassis_speed[0]);
-// }
-// float RC::getY()
-// {
-//   return -(filter(joystick->GetRawAxis(1),0.2)* chassis_speed[1]);
-// }
-// float RC::getZ()
-// {
-//   return filter(joystick->GetRawAxis(2),0.1) * chassis_speed[2];
-// }
-
-
-// bool RC::is_grab()
-// {
-//     // return xbox->GetBumper(frc::GenericHID::kLeftHand);
-// }
-
-// bool RC::is_reset()
-// {
-//   //  if(xbox->GetBackButton() && xbox->GetStartButton())
-//   //  {
-//   //   if(reset_count > unit_time)
-//   //   {
-//   //     return true;
-//   //   }
-//   //   else 
-//   //   {
-//   //      reset_count++;
-//   //      return false;
-//   //   }
-//   //  }
-//   //  else
-//   //  {
-//   //    reset_count = 0;
-//   //     return false;
-//   //  } 
-// }
-// bool RC::is_lift()
-// {
-//   // return xbox->GetBumper(frc::GenericHID::kRightHand);
-// }
-// // float get_angle()
-// // {
-// //   return ;
-// // }
-// bool RC::is_spin()
-// {
-//   return joystick->GetRawButton(11);
-// }
-// #endif
-
-// #ifdef XBON_RC
 ///< x方向速度 0 ~ 5000 mm/s 
 float RC::getX()
 {
@@ -192,10 +138,29 @@ bool RC::is_lift()
 #endif
 
 #ifdef JOY_RC
-  return joystick->GetRawButton(7);
+  return joystick->GetRawButton(8);
 #endif
 }
+///< 高挂机构完全升出
+bool RC::is_reach_out()
+{
+#ifdef XBON_RC
+  return false;
+#endif
 
+#ifdef JOY_RC
+  if(joystick->GetRawButtonPressed(7))
+  {
+    reach_out_flag = true;
+  }
+  if(joystick->GetRawButtonReleased(7) && reach_out_flag)
+  {
+    reach_out_flag = false;
+    reach_out_flag_debug = !reach_out_flag_debug;
+  }
+  return reach_out_flag_debug;
+#endif
+}
 bool RC::is_dials_lift()
 {
 #ifdef XBON_RC
@@ -265,9 +230,8 @@ bool RC::is_used_auto_aim()
   {
     used_auto_aim_flag = false;
     used_auto_aim_flag_debug = !used_auto_aim_flag_debug;
-    return used_auto_aim_flag_debug;
   }
-  return false;
+  return used_auto_aim_flag_debug;
 #endif
 }
 
@@ -295,7 +259,9 @@ void RC::debug()
     else frc::SmartDashboard::PutString("自瞄","关");
     frc::SmartDashboard::PutNumber("pitch_angle",pitch_angle);
 #ifdef LIFT_DEBUG
-    frc::SmartDashboard::PutNumber("is_lift",xbox->GetBumper(frc::GenericHID::kRightHand));
+  frc::SmartDashboard::PutNumber("高挂伸出",is_reach_out());
+  frc::SmartDashboard::PutNumber("高挂抬升",is_lift());
+
 #endif
 
 #ifdef CHASSIS_DEBUG

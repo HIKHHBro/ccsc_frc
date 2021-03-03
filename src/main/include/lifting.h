@@ -23,9 +23,9 @@ private:
     float pos_thres = 200;//TODO:待测试
     float speed_thres = 10;//TODO:待测试
     float stretch_speed = 3000;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
-    float shrink_speed = 2000;//rpm 0~6000
+    float lift_speed = 2000;//rpm 0~6000
     float acc = 1500;
-    float reset_speed = 100;//rpm 0~6000
+    float reset_speed = -0.05;//rpm 0~6000
     float reset_acc = 0;
     float reset_output = 0.1;//0~1
     float reset_current_thres = 2;//amps

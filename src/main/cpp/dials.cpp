@@ -61,6 +61,7 @@ bool Dials::start_spin_control(float numb)
     start_detach();
     return spin_control_is_finished();
   }
+  else return false;
 }
 
 ///<开启位置控制

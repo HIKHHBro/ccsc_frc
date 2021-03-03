@@ -4,9 +4,7 @@
 #include "ctre/Phoenix.h"
 #include "my_thread.h"
 #include <frc/DigitalInput.h>
-#ifdef SHOOT_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
-#endif
 class Shoot : public Falcon, public MyThread
 {
 public:
