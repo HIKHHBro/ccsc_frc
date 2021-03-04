@@ -47,7 +47,7 @@ void Robot::RobotInit()
 #ifdef DIALS_DEBUG
   dials->display();
 #endif
-    
+    status_led.test_dis();
 }
 
 /**
@@ -58,7 +58,7 @@ void Robot::RobotInit()
  * <p> This runs after the mode specific periodic functions, but before
  * LiveWindow and SmartDashboard integrated updating.
  */
-
+bool faf=false;
 void Robot::RobotPeriodic() 
 {
   
@@ -84,10 +84,17 @@ void Robot::RobotPeriodic()
   dials->set_para();
 #endif
 /* 指示灯 */
+if(status_led.pdp.GetVoltage()<10 &&faf == false)
+{
+  faf = true;
+  status_led.set_lamp_flicker_alternate(3);
+}
+// status_led.test();
 status_led.updata_lamp();
 frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
 frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
 frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
+frc::SmartDashboard::PutNumber("Voltage",status_led.pdp.GetVoltage());
 }
 
 /**

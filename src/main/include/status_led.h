@@ -2,6 +2,9 @@
 #define __STATUS_LED_H
 #include <frc/Solenoid.h>
 #include <queue>
+#include <frc/PowerDistributionPanel.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include "BaseModule.h"
 enum LAMP_MODE {U,A,ALL_MODE};
 struct status_led
 {
@@ -16,22 +19,25 @@ class Status_led
 private:
   frc::Solenoid *solenoid[2];
 
-  int times_buf = 20;
+  int times_buf = 200;
   int used_s = 0;
   bool run_status = false;
 
   std::queue<status_led> status_queue;
   status_led  run_led;
+  // frc::PowerDistributionPanel pdp{0};
 public:
   Status_led(){
     solenoid[0] = new frc::Solenoid(20,4);
     solenoid[1] = new frc::Solenoid(20,5);
+
   }
 
   ~Status_led(){
     delete solenoid[0];
     delete solenoid[1];
   }
+frc::PowerDistributionPanel pdp{0};
 ///< 双灯同时闪烁
 bool set_lamp_flicker_union(int times)
 {
@@ -81,13 +87,14 @@ void updata_lamp()
       if(run_led.count < (21 - run_led.times))
       {
         run_led.count ++;
-        run_led.status[U]  = !run_led.status[U];
-        run_led.status[A]  = !run_led.status[A];
+        // run_led.status[U]  = !run_led.status[U];
+        // run_led.status[A]  = !run_led.status[A];
       }
       else
       {
         run_led.status[U]  = !run_led.status[U];
         run_led.status[A]  = !run_led.status[A];
+        run_led.count = 0;
       }
       run_led.times_count++;
       run_status = true;
@@ -106,18 +113,23 @@ void updata_lamp()
     solenoid[U]->Set(run_led.status[U]);
     solenoid[A]->Set(run_led.status[A]);
 }
-  // if(union_count <20)
-  // {
-  //   union_count++;
-  //   return false;
-  // }
-  // else
-  // {
-  //   union_count = 0;
-  //   return true;
-  // }
+void test()
+{
+    bool get5 = frc::SmartDashboard::GetNumber("run_led.status[U]",run_led.status[U]);
+    if(run_led.status[U] != get5)
+      run_led.status[U] = get5;
+    bool get6 = frc::SmartDashboard::GetNumber("run_led.status[A]",run_led.status[A]);
+    if(run_led.status[A] != get6)
+      run_led.status[A] = get6;
 
-///< 双灯交替闪烁
+  solenoid[U]->Set(run_led.status[U]);
+  solenoid[A]->Set(run_led.status[A]);
+}
+void test_dis()
+{
+      frc::SmartDashboard::PutNumber("run_led.status[U]",run_led.status[U]);
+frc::SmartDashboard::PutNumber("run_led.status[A]",run_led.status[A]);
+}
 };
 
 #endif
