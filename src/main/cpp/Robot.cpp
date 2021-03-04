@@ -83,6 +83,8 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
+/* 指示灯 */
+status_led.updata_lamp();
 frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
 frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
 frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
