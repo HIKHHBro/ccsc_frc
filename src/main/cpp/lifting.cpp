@@ -1,5 +1,5 @@
 #include "lifting.h"
-
+#include "status_led.h"
 Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
@@ -67,6 +67,7 @@ void Lifting::set_point(float len)
     {
         frc::SmartDashboard::PutString("status","Not reset");
         std::cout<<"Not reset"<<std::endl;
+        Status_led::set_tip_mode(Status_led::NO_Reset);
     }
 
 }

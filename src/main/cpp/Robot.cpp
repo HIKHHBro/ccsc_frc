@@ -15,9 +15,7 @@
 #include "ctre/Phoenix.h"
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
-#include <frc/livewindow//LiveWindow.h>
-#include "my_thread.h"
-
+#include "status_led.h"
 
 void Robot::RobotInit() 
 {
@@ -47,7 +45,7 @@ void Robot::RobotInit()
 #ifdef DIALS_DEBUG
   dials->display();
 #endif
-    status_led.test_dis();
+    Status_led::low_battery_tip();
 }
 
 /**
@@ -83,18 +81,9 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
-/* 指示灯 */
-if(status_led.pdp.GetVoltage()<10 &&faf == false)
-{
-  faf = true;
-  status_led.set_lamp_flicker_alternate(3);
-}
-// status_led.test();
-status_led.updata_lamp();
 frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
 frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
 frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
-frc::SmartDashboard::PutNumber("Voltage",status_led.pdp.GetVoltage());
 }
 
 /**
@@ -286,7 +275,7 @@ void Robot::TeleopPeriodic()
 
 limelight->get_camtran();
 shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
-  
+
 }
 
 /**

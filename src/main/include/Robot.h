@@ -18,7 +18,7 @@
 #include "lifting.h"
 #include "shoot.h"
 #include "limelight.h"
-#include "status_led.h"
+
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
@@ -36,7 +36,6 @@ class Robot : public frc::TimedRobot {
   // Have it null by default so that if testing teleop it
   // doesn't have undefined behavior and potentially crash.
   frc2::Command* m_autonomousCommand = nullptr;
-  Status_led status_led;
   Chassis* chassis;
   Dials* dials;
   Grab* grab;

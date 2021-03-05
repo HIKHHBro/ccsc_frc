@@ -1,5 +1,6 @@
 #include "shoot.h"
 #include <frc/DigitalInput.h>
+#include "status_led.h"
 Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
   reset_sw = new frc::DigitalInput(2);//2通道
@@ -104,7 +105,9 @@ void Shoot::set_gimbal_angle(float angle)
     gimbal_motor->Set(ControlMode::MotionMagic,tesss);
   }
   else{
+    Status_led::set_tip_mode(Status_led::NO_Reset);
     std::cout<<"no reset"<<std::endl;
+    
   }
 
 }
