@@ -67,7 +67,7 @@ void Lifting::set_point(float len)
     {
         frc::SmartDashboard::PutString("status","Not reset");
         std::cout<<"Not reset"<<std::endl;
-        Status_led::set_tip_mode(Status_led::NO_Reset);
+        // Status_led::set_tip_mode(Status_led::NO_Reset);
     }
 
 }

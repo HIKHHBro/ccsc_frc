@@ -140,3 +140,14 @@ Neo::~Neo()
 {
 
 }
+
+void timer_sleep(unsigned long seconds,unsigned long mseconds)
+{
+    struct timeval tv;
+    tv.tv_sec=seconds;
+    tv.tv_usec=mseconds;
+    int err;
+    do{
+       err=select(0,NULL,NULL,NULL,&tv);
+    }while(err<0 && errno==EINTR);
+}

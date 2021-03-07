@@ -15,7 +15,7 @@
 #include "ctre/Phoenix.h"
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
-#include "status_led.h"
+
 
 void Robot::RobotInit() 
 {
@@ -45,7 +45,8 @@ void Robot::RobotInit()
 #ifdef DIALS_DEBUG
   dials->display();
 #endif
-    Status_led::low_battery_tip();
+    // status_lamp.low_battery_tip();
+    status_lamp.test_dis();
 }
 
 /**
@@ -81,6 +82,9 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
+  status_lamp.low_battery_tip();
+  if(!shoot->get_reset_status() || !lifting->get_reset_status())
+    status_lamp.set_tip_mode(Status_led::NO_Reset);
 frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
 frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
 frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
@@ -290,6 +294,8 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
+  // status_lamp.test();
+  // status_lamp.test_dis();
 
 
   // else

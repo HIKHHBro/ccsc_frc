@@ -25,6 +25,7 @@ public:
     bool auto_shoot();
     float auto_cal_shoot_pitch_angle(float);
     TalonFX* gimbal_motor;
+    bool get_reset_status(){return is_reseted;};
 
 #ifdef SHOOT_DEBUG
     void display() override;

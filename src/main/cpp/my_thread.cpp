@@ -67,7 +67,7 @@ void MyThread::set_loop_time(int t)
 }
 void MyThread::thread_sleep()
 {
-    usleep(loop_time);
+    timer_sleep(0,loop_time);
 }
 ///< 获取
 float MyThread::get_loop_freq()

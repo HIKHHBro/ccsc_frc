@@ -310,7 +310,7 @@ void Chassis::pid_loop()
             speed_output_per[i] = limit(speed_output_per[i],-1.0,1.0);
             motor[i]->Set(ControlMode::PercentOutput,speed_output_per[i]);
         }
-        usleep(1000);
+        timer_sleep(0,1000);
     }
     
 }

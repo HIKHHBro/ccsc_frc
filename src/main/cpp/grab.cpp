@@ -77,7 +77,7 @@ void Grab::enable_compressor()
 {
     // compressor->SetClosedLoopControl(true);
     compressor->Start();
-    std::cout<<compressor->Enabled()<<std::endl;
+    // std::cout<<compressor->Enabled()<<std::endl;
 
 }
 

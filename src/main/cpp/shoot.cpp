@@ -105,8 +105,8 @@ void Shoot::set_gimbal_angle(float angle)
     gimbal_motor->Set(ControlMode::MotionMagic,tesss);
   }
   else{
-    Status_led::set_tip_mode(Status_led::NO_Reset);
-    std::cout<<"no reset"<<std::endl;
+    // Status_led::set_tip_mode(Status_led::NO_Reset);
+    // std::cout<<"no reset"<<std::endl;
     
   }
 
@@ -134,7 +134,7 @@ void Shoot::run()
         gimbal_motor->Set(ControlMode::PercentOutput,-0.05);
       }
 
-        usleep(reset_period);
+        timer_sleep(0,reset_period);
     }
     interrupt();
 }

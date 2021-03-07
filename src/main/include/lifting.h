@@ -41,6 +41,7 @@ private:
     float kf = 0.2;
     float reset_kp = 0.2;
     float reset_kf = 0.5;
+    // bool get_reset_status(){return is_reseted;};
     
 public:
     Lifting(int id);

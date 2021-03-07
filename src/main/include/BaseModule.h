@@ -142,7 +142,7 @@ typedef struct Gyro
 }Gyro;
 
 
-
+void timer_sleep(unsigned long seconds,unsigned long mseconds);
 
 /* 设置模式 */
 //比赛的时候一定要注释掉调试模式
@@ -152,8 +152,8 @@ typedef struct Gyro
 // #define DIALS_DEBUG
 #define JOY_RC
 // #define XBON_RC
-#define RC_DEBGU
+// #define RC_DEBGU
 // #define GRAB_DEBUG
-#define LIFT_DEBUG
+// #define LIFT_DEBUG
 // #define SHOOT_DEBUG
 

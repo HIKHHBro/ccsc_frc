@@ -129,7 +129,7 @@ void Dials::spin_control_thread()
       {
         std::cout<<"spin_control"<<std::endl;
       }
-      usleep(reset_period);
+      timer_sleep(0,reset_period);
     }
     interrupt();
     motor->Set(ControlMode::PercentOutput,0); 
@@ -241,7 +241,7 @@ void Dials::pos_control_thread()
       {
           motor->Set(ControlMode::MotionMagic,angle_to_enc(target_angle)); 
       }
-      usleep(reset_period);
+      timer_sleep(0,reset_period);
     }
     interrupt();
 }
