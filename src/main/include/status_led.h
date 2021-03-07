@@ -13,7 +13,7 @@ public:
     Status_led();
     ~Status_led();
     
-    enum LAMP_MODE {LOW_Battery,NO_Reset,ALL_MODE};
+    enum LAMP_MODE {LOW_Battery,NO_Reset,OPEN,CLOSE,ALL_MODE};
     ///< 设置状态指示模式
     void set_tip_mode(LAMP_MODE mode);
     ///< 低电量提示
@@ -33,6 +33,8 @@ public:
     std::queue<status_led> status_queue;
     void disabled(){run_disabled = true;};
     void enabled(){run_disabled = false;};
+    void open_lamp();
+    void close_lamp();
 private:
     
     ///< 线程函数的重写
@@ -42,6 +44,8 @@ private:
     ///< 匹配队列中是否有对应的模式
     bool ls_mode(LAMP_MODE mode);
     bool run_disabled = true;
+    bool open_lamp_flag = false;
+
 
 };
 

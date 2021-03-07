@@ -98,6 +98,7 @@ float tesss = 0;
 float fdfd = 0;
 void Shoot::set_gimbal_angle(float angle)
 {
+  frc::SmartDashboard::PutNumber("pixel",angle);
   if(is_reseted)
   {
 
@@ -134,7 +135,8 @@ void Shoot::run()
         gimbal_motor->Set(ControlMode::PercentOutput,-0.05);
       }
 
-        timer_sleep(0,reset_period);
+        // timer_sleep(0,reset_period);
+        usleep(reset_period);
     }
     interrupt();
 }

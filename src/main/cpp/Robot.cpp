@@ -35,7 +35,7 @@ void Robot::RobotInit()
     grab->display();
 #endif
 #ifdef LIFT_DEBUG
-  lifting->display();
+  // lifting->display();
 #endif  
 
 #ifdef SHOOT_DEBUG
@@ -45,8 +45,6 @@ void Robot::RobotInit()
 #ifdef DIALS_DEBUG
   dials->display();
 #endif
-    // status_lamp.low_battery_tip();
-    status_lamp.test_dis();
 }
 
 /**
@@ -68,7 +66,7 @@ void Robot::RobotPeriodic()
   grab->debug();
 #endif
 #ifdef LIFT_DEBUG
-  lifting->debug();
+  // lifting->debug();
   // lifting->display();
 #endif
 
@@ -82,12 +80,13 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
+  // limelight->updata_distance();
   status_lamp.low_battery_tip();
-  if(!shoot->get_reset_status() || !lifting->get_reset_status())
-    status_lamp.set_tip_mode(Status_led::NO_Reset);
+  // if(!shoot->get_reset_status() || !lifting->get_reset_status())
+  //   status_lamp.set_tip_mode(Status_led::NO_Reset);
 frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
 frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
-frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
+// frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
 }
 
 /**
@@ -101,6 +100,9 @@ void Robot::DisabledPeriodic() {
 
   /* 底盘清零 */
   chassis->clear();
+  shoot->interrupt();
+  lifting->interrupt();
+  dials->interrupt();
 }
 
 /**
@@ -220,10 +222,13 @@ void Robot::TeleopPeriodic()
   //TODO: 编写自瞄
   if(rc->is_used_auto_aim())
   {
-
+    status_lamp.set_tip_mode(Status_led::OPEN);
+    shoot->set_gimbal_angle(limelight->get_pitch_angle());
   }
   else
   {
+    status_lamp.set_tip_mode(Status_led::CLOSE);
+
     shoot->set_gimbal_angle(rc->getPitch());
   }
 
@@ -231,12 +236,12 @@ void Robot::TeleopPeriodic()
   if(rc->is_reset())
   {
     shoot->start_join();
-    lifting->start_join();
+    // lifting->start_join();
     rc->clear_pitch();
   }
   else
   {
-    lifting->interrupt();
+    // lifting->interrupt();
     shoot->interrupt();
   }
 /* 转盘 */
@@ -263,22 +268,21 @@ void Robot::TeleopPeriodic()
     rc->changed_spin = true;
     dials->disable();
   }
-  if(rc->is_lift())
-  {
-    lifting->lift();
-    rc->lift_flag = true;
-  }
-  else if(rc->is_reach_out() && !rc->lift_flag)
-  {
-    lifting->stretch_out();
-  }
-  else if(!rc->lift_flag)
-  {
-    lifting->shrink();
-  }
-
+  // if(rc->is_lift())
+  // {
+  //   lifting->lift();
+  //   rc->lift_flag = true;
+  // }
+  // else if(rc->is_reach_out() && !rc->lift_flag)
+  // {
+  //   lifting->stretch_out();
+  // }
+  // else if(!rc->lift_flag)
+  // {
+  //   lifting->shrink();
+  // }
+// limelight->test_ultrasonic();
 limelight->get_camtran();
-shoot->auto_cal_shoot_pitch_angle(limelight->get_pitch_angle());
 
 }
 

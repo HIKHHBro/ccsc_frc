@@ -15,6 +15,18 @@ Status_led::~Status_led()
 bool fafd = false;
 void Status_led::set_tip_mode(LAMP_MODE mode)
 {
+    if(mode == OPEN)
+    {
+        open_lamp_flag = true;
+        solenoid[0]->Set(true);
+        solenoid[1]->Set(true);
+    }
+    else if(mode == CLOSE &&open_lamp_flag ==true)
+    {
+        open_lamp_flag = false;
+        solenoid[0]->Set(false);
+        solenoid[1]->Set(false); 
+    }
     if(!ls_mode(mode))
     {
         status_led led;
@@ -49,11 +61,11 @@ void Status_led::set_tip_mode(LAMP_MODE mode)
 ///< 低电量提示
 void Status_led::low_battery_tip()
 {
-    if(pdp.GetVoltage() <10)
+    if(pdp.GetVoltage() <11)
     {
         low_battery_flag ++;
     }
-    if(low_battery_flag > 4)
+    if(low_battery_flag > 2)
         set_tip_mode(LOW_Battery);
 }
 
@@ -91,8 +103,10 @@ void Status_led::run()
 void Status_led:: set_led_status(status_led &status)
 {
     frc::SmartDashboard::PutNumber("status.times",status.times);
-    if(status.times < 0)
+    if(status.times < 1)
+    {
         status.times = 0;
+    }
     else
     {
         if(status.times > 20)
@@ -107,19 +121,17 @@ void Status_led:: set_led_status(status_led &status)
             solenoid[0]->Set(status.led_status[0]);
             solenoid[1]->Set(status.led_status[1]);
             std::cout<<status.times<<std::endl;
-            timer_sleep(0,status.delay);
+            // timer_sleep(0,status.delay);
+            usleep(status.delay);
             // timer_sleep(0,status.delay);
             frc::SmartDashboard::PutNumber("status.times",status.times);
         }
         std::cout<<status.times<<std::endl;
         solenoid[0]->Set(false);
         solenoid[1]->Set(false);
-        timer_sleep(1,0);
-        // sleep(1);
+        // timer_sleep(1,0);
+        sleep(1);
     }
-
-     
-
 }
 ///< 匹配队列中是否有对应的模式
 bool Status_led::ls_mode(LAMP_MODE mode)
@@ -137,3 +149,8 @@ bool Status_led::ls_mode(LAMP_MODE mode)
     }
     return false;
 }
+
+///< 开灯
+void open_lamp();
+////< 关灯
+void close_lamp();

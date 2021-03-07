@@ -154,7 +154,7 @@ bool Chassis::to_position(int point)
     if(point < map_len)
     {
         try
-        {
+        {   
             y_pos_error = abs(get_position_error(map[point][y],milemeter[y]));
             x_pos_error = abs(get_position_error(map[point][x],milemeter[x]));
             x_v_error = abs(motor[0]->GetSelectedSensorVelocity());
@@ -310,7 +310,8 @@ void Chassis::pid_loop()
             speed_output_per[i] = limit(speed_output_per[i],-1.0,1.0);
             motor[i]->Set(ControlMode::PercentOutput,speed_output_per[i]);
         }
-        timer_sleep(0,1000);
+        // timer_sleep(0,1000);
+        usleep(1000);
     }
     
 }

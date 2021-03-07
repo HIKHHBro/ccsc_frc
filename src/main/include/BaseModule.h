@@ -152,8 +152,8 @@ void timer_sleep(unsigned long seconds,unsigned long mseconds);
 // #define DIALS_DEBUG
 #define JOY_RC
 // #define XBON_RC
-// #define RC_DEBGU
+#define RC_DEBGU
 // #define GRAB_DEBUG
 // #define LIFT_DEBUG
-// #define SHOOT_DEBUG
+#define SHOOT_DEBUG
 

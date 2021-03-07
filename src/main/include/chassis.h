@@ -107,6 +107,8 @@ class Chassis :public Falcon,public MyThread
     float is_arrived_vel_error[2] = {10,10}; 
     int auto_point = 0;
     bool arrived_point = false;
+    bool is_used_vision = false;
+    bool is_used_ultrasonic = false;
 
 public:
     const static int map_len = 4;
