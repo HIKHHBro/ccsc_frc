@@ -1,6 +1,7 @@
 #include "shoot.h"
 #include <frc/DigitalInput.h>
 #include "status_led.h"
+
 Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
   reset_sw = new frc::DigitalInput(2);//2通道
@@ -46,7 +47,11 @@ Shoot::Shoot(int pwm_c,int can_id)//0,12
     gimbal_motor->ConfigMotionSCurveStrength(smoothing, 0);
     gimbal_motor->SetNeutralMode(Brake);
     gimbal_motor->ConfigNeutralDeadband(0,10);
+    ultrasonic = new frc::SerialPort(9600);
+    ultrasonic->DisableTermination();
 
+
+  
 }
 Shoot::~Shoot()
 {

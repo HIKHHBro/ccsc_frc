@@ -17,7 +17,7 @@
 #include "rc.h"
 #include "lifting.h"
 #include "shoot.h"
-#include "limelight.h"
+
 #include "status_led.h"
 class Robot : public frc::TimedRobot {
  public:
@@ -44,7 +44,8 @@ class Robot : public frc::TimedRobot {
   Lifting * lifting;
   RobotContainer m_container;
   Shoot* shoot;
-  Limelight* limelight;
+  
+  
   
 
 };

@@ -13,7 +13,7 @@ public:
     Status_led();
     ~Status_led();
     
-    enum LAMP_MODE {LOW_Battery,NO_Reset,OPEN,CLOSE,ALL_MODE};
+    enum LAMP_MODE {OPEN,CLOSE,LOW_Battery,NO_Reset,ALL_MODE};
     ///< 设置状态指示模式
     void set_tip_mode(LAMP_MODE mode);
     ///< 低电量提示
@@ -29,12 +29,12 @@ public:
     };//正在执行状态的参数
     frc::PowerDistributionPanel pdp{0};//电池
     frc::Solenoid *solenoid[2];
+    frc::Solenoid *ddsolenoid[2];
     int low_battery_flag = 0;
     std::queue<status_led> status_queue;
     void disabled(){run_disabled = true;};
     void enabled(){run_disabled = false;};
-    void open_lamp();
-    void close_lamp();
+    void temp();
 private:
     
     ///< 线程函数的重写

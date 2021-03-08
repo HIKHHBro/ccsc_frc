@@ -12,6 +12,7 @@ Chassis::Chassis(int can_id):MyThread(20000)
     try
     {
         ahrs = new AHRS(SPI::Port::kMXP);//陀螺仪
+        limelight = new Limelight();
         motor_init(can_id);//电机初始化
         set_reference(CAR);//坐标系设置
         if(check_gyro())
@@ -151,25 +152,47 @@ bool Chassis::milemter()
 ///<位置控制
 bool Chassis::to_position(int point)
 {
-    float milemeter_temp[3];
-    milemeter_temp[0] = milemeter[0];
-    milemeter_temp[1] = milemeter[1];
-    milemeter_temp[2] = milemeter[2];
+
+    // float milemeter[3];
+    // milemeter[0] = milemeter[0];
+    // milemeter[1] = milemeter[1];
+    // milemeter[2] = milemeter[2];
+    if((point ==1) && abs(milemeter[0]) <2000)
+    {
+        vision_x_distance = limelight->get_x();
+        if(abs(vision_x_distance) <1000)
+        {
+            is_used_vision = true;
+        }
+        else is_used_vision = false;
+    }
+    else is_used_vision = false;
+    frc::SmartDashboard::PutNumber("is_used_vision",is_used_vision);
+    frc::SmartDashboard::PutNumber("vision_x_distance",vision_x_distance);
+     frc::SmartDashboard::PutNumber("map3",map[2][0]);
+     frc::SmartDashboard::PutNumber("map4",map[3][0]);
+     frc::SmartDashboard::PutNumber("milemeter[0]",milemeter[0]);
+
     if(point < map_len)
     {
         try
         {   
-            if((point ==1 || point == (map_len-1)) && is_used_vision)
+            
+            y_pos_error = abs(get_position_error(map[point][y],milemeter[y]));
+            x_pos_error = abs(get_position_error(map[point][x],milemeter[x]));
+            if(is_used_vision && (abs(x_pos_error) <500))
             {
-                milemeter_temp[0] = vision_x_distance;
+               x_pos_error  = vision_x_distance;
             }
-            y_pos_error = abs(get_position_error(map[point][y],milemeter_temp[y]));
-            x_pos_error = abs(get_position_error(map[point][x],milemeter_temp[x]));
+            frc::SmartDashboard::PutNumber("x_pos_error",x_pos_error);
+            frc::SmartDashboard::PutNumber("y_pos_error",y_pos_error);
+            frc::SmartDashboard::PutNumber("is_arrived_pos_error[x][point])",is_arrived_pos_error[x][point]);
             x_v_error = abs(motor[0]->GetSelectedSensorVelocity());
             y_v_error = abs(motor[2]->GetSelectedSensorVelocity());
-            if((y_pos_error < is_arrived_pos_error[y]) && (x_pos_error < is_arrived_pos_error[x]))
+            frc::SmartDashboard::PutNumber("y_v_error",y_v_error);
+            if((abs(y_pos_error) < is_arrived_pos_error[y][point]) && (abs(x_pos_error) < is_arrived_pos_error[x][point]))
             {
-                if((x_v_error < is_arrived_vel_error[x]) && (y_v_error < is_arrived_vel_error[y]))
+                if((abs(x_v_error) < is_arrived_vel_error[x][point]) && (abs(y_v_error) < is_arrived_vel_error[y][point]))
                 {
                     chassis_dis();
                     rc_run(0,0,0);
@@ -177,25 +200,42 @@ bool Chassis::to_position(int point)
                 }
                 else
                 {
-                    auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter_temp[0],map[point][0]);
-                    auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter_temp[1],map[point][1]);
-                    auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter_temp[2],0);
+                    if(is_used_vision)
+                    {
+                        auto_output[0] = auto_run_map_pid[0]->Calculate(-vision_x_distance,0);
+                    }
+                    else
+                    {
+                    auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[point][0]);
+                    }
+                    
+                    auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[point][1]);
+                    auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
 
                     auto_output[0] = limit(auto_output[x],-map[point][2],map[point][2]);
                     auto_output[1] = limit(auto_output[y],-map[point][2],map[point][2]);
                 
                     auto_output[0] = rampf[0]->cal_speed(auto_output[0]);
-                    auto_output[1] = rampf[1]->cal_speed(auto_output[1]);
-                    auto_output[2] = rampf[2]->cal_speed(auto_output[2]);
+                    // auto_output[1] = rampf[1]->cal_speed(auto_output[1]);
+                    // auto_output[2] = rampf[2]->cal_speed(auto_output[2]);
+                    
                     rc_run(auto_output[x],auto_output[y],auto_output[z]);
                 }
 
             }
             else
             {
-                auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter_temp[0],map[point][0]);
-                auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter_temp[1],map[point][1]);
-                auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter_temp[2],0);
+                if(is_used_vision)
+                {
+                    auto_output[0] = auto_run_map_pid[0]->Calculate(-vision_x_distance,0);
+                }
+                else
+                {
+                auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[point][0]);
+                }
+                // auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[point][0]);
+                auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[point][1]);
+                auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
                 auto_output[0] = limit(auto_output[x],-map[point][2],map[point][2]);
                 auto_output[1] = limit(auto_output[y],-map[point][2],map[point][2]);
                 auto_output[0] = rampf[0]->cal_speed(auto_output[0]);
@@ -203,6 +243,7 @@ bool Chassis::to_position(int point)
                 auto_output[2] = rampf[2]->cal_speed(auto_output[2]);
                 rc_run(auto_output[x],auto_output[y],auto_output[z]);
             }
+            frc::SmartDashboard::PutNumber("auto_output[0]",auto_output[0]);
         }
         catch(const std::exception& e)
         {
@@ -270,6 +311,7 @@ void Chassis::motor_init(int id)
         motor[i]->ConfigNeutralDeadband(0,10);
 
         motor_pid[i] = new PIDControl(0.35,10,0,0.001,-max_enc_100ms,max_enc_100ms,MANUAL,DIRECT,20000);
+        // motor_pid[i] = new PIDControl(1,23,0,0.001,-max_enc_100ms,max_enc_100ms,MANUAL,DIRECT,20000);
     }
 }
 ///< 获取自动模式是否完成
@@ -392,11 +434,7 @@ bool Chassis::is_arrived_point()
 //TODO: 注意测试距离的阈值
 void  Chassis::updata_vision_x_distance(float dis)
 {
-    if(dis <1000)
-    {
-         vision_x_distance = dis;
-         is_used_vision = false;
-    }
+
        
 }
 #ifdef CHASSIS_DEBUG

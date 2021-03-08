@@ -4,7 +4,7 @@
 
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
-#include <frc/SerialPort.h>
+
 #include <frc/smartdashboard/smartdashboard.h>
 using namespace nt;
 using namespace frc;
@@ -31,9 +31,9 @@ private:
     std::shared_ptr<NetworkTable> limelight;
     float pitch_max_angle = 23;
     float camtran[6] = {0};
-    SerialPort *ultrasonic;
-    char buffer[10] = {0};
-    int distance = 0;
+    
+    
+    
 public:
     /**
      * Construct the class in the robot's init phase
@@ -42,8 +42,8 @@ public:
     Limelight(std::string tableName = "limelight",float angle = 23) {
         limelight = NetworkTableInstance::GetDefault().GetTable(tableName);
         pitch_max_angle = angle;
-        ultrasonic = new SerialPort(9600);
-        ultrasonic->DisableTermination();
+        
+        
         // ultrasonic->SetFlowControl(SerialPort::kFlowControl_None);
     
         // ultrasonic->SetReadBufferSize(4);
@@ -108,25 +108,14 @@ public:
         // camtran = limelight->GetNumberArray("camtran", camtran);
         return camtran;
     }
-    int tmp_angle = 0;
-    ///< 获取发射补偿角度
-    float get_pitch_angle(){
-        
-        updata_distance();
-        if(distance >1000 && distance < 5000)
-        {
-            tmp_angle = 35 -0.0075 * distance;
-            tmp_angle = (tmp_angle) > (23) ? (23) : (tmp_angle);
-            tmp_angle = (tmp_angle) < (0) ? (0) : (tmp_angle);
-            
-        }
-        return tmp_angle;
-    }
+
     ///TODO: 先确定范围
     float get_x()
     {
         float x = -getTargetX();
-        return x * 50;
+        frc::SmartDashboard::PutNumber("vision x",(x * 56.17));
+        return x * 56.17;
+      
     }
       
 
@@ -155,33 +144,7 @@ public:
         limelight->PutNumber("pipeline", ID);
     }
 
-    ///< 计算校验和
-    int cal_check_sum()
-    {
-        return ((buffer[0] + buffer[1] + buffer[2])&0x00FF);
-    }
-    ///< 更新超声波测距的距离
-    void updata_distance()
-    {
-        memset(buffer,'\0',sizeof(buffer));
-        ultrasonic->Read(buffer,4);
-        if(buffer[0] == 0xFF && buffer[3] == cal_check_sum())
-        {
-            distance = (buffer[1]<<8) | (buffer[2]);
-        }
-        frc::SmartDashboard::PutNumber("ultr distance",distance);
-    }
-    ///< 测试超声波
-    void test_ultrasonic()
-    {
 
-        frc::SmartDashboard::PutNumber("ultr buffer[0]",buffer[0]);
-        frc::SmartDashboard::PutNumber("ultr buffer[1]",buffer[1]);
-        frc::SmartDashboard::PutNumber("ultr buffer[2]",buffer[2]);
-        frc::SmartDashboard::PutNumber("ultr buffer[3]",buffer[3]);
-        frc::SmartDashboard::PutNumber("ultr distance",distance);
-        memset(buffer,'\0',sizeof(buffer)); 
-    }
 
 
 

@@ -26,7 +26,7 @@ void Robot::RobotInit()
   rc = new RC(0,23);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
-  limelight = new Limelight();
+  
 
 #ifdef RC_DEBGU
   rc->display();
@@ -81,11 +81,11 @@ void Robot::RobotPeriodic()
   dials->set_para();
 #endif
   // limelight->updata_distance();
-  status_lamp.low_battery_tip();
+  // status_lamp.low_battery_tip();
   // if(!shoot->get_reset_status() || !lifting->get_reset_status())
   //   status_lamp.set_tip_mode(Status_led::NO_Reset);
-frc::SmartDashboard::PutNumber("tx",limelight->getTargetX());
-frc::SmartDashboard::PutNumber("ty",limelight->getTargetY());
+frc::SmartDashboard::PutNumber("ty",chassis->limelight->getTargetY());
+chassis->updata_vision_x_distance(chassis->limelight->get_x());
 // frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
 }
 
@@ -103,7 +103,6 @@ void Robot::DisabledPeriodic() {
   shoot->interrupt();
   lifting->interrupt();
   dials->disable();
-  status_lamp.close_lamp();
 }
 
 /**
@@ -116,20 +115,26 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Schedule();
   }
-  shoot->start_join();
+  // shoot->start_join();
   shoot->set_gimbal_angle(10);
   chassis->set_auto_point(1);
   chassis->start_auto_run();
   shoot->start_shoot();
   shoot->close_horizontal_transfer();
   grab->put_down();
-  status_lamp.open_lamp();
+  // status_lamp.set_tip_mode(Status_led::OPEN);
+  status_lamp.temp();
+  for(int i = 0;i<4;i++)
+  {
+    chassis->motor_pid[i]->PIDTuningsSet(0.3,10,0);
+    frc::SmartDashboard::PutString("auti","init auto");
+  }
+    
   
 }
 //TODO: 注意是否能够没开启就出现跑的情况
 //TODO: 测试自动阶段
 void Robot::AutonomousPeriodic() { 
-  chassis->updata_vision_x_distance(limelight->get_x());
   if(chassis->is_arrived_point())
   {
     switch (chassis->get_auto_point())
@@ -138,6 +143,7 @@ void Robot::AutonomousPeriodic() {
       if(shoot->auto_shoot())
       {
         chassis->set_auto_point(2);
+        chassis->set_map_point();
       }
       break;
     case 2:
@@ -184,6 +190,11 @@ void Robot::TeleopInit() {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
   }
+  for(int i = 0;i<4;i++)
+  {
+    chassis->motor_pid[i]->PIDTuningsSet(0.35,10,0);
+     frc::SmartDashboard::PutString("telo","init telo");
+  }
 }
 
 /**
@@ -193,6 +204,7 @@ int test_color = 0;
 bool changed_lid = false;
 void Robot::TeleopPeriodic() 
 {
+  status_lamp.temp();
   grab->enable_compressor();
 /* 抓取*/
   if(rc->is_grab())
@@ -223,9 +235,13 @@ void Robot::TeleopPeriodic()
 /* 底盘 */
 //TODO: 注意单位
 //TODO: 测试自瞄
-float auto_angle = limelight->get_x();
-if(rc->is_used_auto_aim() && (abs(auto_angle) <1))
+float auto_angle = chassis->limelight->getTargetX() / 30.0;
+float auto_anglpitch = shoot->get_pitch_angle();
+ frc::SmartDashboard::PutNumber("auto_angle",auto_angle);
+ frc::SmartDashboard::PutNumber("auto_anglpitch",auto_anglpitch);
+if(rc->is_used_auto_aim() && (abs(auto_angle) <0.5))
 {
+  LIMIT(auto_angle,-0.2,0.25);
   chassis->rc_run(rc->getX(),rc->getY(),auto_angle);
 }
 else
@@ -236,7 +252,7 @@ else
   if(rc->is_used_auto_aim())
   {
     status_lamp.set_tip_mode(Status_led::OPEN);
-    shoot->set_gimbal_angle(limelight->get_pitch_angle());
+    shoot->set_gimbal_angle(auto_anglpitch);
   }
   else
   {
@@ -295,7 +311,8 @@ else
   //   lifting->shrink();
   // }
 // limelight->test_ultrasonic();
-limelight->get_camtran();
+// limelight->get_camtran();
+// status_lamp.set_tip_mode(Status_led::OPEN);
 
 }
 
@@ -311,6 +328,7 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
+  status_lamp.temp();
   // status_lamp.test();
   // status_lamp.test_dis();
 

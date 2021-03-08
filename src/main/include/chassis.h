@@ -16,9 +16,10 @@
 #include <atomic>
 #include <thread>
 #include <unistd.h>
+#include "limelight.h"
 #ifdef CHASSIS_DEBUG
-#include <frc/smartdashboard/smartdashboard.h>
 #endif
+#include <frc/smartdashboard/smartdashboard.h>
 using namespace frc;
 class Chassis :public Falcon,public MyThread
 {
@@ -70,6 +71,7 @@ class Chassis :public Falcon,public MyThread
     bool is_arrived_point();
     int get_auto_point(); 
     void updata_vision_x_distance(float dis);
+    Limelight* limelight;
    //调试变量，方便查看
    float y_pos_error= 0;
    float x_pos_error= 0;
@@ -77,7 +79,7 @@ class Chassis :public Falcon,public MyThread
    float y_v_error= 0;
    float auto_output[3];
    float speed_output_per[M_ALL];
-   float cahssis_acc[all_dir] = {10,10,0.04};
+   float cahssis_acc[all_dir] = {15,25,0.04};
    float test_angle = 0;
 #ifdef CHASSIS_DEBUG
     void debug() override;
@@ -94,36 +96,43 @@ class Chassis :public Falcon,public MyThread
     bool auto_run_is_finished =false;
     float target_vel[all_dir];
     void run() override;
-    PIDControl *motor_pid[4];
+    
     void pid_loop();
     std::thread pid_thread;
     std::atomic<bool> is_interript_pid = false;
     float speed_loop_kp = 0.3;
     float speed_loop_ki = 8;
 
-    float pos_loop_kp[all_dir] = {0.45,0.45,0.025};
+    float pos_loop_kp[all_dir] = {0.55,0.55,0.021};
     float pos_loop_ki[all_dir] = {0,0,0};
     float pos_loop_kd[all_dir] = {0,0,0.0006};
-    float is_arrived_pos_error[2] = {20,20};
-    float is_arrived_vel_error[2] = {10,10}; 
+    float is_arrived_pos_error[2][10] = {{20,20,200,20},{20,50,500,100}};
+    float is_arrived_vel_error[2][10] = {{30,1000,8000,1000},{30,1000,8000,1000}}; 
     int auto_point = 0;
     bool arrived_point = false;
-    bool is_used_vision = false;
+   
     bool is_used_ultrasonic = false;
     float vision_x_distance = 0;
 
 public:
+    PIDControl *motor_pid[4];
+     bool is_used_vision = false;
     const static int map_len = 4;
-    
+    float base_piont = -500;
     float map[map_len][4] = 
     {
       /* {x(mm),y(mm),speed(mm/s),acc(mm/s^2)}*/
-        {0,0,1000,10},
+        {0,0,1100,10},
         {-500,0,1000,10},
         {100,3500,1000,10},
         {-500,0,1000,10}
 
     };
+    void set_map_point()
+    {
+       map[2][0] =  milemeter[0] + 600;
+       map[3][0] =  milemeter[0];
+    }
 
 };
 
