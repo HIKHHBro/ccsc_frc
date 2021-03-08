@@ -69,6 +69,7 @@ class Chassis :public Falcon,public MyThread
     void set_auto_point(int);
     bool is_arrived_point();
     int get_auto_point(); 
+    void updata_vision_x_distance(float dis);
    //调试变量，方便查看
    float y_pos_error= 0;
    float x_pos_error= 0;
@@ -109,6 +110,7 @@ class Chassis :public Falcon,public MyThread
     bool arrived_point = false;
     bool is_used_vision = false;
     bool is_used_ultrasonic = false;
+    float vision_x_distance = 0;
 
 public:
     const static int map_len = 4;

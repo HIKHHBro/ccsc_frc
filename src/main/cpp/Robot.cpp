@@ -103,6 +103,7 @@ void Robot::DisabledPeriodic() {
   shoot->interrupt();
   lifting->interrupt();
   dials->interrupt();
+  status_lamp.close_lamp();
 }
 
 /**
@@ -122,10 +123,13 @@ void Robot::AutonomousInit() {
   shoot->start_shoot();
   shoot->close_horizontal_transfer();
   grab->put_down();
+  status_lamp.open_lamp();
   
 }
-
+//TODO: 注意是否能够没开启就出现跑的情况
+//TODO: 测试自动阶段
 void Robot::AutonomousPeriodic() { 
+  chassis->updata_vision_x_distance(limelight->get_x());
   if(chassis->is_arrived_point())
   {
     switch (chassis->get_auto_point())
@@ -217,9 +221,18 @@ void Robot::TeleopPeriodic()
     shoot->close_vertical_transfer();
   }
 /* 底盘 */
+//TODO: 注意单位
+//TODO: 测试自瞄
+float auto_angle = limelight->get_x();
+if(rc->is_used_auto_aim() && (abs(auto_angle) <1))
+{
+  chassis->rc_run(rc->getX(),rc->getY(),auto_angle);
+}
+else
+{
   chassis->rc_run(rc->getX(),rc->getY(),rc->getZ());
+}
 /* 云台pitch */
-  //TODO: 编写自瞄
   if(rc->is_used_auto_aim())
   {
     status_lamp.set_tip_mode(Status_led::OPEN);

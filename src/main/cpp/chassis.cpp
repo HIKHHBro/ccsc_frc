@@ -151,12 +151,20 @@ bool Chassis::milemter()
 ///<位置控制
 bool Chassis::to_position(int point)
 {
+    float milemeter_temp[3];
+    milemeter_temp[0] = milemeter[0];
+    milemeter_temp[1] = milemeter[1];
+    milemeter_temp[2] = milemeter[2];
     if(point < map_len)
     {
         try
         {   
-            y_pos_error = abs(get_position_error(map[point][y],milemeter[y]));
-            x_pos_error = abs(get_position_error(map[point][x],milemeter[x]));
+            if((point ==1 || point == (map_len-1)) && is_used_vision)
+            {
+                milemeter_temp[0] = vision_x_distance;
+            }
+            y_pos_error = abs(get_position_error(map[point][y],milemeter_temp[y]));
+            x_pos_error = abs(get_position_error(map[point][x],milemeter_temp[x]));
             x_v_error = abs(motor[0]->GetSelectedSensorVelocity());
             y_v_error = abs(motor[2]->GetSelectedSensorVelocity());
             if((y_pos_error < is_arrived_pos_error[y]) && (x_pos_error < is_arrived_pos_error[x]))
@@ -169,9 +177,9 @@ bool Chassis::to_position(int point)
                 }
                 else
                 {
-                    auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[point][0]);
-                    auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[point][1]);
-                    auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
+                    auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter_temp[0],map[point][0]);
+                    auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter_temp[1],map[point][1]);
+                    auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter_temp[2],0);
 
                     auto_output[0] = limit(auto_output[x],-map[point][2],map[point][2]);
                     auto_output[1] = limit(auto_output[y],-map[point][2],map[point][2]);
@@ -185,9 +193,9 @@ bool Chassis::to_position(int point)
             }
             else
             {
-                auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter[0],map[point][0]);
-                auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter[1],map[point][1]);
-                auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],0);
+                auto_output[0] = auto_run_map_pid[0]->Calculate(milemeter_temp[0],map[point][0]);
+                auto_output[1] = auto_run_map_pid[1]->Calculate(milemeter_temp[1],map[point][1]);
+                auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter_temp[2],0);
                 auto_output[0] = limit(auto_output[x],-map[point][2],map[point][2]);
                 auto_output[1] = limit(auto_output[y],-map[point][2],map[point][2]);
                 auto_output[0] = rampf[0]->cal_speed(auto_output[0]);
@@ -348,13 +356,13 @@ float Chassis::get_gyro()
 {
   return (ahrs->GetYaw() - init_angle);
 }
-///< 角度控制
-void Chassis::angle_control(float angle)
-{
-    auto_output[2] = auto_run_map_pid[2]->Calculate(milemeter[2],angle); 
-    auto_output[2] =limit(auto_output[2],-2.0,2.0);
-    rc_run(0,0,auto_output[2]);
-}
+// ///< 角度控制
+// //TODO: 注意角度单位，和角度限制
+// void Chassis::angle_control(float angle)
+// {
+//     auto_output[2] =limit(angle,-2.0,2.0);
+//     rc_run(0,0,auto_output[2]);
+// }
 ///< 底盘进入使能模式后清除所有
 void Chassis::clear()
 {
@@ -379,6 +387,17 @@ int Chassis::get_auto_point()
 bool Chassis::is_arrived_point()
 {
     return arrived_point;
+}
+///< 更新视觉计算处的x距离
+//TODO: 注意测试距离的阈值
+void  Chassis::updata_vision_x_distance(float dis)
+{
+    if(dis <1000)
+    {
+         vision_x_distance = dis;
+         is_used_vision = false;
+    }
+       
 }
 #ifdef CHASSIS_DEBUG
 void Chassis::display()
