@@ -210,10 +210,11 @@ bool RC::is_shoot()
   return joystick->GetRawButton(1);
 #endif
 }
+//TODO: 测试自动状态切换
 bool RC::is_used_auto_aim()
 {
 #ifdef XBON_RC
-  if(xbox->GetYButtonPressed())
+  if(xbox->GetYButtonPressed())auto
   {
     used_auto_aim_flag = true;
   }
@@ -226,16 +227,17 @@ bool RC::is_used_auto_aim()
 #endif
 
 #ifdef JOY_RC
-  if(joystick->GetRawButtonPressed(11))
-  {
-    used_auto_aim_flag = true;
-  }
-  if(joystick->GetRawButtonReleased(11) && used_auto_aim_flag)
-  {
-    used_auto_aim_flag = false;
-    used_auto_aim_flag_debug = !used_auto_aim_flag_debug;
-  }
-  return used_auto_aim_flag_debug;
+  // if(joystick->GetRawButtonPressed(11))
+  // {
+  //   used_auto_aim_flag = true;
+  // }
+  // if(joystick->GetRawButtonReleased(11) && used_auto_aim_flag)
+  // {
+  //   used_auto_aim_flag = false;
+  //   used_auto_aim_flag_debug = !used_auto_aim_flag_debug;
+  // }
+  // return used_auto_aim_flag_debug;
+  return joystick->GetRawButton(11);
 #endif
 }
 

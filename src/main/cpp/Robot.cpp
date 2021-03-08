@@ -102,7 +102,7 @@ void Robot::DisabledPeriodic() {
   chassis->clear();
   shoot->interrupt();
   lifting->interrupt();
-  dials->interrupt();
+  dials->disable();
   status_lamp.close_lamp();
 }
 
