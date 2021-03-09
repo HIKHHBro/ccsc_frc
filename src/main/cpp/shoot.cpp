@@ -199,13 +199,13 @@ bool Shoot::auto_shoot()
 }
 ///< 云台校准
 bool set_ka_flag = false;
-void Shoot::set_map_test_display()
+void Shoot::set_test_display()
 {
         std::string str = std::to_string(k_a) + "*x" + std::to_string(k_b);
         frc::SmartDashboard::PutString("function",str);
         frc::SmartDashboard::PutBoolean("设置参数",set_ka_flag);
 }
-void Shoot::set_map_test()
+void Shoot::set_test()
 {
   point[0][0] = get_number("shoot y0",point[0][0],5.0,20.0);
   point[0][1] = get_number("shoot x0",point[0][1],0.0,5000.0);

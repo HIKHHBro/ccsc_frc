@@ -78,7 +78,7 @@ public:
         }
         return tmp_angle;
     }
-    void Shoot::set_test_display();
+    void set_test_display();
     void set_test();
       float point[2][2] = {0};
 #ifdef SHOOT_DEBUG
