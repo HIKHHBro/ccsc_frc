@@ -97,8 +97,8 @@ public:
     void set_reduction_ratiop(int,int,int,int);
     double per_to_rpm(float);
     float rpm_to_per(float);
-    float angle_to_enc(float input){return (input * (float(encoder_l) /360.0) * reduction_ratiop); }//TODO: 待测试
-    float enc_to_angle(int enc){return ((float)enc * (360.0 /float(encoder_l)) / reduction_ratiop);}//TODO: 待测试
+    float angle_to_enc(float input){return (input * (float(encoder_l) /360.0) * reduction_ratiop); }
+    float enc_to_angle(int enc){return ((float)enc * (360.0 /float(encoder_l)) / reduction_ratiop);}
 };
 
 class Falcon : public Motor

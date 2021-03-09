@@ -8,7 +8,7 @@
 #ifdef GRAB_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
 #endif
-//TODO: 转速单位转换 加速度单位转换
+
 class Grab :public Neo
 {
 private:
@@ -32,7 +32,6 @@ public:
     void set_acc(float a);
     bool loosen_gas();
     void enable_compressor();
-    void set_qi();
 #ifdef GRAB_DEBUG
     void display() override;
     void debug() override;

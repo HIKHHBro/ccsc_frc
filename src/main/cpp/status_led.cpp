@@ -5,8 +5,8 @@ Status_led::Status_led(): MyThread(50000)
 {
     solenoid[0] = new frc::Solenoid(20,4);
     solenoid[1] = new frc::Solenoid(20,5);
-    ddsolenoid[0] = new frc::Solenoid(20,6);
-    ddsolenoid[1] = new frc::Solenoid(20,7);
+    sleep(1);
+    init_end = true;
     start_detach();
 }
 Status_led::~Status_led()
@@ -17,7 +17,9 @@ Status_led::~Status_led()
 bool fafd = false;
 void Status_led::set_tip_mode(LAMP_MODE mode)
 {
-    if(mode == OPEN)
+    if(init_end)
+    {
+            if(mode == OPEN)
     {
         open_lamp_flag = true;
         solenoid[0]->Set(true);
@@ -59,28 +61,33 @@ void Status_led::set_tip_mode(LAMP_MODE mode)
         
     }
     frc::SmartDashboard::PutNumber("status",fafd);
+    }
 }
 ///< 低电量提示
 void Status_led::low_battery_tip()
 {
-    if(pdp.GetVoltage() <11)
+    if(pdp.GetVoltage() <10.4)
     {
         low_battery_flag ++;
     }
     if(low_battery_flag > 2)
+    {
         set_tip_mode(LOW_Battery);
+        low_battery_flag = 0;
+    }
+        
 }
 
-Status_led::LAMP_MODE test_mode = Status_led::LOW_Battery;
-void Status_led::test()
-{
-    LAMP_MODE get5 = (LAMP_MODE)frc::SmartDashboard::GetNumber("NO_Battery",test_mode);
-        if(test_mode != get5)
-        test_mode = get5;
-    frc::SmartDashboard::PutNumber("q len",status_queue.size());
-    thread_debug();
+// Status_led::LAMP_MODE test_mode = Status_led::LOW_Battery;
+// void Status_led::test()
+// {
+//     LAMP_MODE get5 = (LAMP_MODE)frc::SmartDashboard::GetNumber("NO_Battery",test_mode);
+//         if(test_mode != get5)
+//         test_mode = get5;
+//     frc::SmartDashboard::PutNumber("q len",status_queue.size());
+//     thread_debug();
 
-}
+// }
 // void Status_led::test_dis()
 // {
 //     frc::SmartDashboard::PutNumber("NO_Battery",test_mode);
@@ -130,8 +137,6 @@ void Status_led:: set_led_status(status_led &status)
             std::cout<<status.times<<std::endl;
             // timer_sleep(0,status.delay);
             usleep(status.delay);
-            // timer_sleep(0,status.delay);
-            // frc::SmartDashboard::PutNumber("status.times",status.times);
         }
         std::cout<<status.times<<std::endl;
         solenoid[0]->Set(false);
@@ -156,8 +161,8 @@ bool Status_led::ls_mode(LAMP_MODE mode)
     }
     return false;
 }
-void Status_led::temp()
-{
-ddsolenoid[0]->Set(true);
-ddsolenoid[1]->Set(true);
-}
+// void Status_led::temp()
+// {
+// ddsolenoid[0]->Set(true);
+// ddsolenoid[1]->Set(true);
+// }

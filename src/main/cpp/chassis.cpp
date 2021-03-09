@@ -7,6 +7,7 @@
 #include "chassis.h"
 #include "Math.h"
 #include "frc/shuffleboard/Shuffleboard.h"
+#include <vector> 
 Chassis::Chassis(int can_id):MyThread(20000)
 {
     try
@@ -430,13 +431,40 @@ bool Chassis::is_arrived_point()
 {
     return arrived_point;
 }
-///< 更新视觉计算处的x距离
-//TODO: 注意测试距离的阈值
-void  Chassis::updata_vision_x_distance(float dis)
+///< 地图目标点设置
+void Chassis::set_map_test_display()
 {
+    frc::SmartDashboard::PutNumber("point numb",map_len);
+    for(int i = 0;i<map_len;i++)
+    {
+        StringRef temp_namex = "point x" + std::to_string (i);
+        StringRef temp_namey = "point y" + std::to_string (i);
+        StringRef temp_namev = "point v" + std::to_string (i);
 
-       
+        frc::SmartDashboard::PutNumber("temp_namex",map[i][0]);
+        frc::SmartDashboard::PutNumber("temp_namey",map[i][1]);
+        frc::SmartDashboard::PutNumber("temp_namev",map[i][2]);
+    }
 }
+void Chassis::set_map_test()
+{
+    float numb = frc::SmartDashboard::GetNumber("point numb",map_len);
+    if(numb != map_len)
+    {
+        if(numb > 0 && numb <10)
+            map_len = numb;
+    }
+    for(int i = 0;i<map_len;i++)
+    {
+        StringRef temp_namex = "point x" + std::to_string (i);
+        StringRef temp_namey = "point y" + std::to_string (i);
+        StringRef temp_namev = "point v" + std::to_string (i);
+        map[i][0] = get_number("temp_namex",map[i][0],-2000.0,2000.0);
+        map[i][1] = get_number("temp_namey",map[i][1],0.0,7000.0);
+        map[i][2] = get_number("temp_namev",map[i][2],0.0,1300.0);
+    }
+}
+void 
 #ifdef CHASSIS_DEBUG
 void Chassis::display()
 { 

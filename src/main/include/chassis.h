@@ -37,7 +37,7 @@ class Chassis :public Falcon,public MyThread
     float milemeter[3];
     double motion[3];
     void motion_model(float vx,float vy,float vz);
-    float theta_m;//TODO: 
+    float theta_m;
     bool check_gyro();
     float get_gyro();
     float init_angle = 0;
@@ -52,7 +52,7 @@ class Chassis :public Falcon,public MyThread
     TalonFX* motor[4];
     RampFunction *rampf[all_dir];
     float rc_control_x_y = 1;//控制x和y最大速度系数
-    float rc_control_w = 0.2;//控制旋转最大速度系数 //TODO: 精度不够
+    float rc_control_w = 0.2;//控制旋转最大速度系数
     int wheel_rc_to_sensor(float);
     void set_reference(Reference ref);
     float w_rc_to_sensor(float value);
@@ -81,6 +81,8 @@ class Chassis :public Falcon,public MyThread
    float speed_output_per[M_ALL];
    float cahssis_acc[all_dir] = {15,25,0.04};
    float test_angle = 0;
+   void set_map_test();
+   void set_map_test_display();
 #ifdef CHASSIS_DEBUG
     void debug() override;
     void display() override;
@@ -117,9 +119,10 @@ class Chassis :public Falcon,public MyThread
 public:
     PIDControl *motor_pid[4];
      bool is_used_vision = false;
-    const static int map_len = 4;
+    const static int map_buffer_len = 10;
+    int map_len = 4;
     float base_piont = -500;
-    float map[map_len][4] = 
+    float map[map_buffer_len][4] = 
     {
       /* {x(mm),y(mm),speed(mm/s),acc(mm/s^2)}*/
         {0,0,1100,10},

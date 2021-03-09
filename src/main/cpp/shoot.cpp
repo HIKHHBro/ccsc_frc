@@ -4,7 +4,8 @@
 
 Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
-  reset_sw = new frc::DigitalInput(2);//2通道
+  reset_sw = new frc::DigitalInput(3);//2通道
+  shoot_sw = new frc::DigitalInput(2);//2通道
   for(int i = 0;i<ALL;i++)
   {
     motor[i] = new Neo(pwm_c+i,acc[i]);
@@ -60,7 +61,6 @@ Shoot::~Shoot()
   delete gimbal_motor;
 }
 ///< 开启竖直传送
-//TODO: 待测试
 bool Shoot::open_vertical_transfer()
 {
   carry_out(Ver_tr, neo_speed[Ver_tr]);
@@ -68,7 +68,6 @@ bool Shoot::open_vertical_transfer()
 }
 
 ///< 停止竖直传送
-//TODO: 待测试
 bool Shoot::stop_vertical_transfer()
 {
   carry_out(Ver_tr,-neo_speed[Ver_tr]);
@@ -92,13 +91,11 @@ void Shoot::close_horizontal_transfer()
   carry_out(Hor_tr_u,0);
 }
 ///< neo电机动作执行
-//TODO: 待测试rpm_to_per转换是否有误
 void Shoot::carry_out(MOTOR M,float rpm)
 {
   motor[M]->Set(rpm);
 }
 ///< 设置云台转动角度 下限位为0度,向上转angle度,
-//TODO: 待测四
 float tesss = 0;
 float fdfd = 0;
 void Shoot::set_gimbal_angle(float angle)
@@ -119,7 +116,6 @@ void Shoot::set_gimbal_angle(float angle)
 }
 ///< 
 ///< 云台初始化校准线程函数
-//TODO: 待测试
 void Shoot::run()
 {
 
@@ -150,8 +146,6 @@ bool Shoot::reset()
     start_join();
     return is_reseted;
 }
-//TODO: 摄像头待写
-//TODO: 测试加速度
 ///< 开启发射
 int test_d;
 void Shoot::start_shoot()
@@ -171,27 +165,70 @@ void Shoot::stop_shoot()
   carry_out(Sh2,0);
 }
 //< 自动发射
+//TODO: 测试自动发射记数
 bool Shoot::auto_shoot()
 {
   start_shoot();
+  if(shoot_sw->Get())
+  {
+    shoot_count_sw_flag = true;
+  }
+  else if(shoot_count_sw_flag == true)
+  {
+    shoot_count_sw_flag = false;
+    shoot_count++;
+  }
   if(auto_shoot_wait_time < auto_shoot_wait_conster)
   {
-    auto_shoot_wait_time++;
-    return false;
+    if(shoot_count > 2)
+    {
+       auto_shoot_wait_time = 0;
+       shoot_count = 0;
+      return true;
+    }
+    else{
+      auto_shoot_wait_time++;
+      return false;
+    }
+
   }
   else{
     auto_shoot_wait_time = 0;
     return true;
   }
 }
-//TODO:自动发射
-///< 自动计算发射的pitch角度
-float Shoot::auto_cal_shoot_pitch_angle(float pixel)
+///< 云台校准
+bool set_ka_flag = false;
+void Shoot::set_map_test_display()
 {
-  frc::SmartDashboard::PutNumber("pixel",pixel);
-  return 0.0;
-  
+        std::string str = std::to_string(k_a) + "*x" + std::to_string(k_b);
+        frc::SmartDashboard::PutString("function",str);
+        frc::SmartDashboard::PutBoolean("设置参数",set_ka_flag);
 }
+void Shoot::set_map_test()
+{
+  point[0][0] = get_number("shoot y0",point[0][0],5.0,20.0);
+  point[0][1] = get_number("shoot x0",point[0][1],0.0,5000.0);
+  point[1][0] = get_number("shoot y1",point[1][0],0.0,5000.0);
+  point[1][1] = get_number("shoot x1",point[1][1],0.0,5000.0);
+  bool temp = frc::SmartDashboard::GetBoolean("设置参数",set_ka_flag);
+  if(temp != set_ka_flag)
+      set_ka_flag = temp;
+  if(set_ka_flag)
+  {
+    k_a = ( point[0][1] -  point[1][1]) / (point[0][0] - point[1][0]);
+    k_b = point[0][0] - ( point[0][1] * k_a);
+    set_ka_flag = false;
+  }
+
+}
+// ///< 自动计算发射的pitch角度
+// float Shoot::auto_cal_shoot_pitch_angle(float pixel)
+// {
+//   frc::SmartDashboard::PutNumber("pixel",pixel);
+//   return 0.0;
+  
+// }
 #ifdef SHOOT_DEBUG
 void Shoot::display()
 {

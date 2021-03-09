@@ -29,12 +29,11 @@ public:
     };//正在执行状态的参数
     frc::PowerDistributionPanel pdp{0};//电池
     frc::Solenoid *solenoid[2];
-    frc::Solenoid *ddsolenoid[2];
     int low_battery_flag = 0;
     std::queue<status_led> status_queue;
     void disabled(){run_disabled = true;};
     void enabled(){run_disabled = false;};
-    void temp();
+    bool init_end = false;
 private:
     
     ///< 线程函数的重写

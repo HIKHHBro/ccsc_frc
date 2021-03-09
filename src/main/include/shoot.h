@@ -63,19 +63,24 @@ public:
     }
 
     int tmp_angle = 0;
+    float k_a = 35;
+    float k_b = -0.0075;
     ///< 获取发射补偿角度
     float get_pitch_angle(){
         
         updata_distance();
         if(distance >1000 && distance < 5000)
         {
-            tmp_angle = 35 -0.0075 * distance;
+            tmp_angle = k_a * distance + k_b;
             tmp_angle = (tmp_angle) > (23) ? (23) : (tmp_angle);
             tmp_angle = (tmp_angle) < (0) ? (0) : (tmp_angle);
             
         }
         return tmp_angle;
     }
+    void Shoot::set_test_display();
+    void set_test();
+      float point[2][2] = {0};
 #ifdef SHOOT_DEBUG
     void display() override;
     void debug()   override;
@@ -84,6 +89,7 @@ private:
     void run()   override;
 
     frc::DigitalInput* reset_sw;
+    frc::DigitalInput* shoot_sw;
     frc::SerialPort *ultrasonic;
     Neo* motor[ALL];
     float acc[ALL] = {0.01,0.01,0.05,0.1,0.1};
@@ -102,6 +108,8 @@ private:
     int reset_error_thre =  (int)(1000000.0/reset_period * 0.3);
     int auto_shoot_wait_time = 0;
     int auto_shoot_wait_conster = 20;
+    int shoot_count = 0;
+    bool shoot_count_sw_flag = false;
 /*
  * 电机方向:
  * Hor_tr: 顺时针 负
@@ -109,8 +117,8 @@ private:
  *    Sh1: 逆时针
  *    Sh2: 逆时针
  */
-    // float neo_speed[ALL] = {0.40,0.60,-0.25,-1,-0.5};//RPM 最大5700
-     float neo_speed[ALL] = {0,0,0,0,0};//RPM 最大5700
+    float neo_speed[ALL] = {0.40,0.60,-0.25,-7,-0.7};//RPM 最大5700
+    //  float neo_speed[ALL] = {0,0,0,0,0};//RPM 最大5700
 };
 
 

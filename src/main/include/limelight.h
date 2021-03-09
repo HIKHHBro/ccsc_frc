@@ -108,8 +108,6 @@ public:
         // camtran = limelight->GetNumberArray("camtran", camtran);
         return camtran;
     }
-
-    ///TODO: 先确定范围
     float get_x()
     {
         float x = -getTargetX();

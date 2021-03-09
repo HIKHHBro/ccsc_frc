@@ -9,10 +9,10 @@
 #include "my_thread.h"
 #include <frc/Solenoid.h>
 #include <frc/DigitalInput.h>
-#ifdef DIALS_DEBUG
 #include <frc/smartdashboard/smartdashboard.h>
-#endif
 
+
+using namespace frc;
 class Dials:public MyThread,public Falcon
 {
 
@@ -50,6 +50,8 @@ public:
     void put_down();
     bool is_arrived();
     void disable();
+    void check_test();
+    void check_test_display();
 #ifdef DIALS_DEBUG
     void display(void);
     void set_para();

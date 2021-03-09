@@ -1,4 +1,5 @@
 #include "dials.h"
+#include <string>
 Dials::Dials(int deviceNumber)
 {
     i2cPort = frc::I2C::Port::kOnboard;
@@ -12,7 +13,7 @@ Dials::Dials(int deviceNumber)
 
     can_id = deviceNumber;
     motor = new TalonFX(can_id);
-    //TODO: 设置位置模式
+    //设置位置模式
     fx_motor_magic(0.4,0.3,0);
     solenoid[0] = new frc::Solenoid(20,2);
     solenoid[1] = new frc::Solenoid(20,3);
@@ -77,8 +78,6 @@ void Dials::start_pos_control(COLOR color)
 }
 
 ///< 旋转控制
-//TODO: 待测试整个流程  
-//TODO: 线程函数待写
 float ddd = 0;
 float creddd = 0;
 void Dials::spin_control_thread()
@@ -103,7 +102,6 @@ void Dials::spin_control_thread()
     while (!isInterrupted())
     {
       /* code */
-      //TODO: 写颜色累计
       COLOR color = get_color();
       spin_pos_error = get_position_error(c_numb_serson_return,motor->GetSelectedSensorPosition());
       if(color_is_changed(color))
@@ -137,7 +135,6 @@ void Dials::spin_control_thread()
     color_tran_count = 0;
 }
 ///< 颜色传感器联系校验
-//TODO: 待验证 连续颜色突然插入不连续颜色
 // 注意: 使用前要先清上次的颜色
 bool Dials::color_sequence_check(COLOR curr)
 {
@@ -177,7 +174,6 @@ float Dials::optimal_path(COLOR target,COLOR curr)
     
 }
 ///< 旋转转盘到指定颜色
-//TODO: 待测试
 void Dials::pos_control_thread()
 {
     color_sequence_pre = get_color();
@@ -199,7 +195,6 @@ void Dials::pos_control_thread()
     while (!isInterrupted())
     {
       /* code */
-      //TODO: 写颜色累计
       COLOR color = get_color();
       spin_pos_error = get_position_error(angle_to_enc(target_angle),motor->GetSelectedSensorPosition());
       if(color_is_changed(color))
@@ -255,7 +250,6 @@ bool Dials::spin_control_is_finished(void)
 }
 
 ///< 装盘初始化
-//TODO: 参数待调
 ///< 猎鹰电机位置模式初始化
 void Dials::fx_motor_magic(float kf,float kp,float kd)
 {
@@ -342,7 +336,32 @@ void Dials::disable()
     put_down();
   }
 }
-
+///< 校准测试
+void Dials::check_test_display()
+{
+    COLOR cur_color = get_color();
+    frc::SmartDashboard::PutNumber("color",cur_color);
+    frc::SmartDashboard::PutNumber("R", detectedColor.red);
+    frc::SmartDashboard::PutNumber("G", detectedColor.green);
+    frc::SmartDashboard::PutNumber("B", detectedColor.blue);
+}
+void Dials::check_test()
+{
+  float value[ALL_COLOR][3] = {0};
+   std::string name[ALL_COLOR] = {"blue","green","red","yellow"};
+  for(int i = 0;i<ALL_COLOR;i++)
+  {
+    wpi::StringRef name_tempr = name[i] + "R_value";
+    wpi::StringRef name_tempg = name[i] + "G_value";
+    wpi::StringRef name_tempb = name[i] + "B_value";
+    
+    value[i][0] = get_number(name_tempr,detectedColor.red,0.0,1.0);
+    value[i][1] = get_number(name_tempg,detectedColor.green,0.0,1.0);
+    value[i][2] = get_number(name_tempb,detectedColor.blue,0.0,1.0);
+    color_target[i] = frc::Color(value[i][0], value[i][1], value[i][2]);
+    m_colorMatcher.AddColorMatch(color_target[i]);
+  }        
+}
 #ifdef DIALS_DEBUG
 int temp_debug = 0;
 void Dials::display()
@@ -368,8 +387,7 @@ void Dials::display()
     frc::SmartDashboard::PutNumber("creddd", creddd);
     frc::SmartDashboard::PutNumber("color_tran_count", color_tran_count);
 
-    COLOR cur_color = get_color();
-    frc::SmartDashboard::PutNumber("color",cur_color);
+
     frc::SmartDashboard::PutNumber("color_sequence_pre",color_sequence_pre);
     frc::SmartDashboard::PutNumber("abs(spin_pos_error)",abs(spin_pos_error));
     frc::SmartDashboard::PutNumber("target_angle",target_angle);

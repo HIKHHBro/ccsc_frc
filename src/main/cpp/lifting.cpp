@@ -144,9 +144,6 @@ Lifting::STATUS Lifting::get_status()
     return lift_status;
 }
 ///< 复位线程
-//TODO: 添加失败是报详细左右的错误log
-//TODO: 增加log信息
-//TODO: 复位的单位仍然是原始单位 待转换
 int aa = 1;
 void Lifting::run()
 {
@@ -191,9 +188,6 @@ void Lifting::run()
     disable_motor();
 }
 ///< 失能电机
-//TODO: 当前位置赋值模式不能用这个去停止，因为停止需要一个减速过程和系统时间延迟，所以导致位置误差始终保持一定值导致无法停止 
-//TODO: 速度模式会急刹
-//TODO: 待优化
 void Lifting::disable_motor()
 {
     motor[0]->Set(ControlMode::PercentOutput,0);

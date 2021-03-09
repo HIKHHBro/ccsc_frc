@@ -80,13 +80,10 @@ void Robot::RobotPeriodic()
   dials->display();
   dials->set_para();
 #endif
-  // limelight->updata_distance();
-  // status_lamp.low_battery_tip();
-  // if(!shoot->get_reset_status() || !lifting->get_reset_status())
-  //   status_lamp.set_tip_mode(Status_led::NO_Reset);
+  status_lamp.low_battery_tip();
+  if(!shoot->get_reset_status() || !lifting->get_reset_status())
+    status_lamp.set_tip_mode(Status_led::NO_Reset);
 frc::SmartDashboard::PutNumber("ty",chassis->limelight->getTargetY());
-chassis->updata_vision_x_distance(chassis->limelight->get_x());
-// frc::SmartDashboard::PutNumber("get_pitch_angle",limelight->get_pitch_angle());
 }
 
 /**
@@ -115,25 +112,23 @@ void Robot::AutonomousInit() {
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Schedule();
   }
-  // shoot->start_join();
+  if(!shoot->get_reset_status())
+    shoot->start_join();
   shoot->set_gimbal_angle(10);
   chassis->set_auto_point(1);
   chassis->start_auto_run();
   shoot->start_shoot();
   shoot->close_horizontal_transfer();
   grab->put_down();
-  // status_lamp.set_tip_mode(Status_led::OPEN);
-  status_lamp.temp();
+  status_lamp.set_tip_mode(Status_led::OPEN);
   for(int i = 0;i<4;i++)
   {
     chassis->motor_pid[i]->PIDTuningsSet(0.3,10,0);
-    frc::SmartDashboard::PutString("auti","init auto");
+    // frc::SmartDashboard::PutString("auti","init auto");
   }
     
   
 }
-//TODO: 注意是否能够没开启就出现跑的情况
-//TODO: 测试自动阶段
 void Robot::AutonomousPeriodic() { 
   if(chassis->is_arrived_point())
   {
@@ -204,7 +199,6 @@ int test_color = 0;
 bool changed_lid = false;
 void Robot::TeleopPeriodic() 
 {
-  status_lamp.temp();
   grab->enable_compressor();
 /* 抓取*/
   if(rc->is_grab())
@@ -233,8 +227,6 @@ void Robot::TeleopPeriodic()
     shoot->close_vertical_transfer();
   }
 /* 底盘 */
-//TODO: 注意单位
-//TODO: 测试自瞄
 float auto_angle = chassis->limelight->getTargetX() / 30.0;
 float auto_anglpitch = shoot->get_pitch_angle();
  frc::SmartDashboard::PutNumber("auto_angle",auto_angle);
@@ -257,7 +249,6 @@ else
   else
   {
     status_lamp.set_tip_mode(Status_led::CLOSE);
-
     shoot->set_gimbal_angle(rc->getPitch());
   }
 
@@ -316,10 +307,6 @@ else
 
 }
 
-/**
- * This function is called periodically during test mode.
- */
-// RC rc(0);
 void Robot::TestInit()
 {
   
@@ -328,19 +315,7 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
-  status_lamp.temp();
-  // status_lamp.test();
-  // status_lamp.test_dis();
-
-
-  // else
-  // {
-  //   lifting->stretch_out();
-  // }
-  // limelight->test_ultrasonic();
-
-
-  
+  dials->check_test();
 }
 
 #ifndef RUNNING_FRC_TESTS

@@ -21,7 +21,6 @@ Grab::~Grab()
     delete solenoid[0];
     delete solenoid[1];
 }
-//TODO: 使用延迟 待增加反馈
 ///< 放下抓取
 bool Grab::put_down()
 {
@@ -32,15 +31,8 @@ bool Grab::put_down()
     Set(-0.4);
     return is_put_down;
 }
-//TODO:
-///<测试
 int cc = 0;
 
-void Grab::set_qi()
-{
-    // solenoid[0]->Set(sww1);
-    // solenoid[1]->Set(sww2);
-}
 ///< 抬起
 bool Grab::put_up()
 {

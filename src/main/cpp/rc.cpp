@@ -29,7 +29,7 @@ float RC::filter(float data,float section)
     if(d > 0)
     {
         if(d >0.2)
-          d = (d-0.2);//TODO: 待确认猎鹰做大速度
+          d = (d-0.2);
           else d =0;
     }
     else if(d < 0)
@@ -78,7 +78,6 @@ float RC::getZ()
 #endif
 }
 ///< 云台角度
-//TODO: 待测试值
 float RC::getPitch()
 {
 #ifdef XBON_RC
@@ -210,7 +209,6 @@ bool RC::is_shoot()
   return joystick->GetRawButton(1);
 #endif
 }
-//TODO: 测试自动状态切换
 bool RC::is_used_auto_aim()
 {
 #ifdef XBON_RC
