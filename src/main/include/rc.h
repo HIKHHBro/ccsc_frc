@@ -15,7 +15,7 @@ private:
 #endif
 
    int reset_count = 0;
-   float unit_time = 50;
+   float unit_time = 20;
    float chassis_speed[3] = {1000,1000,2};
    float pitch_angle = 0;
    bool used_auto_aim_flag = false;

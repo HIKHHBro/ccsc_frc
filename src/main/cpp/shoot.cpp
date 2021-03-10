@@ -136,8 +136,8 @@ void Shoot::run()
         gimbal_motor->Set(ControlMode::PercentOutput,-0.05);
       }
 
-        // timer_sleep(0,reset_period);
-        usleep(reset_period);
+        timer_sleep(0,reset_period);
+        // usleep(reset_period);
     }
     interrupt();
 }

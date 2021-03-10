@@ -19,18 +19,18 @@ void Status_led::set_tip_mode(LAMP_MODE mode)
 {
     if(init_end)
     {
-            if(mode == OPEN)
-    {
-        open_lamp_flag = true;
-        solenoid[0]->Set(true);
-        solenoid[1]->Set(true);
-    }
-    else if(mode == CLOSE &&open_lamp_flag ==true)
-    {
-        open_lamp_flag = false;
-        solenoid[0]->Set(false);
-        solenoid[1]->Set(false); 
-    }
+    // if(mode == OPEN)
+    // {
+    //     open_lamp_flag = true;
+    //     solenoid[0]->Set(true);
+    //     solenoid[1]->Set(true);
+    // }
+    // else if(mode == CLOSE &&open_lamp_flag ==true)
+    // {
+    //     open_lamp_flag = false;
+    //     solenoid[0]->Set(false);
+    //     solenoid[1]->Set(false); 
+    // }
     if(!ls_mode(mode))
     {
         status_led led;
@@ -39,8 +39,8 @@ void Status_led::set_tip_mode(LAMP_MODE mode)
         case LOW_Battery:
             led.mode = LOW_Battery;
             led.times = 5;
-            // led.led_status[0] = false;
-            // led.led_status[1] = true;
+            led.led_status[0] = false;
+            led.led_status[1] = true;
             status_queue.push(led);
             break;
         case NO_Reset:
@@ -111,12 +111,12 @@ void Status_led::run()
 ///< 设置灯状态
 void Status_led:: set_led_status(status_led &status)
 {
-    if(open_lamp_flag)
-    {
-        solenoid[0]->Set(true);
-        solenoid[1]->Set(true);
-    }
-    
+    // if(open_lamp_flag)
+    // {
+    //     solenoid[0]->Set(true);
+    //     solenoid[1]->Set(true);
+    // }
+    frc::SmartDashboard::PutNumber("lena",status_queue.size());
     if(status.times < 1)
     {
         status.times = 0;
@@ -132,17 +132,17 @@ void Status_led:: set_led_status(status_led &status)
             status.times--;
             status.led_status[0] = !status.led_status[0];
             status.led_status[1] = !status.led_status[1];
-            // solenoid[0]->Set(status.led_status[0]);
-            // solenoid[1]->Set(status.led_status[1]);
+            solenoid[0]->Set(status.led_status[0]);
+            solenoid[1]->Set(status.led_status[1]);
             std::cout<<status.times<<std::endl;
-            // timer_sleep(0,status.delay);
-            usleep(status.delay);
+            timer_sleep(0,status.delay);
+            // usleep(status.delay);
         }
         std::cout<<status.times<<std::endl;
         solenoid[0]->Set(false);
         solenoid[1]->Set(false);
-        // timer_sleep(1,0);
-        sleep(1);
+        timer_sleep(1,0);
+        // sleep(1);
     }
 }
 ///< 匹配队列中是否有对应的模式

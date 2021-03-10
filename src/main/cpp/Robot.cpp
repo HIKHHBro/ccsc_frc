@@ -16,7 +16,7 @@
 #include <frc/Joystick.h>
 #include <frc/XboxController.h>
 
-
+bool auto_flag = false;
 void Robot::RobotInit() 
 {
 
@@ -26,7 +26,7 @@ void Robot::RobotInit()
   rc = new RC(0,23);
   shoot = new Shoot(0,7);
   grab = new Grab(5,20,0,0.02,0.01);
-  
+  sleep(1);
 
 #ifdef RC_DEBGU
   rc->display();
@@ -84,6 +84,13 @@ void Robot::RobotPeriodic()
   if(!shoot->get_reset_status() || !lifting->get_reset_status())
     status_lamp.set_tip_mode(Status_led::NO_Reset);
 frc::SmartDashboard::PutNumber("ty",chassis->limelight->getTargetY());
+  if(auto_flag)
+  {
+    status_lamp.set_tip_mode(Status_led::OPEN);
+  }
+  else{
+    status_lamp.set_tip_mode(Status_led::CLOSE);
+  }
 }
 
 /**
@@ -126,6 +133,7 @@ void Robot::AutonomousInit() {
     chassis->motor_pid[i]->PIDTuningsSet(0.3,10,0);
     // frc::SmartDashboard::PutString("auti","init auto");
   }
+  auto_flag = true;
     
   
 }

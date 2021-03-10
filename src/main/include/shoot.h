@@ -94,8 +94,8 @@ private:
     Neo* motor[ALL];
     float acc[ALL] = {0.01,0.01,0.05,0.1,0.1};
     float smoothing = 0;
-    float kp = 0.1;
-    float kf = 0.2;
+    float kp = 0.05;
+    float kf = 0.06;
     float max_angle = 30;//云台最大转动角度
     float reset_speed = 100;//rpm 0~6000
     float reset_acc = 0;//rpm
