@@ -5,7 +5,7 @@ Status_led::Status_led(): MyThread(50000)
 {
     solenoid[0] = new frc::Solenoid(20,4);
     solenoid[1] = new frc::Solenoid(20,5);
-    sleep(1);
+    sleep(3);
     init_end = true;
     start_detach();
 }
@@ -19,23 +19,23 @@ void Status_led::set_tip_mode(LAMP_MODE mode)
 {
     if(init_end)
     {
-    // if(mode == OPEN)
-    // {
-    //     open_lamp_flag = true;
-    //     solenoid[0]->Set(true);
-    //     solenoid[1]->Set(true);
-    // }
-    // else if(mode == CLOSE &&open_lamp_flag ==true)
-    // {
-    //     open_lamp_flag = false;
-    //     solenoid[0]->Set(false);
-    //     solenoid[1]->Set(false); 
-    // }
+    if(mode == OPEN)
+    {
+        open_lamp_flag = true;
+        solenoid[0]->Set(true);
+        solenoid[1]->Set(true);
+    }
+    else if(mode == CLOSE &&open_lamp_flag ==true)
+    {
+        open_lamp_flag = false;
+        solenoid[0]->Set(false);
+        solenoid[1]->Set(false); 
+    }
     if(!ls_mode(mode))
     {
         status_led led;
         switch (mode)
-        {
+        {    
         case LOW_Battery:
             led.mode = LOW_Battery;
             led.times = 5;
@@ -99,7 +99,8 @@ void Status_led::run()
 {
     while (!isInterrupted())
     {
-        while (!status_queue.empty())
+
+        while (status_queue.empty()==false)
         {
             status_led status = status_queue.front();
             status_queue.pop();
@@ -111,22 +112,10 @@ void Status_led::run()
 ///< 设置灯状态
 void Status_led:: set_led_status(status_led &status)
 {
-    // if(open_lamp_flag)
-    // {
-    //     solenoid[0]->Set(true);
-    //     solenoid[1]->Set(true);
-    // }
-    frc::SmartDashboard::PutNumber("lena",status_queue.size());
-    if(status.times < 1)
-    {
-        status.times = 0;
-    }
-    else
-    {
         if(status.times > 20)
-        status.times = 20;
+            status.times = 20;
         status.delay = 1000000 / status.times / 2;
-        frc::SmartDashboard::PutNumber("status.delay",status.delay);
+        
         while (status.times > -1)
         {
             status.times--;
@@ -137,13 +126,15 @@ void Status_led:: set_led_status(status_led &status)
             std::cout<<status.times<<std::endl;
             timer_sleep(0,status.delay);
             // usleep(status.delay);
+            frc::SmartDashboard::PutNumber("status.times",status.times);
         }
+        frc::SmartDashboard::PutNumber("status.times",status.times);
         std::cout<<status.times<<std::endl;
         solenoid[0]->Set(false);
         solenoid[1]->Set(false);
         timer_sleep(1,0);
         // sleep(1);
-    }
+
 }
 ///< 匹配队列中是否有对应的模式
 bool Status_led::ls_mode(LAMP_MODE mode)

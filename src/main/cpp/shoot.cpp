@@ -70,7 +70,7 @@ bool Shoot::open_vertical_transfer()
 ///< 停止竖直传送
 bool Shoot::stop_vertical_transfer()
 {
-  carry_out(Ver_tr,-neo_speed[Ver_tr]);
+  carry_out(Ver_tr,0);
     return true;
 }
 ///< 开启水平传送
