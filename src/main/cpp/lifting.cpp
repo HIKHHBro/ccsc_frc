@@ -74,8 +74,8 @@ void Lifting::set_point(float len)
 ///< 提升
 bool Lifting::lift()
 {
-    motor[0]->ConfigMotionAcceleration(1000, 10);
-    motor[1]->ConfigMotionAcceleration(1000, 10);
+    // motor[0]->ConfigMotionAcceleration(1000, 10);
+    // motor[1]->ConfigMotionAcceleration(1000, 10);
     return carry_out(lift_high,lift_speed);
 }
 ///< 伸出
