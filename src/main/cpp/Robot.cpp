@@ -265,12 +265,12 @@ else
   if(rc->is_reset())
   {
     shoot->start_join();
-    // lifting->start_join();
+    lifting->start_join();
     rc->clear_pitch();
   }
   else
   {
-    // lifting->interrupt();
+    lifting->interrupt();
     shoot->interrupt();
   }
 /* 转盘 */
@@ -297,19 +297,19 @@ else
     rc->changed_spin = true;
     dials->disable();
   }
-  // if(rc->is_lift())
-  // {
-  //   lifting->lift();
-  //   rc->lift_flag = true;
-  // }
-  // else if(rc->is_reach_out() && !rc->lift_flag)
-  // {
-  //   lifting->stretch_out();
-  // }
-  // else if(!rc->lift_flag)
-  // {
-  //   lifting->shrink();
-  // }
+  if(rc->is_lift())
+  {
+    lifting->lift();
+    rc->lift_flag = true;
+  }
+  else if(rc->is_reach_out() && !rc->lift_flag)
+  {
+    lifting->stretch_out();
+  }
+  else if(!rc->lift_flag)
+  {
+    lifting->shrink();
+  }
 // limelight->test_ultrasonic();
 // limelight->get_camtran();
 // status_lamp.set_tip_mode(Status_led::OPEN);
