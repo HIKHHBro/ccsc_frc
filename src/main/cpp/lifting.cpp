@@ -74,11 +74,15 @@ void Lifting::set_point(float len)
 ///< 提升
 bool Lifting::lift()
 {
+    motor[0]->ConfigMotionAcceleration(1000, 10);
+    motor[1]->ConfigMotionAcceleration(1000, 10);
     return carry_out(lift_high,lift_speed);
 }
 ///< 伸出
 bool Lifting::stretch_out()
 {
+    motor[0]->ConfigMotionAcceleration(9000, 10);
+    motor[1]->ConfigMotionAcceleration(9000, 10);
     return carry_out(route,stretch_speed);
 }
 ///< 动作执行 s 位移 v 速度
@@ -110,6 +114,8 @@ bool Lifting::carry_out(float s,float v)
 ///< 收缩
 bool Lifting::shrink()
 {
+    motor[0]->ConfigMotionAcceleration(9000, 10);
+    motor[1]->ConfigMotionAcceleration(9000, 10);
     return carry_out(0,stretch_speed);
 }
 ///< 复位

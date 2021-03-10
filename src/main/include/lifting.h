@@ -23,7 +23,7 @@ private:
     float pos_thres = 200;//TODO:待测试
     float speed_thres = 10;//TODO:待测试
     float stretch_speed = 5000;//伸出去的速度，不能大于卷簧收缩的速度，单位rpm 
-    float lift_speed = 3000;//rpm 0~6000
+    float lift_speed = 1000;//rpm 0~6000
     float acc = 1500;
     float reset_speed = -0.3;//rpm 0~6000
     float reset_acc = 0;
