@@ -3,7 +3,7 @@
 Lifting::Lifting(int id)
 {
     set_reduction_ratiop(1,100);//1为位移输入,100为电机输出
-    set_dia(45.3);//直径50mm
+    set_dia(50);//直径50mm
     set_loop_time(10000);
     reset_sw[0] = new frc::DigitalInput(4);//0通道
     reset_sw[1] = new frc::DigitalInput(5);//0通道

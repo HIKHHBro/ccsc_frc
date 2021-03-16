@@ -107,7 +107,7 @@ private:
     int reset_error_count = 0;
     int reset_error_thre =  (int)(1000000.0/reset_period * 0.3);
     int auto_shoot_wait_time = 0;
-    int auto_shoot_wait_conster = 20;
+    int auto_shoot_wait_conster = 100;
     int shoot_count = 0;
     bool shoot_count_sw_flag = false;
 /*

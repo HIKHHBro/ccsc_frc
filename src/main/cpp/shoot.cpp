@@ -220,6 +220,12 @@ void Shoot::set_test()
     k_b = point[0][0] - ( point[0][1] * k_a);
     set_ka_flag = false;
   }
+  neo_speed[Sh1] = get_number("设置下摩擦轮",neo_speed[Sh1],-1.0,1.0);
+  neo_speed[Sh2] = get_number("设置上摩擦轮",neo_speed[Sh2],-1.0,1.0);
+
+  frc::SmartDashboard::PutNumber("下摩擦轮",neo_speed[Sh1]);
+  frc::SmartDashboard::PutNumber("上摩擦轮",neo_speed[Sh2]);
+
 
 }
 // ///< 自动计算发射的pitch角度

@@ -121,7 +121,7 @@ void Robot::AutonomousInit() {
   }
   if(!shoot->get_reset_status())
     shoot->start_join();
-  shoot->set_gimbal_angle(10);
+  shoot->set_gimbal_angle(15);
   chassis->set_auto_point(1);
   chassis->start_auto_run();
   shoot->start_shoot();
@@ -138,6 +138,7 @@ void Robot::AutonomousInit() {
   
 }
 void Robot::AutonomousPeriodic() { 
+  status_lamp.set_tip_mode(Status_led::OPEN);
   if(chassis->is_arrived_point())
   {
     switch (chassis->get_auto_point())
@@ -323,7 +324,9 @@ void Robot::TestInit()
 
 void Robot::TestPeriodic() 
 {
-  dials->check_test();
+  // dials->check_test();
+  shoot->set_test();
+  dials->check_test_display();
 }
 
 #ifndef RUNNING_FRC_TESTS
