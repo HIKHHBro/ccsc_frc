@@ -89,7 +89,7 @@ frc::SmartDashboard::PutNumber("ty",chassis->limelight->getTargetY());
     status_lamp.set_tip_mode(Status_led::OPEN);
   }
   else{
-    status_lamp.set_tip_mode(Status_led::CLOSE);
+    // status_lamp.set_tip_mode(Status_led::CLOSE);
   }
 }
 
@@ -257,7 +257,7 @@ else
   }
   else
   {
-    status_lamp.set_tip_mode(Status_led::CLOSE);
+    // status_lamp.set_tip_mode(Status_led::CLOSE);
     shoot->set_gimbal_angle(rc->getPitch());
   }
 
