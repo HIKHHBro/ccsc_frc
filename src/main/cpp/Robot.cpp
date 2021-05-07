@@ -265,12 +265,12 @@ else
   if(rc->is_reset())
   {
     shoot->start_join();
-    lifting->start_join();
+    // lifting->start_join();
     rc->clear_pitch();
   }
   else
   {
-    lifting->interrupt();
+    // lifting->interrupt();
     shoot->interrupt();
   }
 /* 转盘 */

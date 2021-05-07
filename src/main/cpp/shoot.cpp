@@ -4,7 +4,7 @@
 
 Shoot::Shoot(int pwm_c,int can_id)//0,12
 {
-  reset_sw = new frc::DigitalInput(3);//2通道
+  reset_sw = new frc::DigitalInput(3);//3通道
   shoot_sw = new frc::DigitalInput(2);//2通道
   for(int i = 0;i<ALL;i++)
   {
